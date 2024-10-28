@@ -1,0 +1,35 @@
+.breadcrumb{
+    align-items: center;
+    margin: 20px 0;
+}
+
+.breadcrumb .breadcrumb-item::before{
+    display: none;
+}
+.breadcrumb-item,
+.breadcrumb-item a{
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 14px;
+    font-weight: 500;
+
+}
+.breadcrumb-item:not(.active) a{
+    color:var(--Gold-Drop)
+}
+.breadcrumb-item.active > span + svg{
+    opacity: 0;
+}
+
+.breadcrumb-item.active{
+    color:#242E39 !important;
+}
+.breadcrumb-item.active svg path{
+    stroke:#242E39 !important;
+}
+.breadcrumb{
+    align-items: center;
+    margin: 20px 0;
+    font-family: var(--Inter);
+}

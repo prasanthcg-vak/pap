@@ -1,0 +1,272 @@
+/* task-info-details */
+.task-table-info .task-info-details p {
+    font-family: var(--Inter);
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--Text-gray);
+}
+
+.task-table-info .task-info-details label {
+    font-family: var(--Poppins);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--Text-black);
+}
+
+.task-table-info .Task-brief-fields label {
+    margin-bottom: 5px;
+}
+
+.task-table-info .upload-content-links a {
+    margin-right: 15px;
+    cursor: pointer;
+}
+
+.task-table-info .comments-btn {
+    border-radius: 10px;
+    background-color: var(--Gold-Drop);
+    font-size: 18px;
+    font-weight: 400;
+    font-family: var(--Poppins);
+    color: var(--Text-white);
+    padding: 12px 28px;
+    border: 1px solid var(--Gold-Drop);
+    display: inline-block;
+    text-transform: capitalize;
+}
+
+.task-table-info .comments-header {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.task-table-info .library-action.task .btn.search {
+    background-color: #dff0fa;
+    color: #33a2df;
+    font-size: 20px;
+    transition: all 0.5s ease;
+}
+
+.task-table-info .library-action.task .btn.search:hover {
+    background-color: #33a2df;
+    color: #fff;
+}
+
+.task-table-info .library-action.task .btn.edit {
+    background-color: #daf4f0;
+    color: #21b9ad;
+    font-size: 20px;
+    transition: all 0.5s ease;
+}
+
+.task-table-info .library-action.task .btn.edit:hover {
+    color: #fff;
+    background-color: #21b9ad;
+}
+
+.task-table-info .library-action.task .btn.thumbs-up {
+    background-color: #e2e5ed;
+    color: #405189;
+    font-size: 20px;
+    transition: all 0.5s ease;
+}
+
+.task-table-info .library-action.task .btn.thumbs-up:hover {
+    background-color: #405189;
+    color: #fff;
+}
+
+.task-table-info .comment-input-fields {
+    width: 100%;
+}
+
+.task-table-info .comment-input-fields input {
+    width: 100%;
+    border-radius: 10px;
+    font-size: 15px;
+    font-family: var(--chivo);
+    border: 0;
+    font-weight: 400;
+    background-color: var(--bg-white);
+    /* background-image: url(../images/search-icon.svg);
+    background-position: 15px center;
+    background-repeat: no-repeat; */
+    padding: 12.5px 20px 12.5px 40px;
+    box-shadow: 0px 4px 9px 0px rgba(54, 62, 147, 11%);
+}
+
+.task-table-info .profile-fields img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50px;
+    object-position: center;
+    object-fit: cover;
+}
+
+.task-table-info .media {
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-align: start;
+    align-items: flex-start;
+}
+
+.task-table-info .card-contents {
+    position: relative;
+    display: flex;
+    padding: 20px;
+    flex-direction: column;
+    min-width: 0;
+    word-wrap: break-word;
+    background-clip: border-box;
+    border: 1px solid #d2d2dc;
+    border-radius: 11px;
+}
+
+.task-table-info .media img {
+    width: 60px;
+    height: 60px;
+    margin-right: 15px;
+}
+
+.task-table-info .reply a {
+    text-decoration: none;
+}
+
+.task-table-info .campaign-task-cost-button .btn {
+    border-radius: 10px;
+    font-family: var(--Poppins);
+    font-size: 18px;
+    line-height: 15.5px;
+    padding: 15px 38px;
+    transition: all 0.5s ease;
+    text-transform: capitalize;
+}
+
+.task-table-info .campaign-task-cost-button .btn.edit-task-btn {
+    border: 1px solid #538053;
+    background-color: #538053;
+    color: #fff;
+}
+
+.task-table-info .campaign-task-cost-button .btn.edit-task-btn:hover {
+    border: 1px solid #538053;
+    background-color: transparent;
+    color: #538053;
+    cursor: pointer;
+}
+
+.task-table-info .campaign-task-cost-button .btn.complete-task-btn:hover {
+    border: 1px solid #EB8205;
+    background-color: transparent;
+    color: #EB8205;
+    cursor: pointer;
+}
+
+.task-table-info .campaign-task-cost-button .btn.complete-task-btn {
+    border: 1px solid #EB8205;
+    background-color: #EB8205;
+    color: #fff;
+
+}
+
+.task-table-info .campaign-task-cost-title button {
+    font-size: 18px;
+    font-family: var(--Inter);
+    font-weight: 700;
+    color: var(--bg-dark-blue);
+    margin-bottom: 0;
+    background: none;
+    border: 0;
+}
+
+.task-table-info .campaign-task-cost {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    flex-wrap: wrap;
+}
+
+.comments-section p,
+.comments-section span {
+    font-family: var(--Inter);
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--Text-gray);
+}
+
+.comments-section h5 {
+    font-family: var(--Poppins);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--Text-black);
+    margin-bottom: 0;
+}
+
+.total-table tr {
+    border: none;
+}
+
+.total-table .description {
+    display: flex;
+    justify-content: end;
+    font-weight: 800;
+}
+
+.common-table .tsk-tbl-data table tbody {
+    overflow-x: auto;
+}
+
+.common-table .tsk-tbl-data .action-btn-icons {
+    flex-wrap: wrap;
+}
+
+/* Repsonsive styles */
+@media(max-width:830px) {
+
+    .campaign-task-cost-title,
+    .campaign-task-cost-button {
+        width: 100%;
+        text-align: center;
+    }
+
+    .campaign-task-cost-button {
+        margin-top: 15px;
+    }
+}
+
+@media(max-width:500px) {
+    .comments-section h5 {
+        font-size: 14px;
+    }
+
+    .comments-section p,
+    .comments-section span {
+        font-size: 12px;
+    }
+    .task-table-info .comments-btn {
+        font-size: 16px;
+        text-transform: capitalize;
+    }
+    .task-table-info .comments-header {
+        justify-content: center;
+    }
+}
+@media(max-width:475px){
+    .task-table-info .comments-header {
+        flex-wrap: wrap;
+    }
+    .profile-fields {
+        display: none;
+    }
+    .task-table-info .media {
+        flex-wrap: wrap;
+    }
+    .task-table-info .campaign-task-cost-button .btn {
+        display: block;
+        margin-bottom: 15px;
+    }
+}

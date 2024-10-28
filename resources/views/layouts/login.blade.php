@@ -83,7 +83,7 @@
     <script src="https://unpkg.com/boxicons@2.1.4/dist/boxicons.js"></script>
 
     <!-- Custom JavaScript -->
-    <script src="{{ asset('public/assets/js/main.js') }}"></script>
+    <script src="{{ asset('/assets/js/main.js') }}"></script>
 
     @yield('script')
 

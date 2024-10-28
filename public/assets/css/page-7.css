@@ -1,0 +1,36 @@
+.create-task-btn {
+    border-radius: 10px;
+    background-color: var(--Gold-Drop);
+    font-size: 18px;
+    font-weight: 400;
+    font-family: var(--Poppins);
+    color: var(--Text-white);
+    line-height: 15.5px;
+    padding: 15px 38px;
+    margin-left: 15px;
+    border: 1px solid var(--Gold-Drop);
+    display: inline-block;
+}
+.create-task-btn:hover{
+    background: transparent;
+    border: 1px solid var(--Gold-Drop);
+    color: var(--Gold-Drop);
+    transition: all 0.3s ease;
+}
+/* Responsive styles */
+@media(max-width:767px){
+    .task.campaigns-contents {
+        flex-direction: column;
+        align-items: start;
+    }
+    .task.campaigns-contents form{
+        width: 100%;
+    }
+    .task.campaigns-contents input{
+        width: 100%;
+        margin: 20px 0;
+    }
+    .create-task-btn{
+        margin-left: 0;
+    }
+}

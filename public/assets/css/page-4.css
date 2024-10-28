@@ -1,0 +1,128 @@
+.campaign-card-contents {
+    padding-bottom: 30px;
+}
+
+.title_status {
+    display: flex;
+    justify-content: space-between;
+    padding-bottom: 14px;
+}
+
+.heading_text .title_status h3 {
+    font-size: 18px;
+    font-family: var(--Inter);
+    font-weight: 600;
+    color: var(--text-dark-blue);
+    margin-bottom: 0;
+
+}
+
+.heading_text p {
+    font-family: var(--Inter);
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--Text-gray);
+}
+
+.campaign-card-contents .card {
+    padding: 16px 20px;
+    border: 0;
+    border-radius: 8px;
+    box-shadow: 0px 4px 4px 0px rgba(228, 234, 240, 20%);
+    background-color: var(--bg-white);
+}
+
+.campaign-cost-task-header {
+    display: flex;
+    align-items: center;
+}
+
+.campaign-cost-task-header h3 {
+    font-size: 18px;
+    font-family: var(--Inter);
+    font-weight: 600;
+    color: var(--text-dark-blue);
+    margin-bottom: 0;
+    padding-right: 38px;
+}
+
+
+.campaign-cost-task-header .icons svg:nth-child() {
+    margin-right: 23px;
+}
+
+.campaign-cost-task-header {
+    background: #FAFBFC;
+    border-radius: 6px;
+    padding: 28px 20px;
+    margin-top: 30px;
+}
+
+.campaign-card-contents .owl-carousel .card-img_text {
+    max-width: 100% !important;
+}
+
+.campaign-card-contents .owl-carousel .owl-nav.disabled {
+    display: block !important;
+}
+
+.campaign-card-contents .Detail-card-image img {
+    border-radius: 6px;
+    box-shadow: 2px 6px 8px 0px rgba(163, 161, 255, 25%);
+}
+
+.campaign-card-contents .owl-carousel .owl-nav button.owl-next {
+    position: absolute;
+    content: '';
+    right: -80px;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.campaign-card-contents .owl-carousel .owl-nav button.owl-prev {
+    position: absolute;
+    content: '';
+    left: -37px;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+.campaign-card-contents .owl-theme .owl-nav [class*=owl-]:hover {
+    color: #FFF;
+    text-decoration: none;
+    background: none;
+}
+
+/* Reponsive styles */
+@media(max-width:767px){
+    .campaign-cost-task-header h3 {
+        padding-right: 27px;
+    }
+    .campaign-card-contents .card {
+        padding: 16px 15px;
+    }
+}
+
+@media(max-width:670px){
+    .campaign-cost-task-header {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    .campaign-cost-task-header h3 {
+        padding-right: 0px;
+        margin-bottom: 15px;
+        text-align:center;
+    }
+    .campaign-cost-task-header .icons svg {
+        margin-right: 10px;
+    }
+}
+@media(max-width:575px){
+    .campaign-card-contents .owl-carousel .owl-nav button.owl-next {
+        right: -15px;
+    }
+    
+    .campaign-card-contents .owl-carousel .owl-nav button.owl-prev {
+        left: 24px;
+    }
+}
