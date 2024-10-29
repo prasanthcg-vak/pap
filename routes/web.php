@@ -9,15 +9,17 @@ use App\Http\Middleware\CheckRolePermission;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\TasksController;
 
+
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('login');
 });
+
 
 Auth::routes();
 
 
 Route::middleware(['auth'])->group(function () {
-    
+
     Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
     //Roles
@@ -39,7 +41,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('users', [UserController::class, 'index'])->name('users.index')->middleware('permission:users.index');
     Route::post('users', [UserController::class, 'store'])->name('users.store')->middleware('permission:users.store');
-    
+
     //Tasks
     Route::get('tasks', [TasksController::class, 'index'])->name('tasks.index');           // Display the task listing
     Route::get('tasks/create', [TasksController::class, 'create'])->name('tasks.create');   // Show the form to create a new task
@@ -57,5 +59,19 @@ Route::middleware(['auth'])->group(function () {
 
     // Delete a comment
     Route::delete('comments/{id}', [CommentController::class, 'destroy'])->name('comments.destroy');
+
+
+    Route::get('users', [UserController::class, 'index'])->name('users.index');          // Display a listing of the users
+    Route::get('users/create', [UserController::class, 'create'])->name('users.create');  // Show the form for creating a new user
+    Route::post('users', [UserController::class, 'store'])->name('users.store');          // Store a newly created user
+    Route::get('users/{id}/edit', [UserController::class, 'edit'])->name('users.edit');   // Show the form for editing the user
+    Route::put('users/{id}', [UserController::class, 'update'])->name('users.update');    // Update the specified user
+    Route::delete('users/{id}', [UserController::class, 'destroy'])->name('users.destroy');// Remove the specified user
+
+    // Additional routes
+    Route::get('users/get-data', [UserController::class, 'getData'])->name('users.getData'); // Get data for DataTable or similar
+    Route::get('users/my-profile', [UserController::class, 'myprofile'])->name('users.myprofile'); // Display the logged-in user's profile
+    Route::post('users/update-profile', [UserController::class, 'updateprofile'])->name('users.updateprofile'); // Update profile
+
 });
 

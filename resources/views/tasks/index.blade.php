@@ -46,7 +46,7 @@
                     </div>
                 @endif
                 <div class="table-wrapper">
-                    <table>
+                    <table id="datatable" style="width:100% !important">
                         <thead>
                             <tr>
                                 <th class="campaingn-title">
@@ -105,6 +105,7 @@
                                 </tr>
                             @endforeach
                         </tbody>
+                        
                     </table>
                 </div>
             </div>

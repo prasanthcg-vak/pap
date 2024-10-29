@@ -3,8 +3,7 @@
         <div class="container-fluid">
             <div class="logo_title">
                 <a class="navbar-brand">
-                    <img src="{{ asset('/assets/images/New-CMLogo.svg') }}" alt="logo" href="#"
-                        class="img-fluid">
+                    <img src="{{ asset('/assets/images/New-CMLogo.svg') }}" alt="logo" href="#" class="img-fluid">
                 </a>
                 <span>Partner Asset Portal</span>
             </div>
@@ -93,7 +92,7 @@
                             </a>
                             <ul class="dropdown-menu">
                                 {{-- <li><a class="dropdown-item" href="#">Add</a></li> --}}
-                                <li><a class="dropdown-item" href="#">View</a></li>
+                                <li><a class="dropdown-item" href="{{ route('tasks.index') }}">View</a></li>
                                 {{-- <li><a class="dropdown-item" href="#">Edit</a></li> --}}
                                 {{-- <li><a class="dropdown-item" href="#">Delete</a></li> --}}
                             </ul>
@@ -160,7 +159,7 @@
                         <span>355</span>
                     </div>
                 </a>
-                <a href="#" class="card-item green">
+                <a href="{{ route('tasks.index') }}" class="card-item green">
                     <div class="circle_text ">
                         <div class="circle-icon green">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
