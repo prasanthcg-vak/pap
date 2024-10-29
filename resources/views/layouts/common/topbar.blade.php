@@ -3,7 +3,8 @@
         <div class="container-fluid">
             <div class="logo_title">
                 <a class="navbar-brand">
-                    <img src="assets/images/New-CMLogo.svg" alt="logo" href="#" class="img-fluid">
+                    <img src="{{ asset('/assets/images/New-CMLogo.svg') }}" alt="logo" href="#"
+                        class="img-fluid">
                 </a>
                 <span>Partner Asset Portal</span>
             </div>
@@ -11,13 +12,24 @@
                 <div class="dropdown">
                     <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
                         aria-expanded="false">
-                        <img src="assets/images/profile-image.svg" alt="profile-image" class="img-fluid">
+                        <img src="{{ asset('/assets/images/profile-image.svg') }}" alt="profile-image"
+                            class="img-fluid">
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end dropdown-menu-lg-start">
                         <li><a class="dropdown-item" href="#">Partner</a></li>
-                        <li><a class="dropdown-item" href="#">My Profile</a></li>
+                        <li><a class="dropdown-item" href="{{ url('myprofile') }}">My Profile</a></li>
                         <li><a class="dropdown-item" href="#">Group Profile</a></li>
-                        <li><a class="dropdown-item" href="#">Logout</a></li>
+                        <li><a class="dropdown-item" href="{{ route('logout') }}"
+                                onclick="event.preventDefault();
+                                             document.getElementById('logout-form').submit();">
+                                {{ __('Logout') }}
+                            </a>
+
+                            <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                                @csrf
+                            </form>
+                        </li>
+
                     </ul>
                 </div>
             </div>
@@ -90,7 +102,7 @@
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
                                 aria-expanded="false">
                                 Comment Management
-                                 <i class="fas fa-chevron-down"></i>
+                                <i class="fas fa-chevron-down"></i>
                             </a>
                             <ul class="dropdown-menu">
                                 {{-- <li><a class="dropdown-item" href="#">Add</a></li> --}}
