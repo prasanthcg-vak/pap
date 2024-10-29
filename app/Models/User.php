@@ -9,7 +9,6 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
     /**
@@ -17,7 +16,6 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
-    protected $table = "pap_users";
     protected $fillable = [
         'name',
         'email',
@@ -63,4 +61,13 @@ class User extends Authenticatable
 
         return false;
     }
+
+    public function quoteTemplateItems() {
+        return $this->hasMany('App\Models\QuoteTemplateItems', 'quote_id', 'id');
+    }
+    public function roles() {
+        return $this->belongsTo('App\Models\Roles', 'role_id', 'id');
+    }
+
+
 }
