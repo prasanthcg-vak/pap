@@ -65,9 +65,10 @@ class User extends Authenticatable
     public function quoteTemplateItems() {
         return $this->hasMany('App\Models\QuoteTemplateItems', 'quote_id', 'id');
     }
-    public function roles() {
-        return $this->belongsTo('App\Models\Roles', 'role_id', 'id');
-    }
+
+    // public function roles() {
+    //     return $this->belongsTo('App\Models\Roles', 'role_id', 'id');
+    // }
 
 
 }
