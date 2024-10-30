@@ -59,56 +59,19 @@
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
-                                aria-expanded="false">
-                                Group Management
-                                <i class="fas fa-chevron-down"></i>
+                            <a class="nav-link dropdown-item" href="{{ route('roles.index') }}" >
+                                Role Management
                             </a>
-                            <ul class="dropdown-menu">
-                                {{-- <li><a class="dropdown-item" href="#">Add</a></li> --}}
-                                <li><a class="dropdown-item" href="#">View</a></li>
-                                {{-- <li><a class="dropdown-item" href="#">Edit</a></li> --}}
-                                {{-- <li><a class="dropdown-item" href="#">Delete</a></li> --}}
-                            </ul>
                         </li>
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
-                                aria-expanded="false">
-                                Campaign Management
-                                <i class="fas fa-chevron-down"></i>
+                            <a class="nav-link dropdown-item" href="{{ route('asset-types.index') }}" >
+                               Manage Assets Type 
                             </a>
-                            <ul class="dropdown-menu">
-                                {{-- <li><a class="dropdown-item" href="#">Add</a></li> --}}
-                                <li><a class="dropdown-item" href="#">View</a></li>
-                                {{-- <li><a class="dropdown-item" href="#">Edit</a></li> --}}
-                                {{-- <li><a class="dropdown-item" href="#">Delete</a></li> --}}
-                            </ul>
                         </li>
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
-                                aria-expanded="false">
-                                Task Management
-                                <i class="fas fa-chevron-down"></i>
+                            <a class="nav-link dropdown-item" href="{{ route('categories.index') }}" >
+                               Manage Categories
                             </a>
-                            <ul class="dropdown-menu">
-                                {{-- <li><a class="dropdown-item" href="#">Add</a></li> --}}
-                                <li><a class="dropdown-item" href="{{ route('tasks.index') }}">View</a></li>
-                                {{-- <li><a class="dropdown-item" href="#">Edit</a></li> --}}
-                                {{-- <li><a class="dropdown-item" href="#">Delete</a></li> --}}
-                            </ul>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
-                                aria-expanded="false">
-                                Comment Management
-                                <i class="fas fa-chevron-down"></i>
-                            </a>
-                            <ul class="dropdown-menu">
-                                {{-- <li><a class="dropdown-item" href="#">Add</a></li> --}}
-                                <li><a class="dropdown-item" href="#">View</a></li>
-                                {{-- <li><a class="dropdown-item" href="#">Edit</a></li> --}}
-                                {{-- <li><a class="dropdown-item" href="#">Delete</a></li> --}}
-                            </ul>
                         </li>
                     </ul>
                 </div>

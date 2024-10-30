@@ -46,7 +46,7 @@
                     </div>
                 @endif
                 <div class="table-wrapper">
-                    <table id="datatable" style="width:100% !important">
+                    <table id="datatable" style="width:100%">
                         <thead>
                             <tr>
                                 <th class="campaingn-title">
