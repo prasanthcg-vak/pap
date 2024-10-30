@@ -64,6 +64,7 @@
     <script src="https://cdn.datatables.net/2.1.8/js/dataTables.bootstrap5.js"></script>
     <script>
         new DataTable('#datatable');
+        
     </script>
 
 </body>
