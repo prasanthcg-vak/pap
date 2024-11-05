@@ -97,7 +97,7 @@
         <div class="container-fluid p-0">
             <!-- top-card-items -->
             <div class="top-card-items">
-                <a href="#" class="card-item purple">
+                <a href="{{route('campaigns.index')}}" class="card-item purple">
                     <div class="circle_text">
                         <div class="circle-icon purple">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -119,7 +119,7 @@
                         </div>
                     </div>
                     <div class="values purple">
-                        <span>355</span>
+                        <span>{{campaigns_count()}}</span>
                     </div>
                 </a>
                 <a href="{{ route('tasks.index') }}" class="card-item green">
@@ -151,7 +151,7 @@
                         </div>
                     </div>
                     <div class="values green">
-                        <span>3245</span>
+                        <span>{{task_count()}}</span>
                     </div>
                 </a>
                 <a href="#" class="card-item orange">
