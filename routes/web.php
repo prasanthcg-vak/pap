@@ -10,6 +10,7 @@ use App\Http\Controllers\CommentController;
 use App\Http\Controllers\TasksController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\AssetTypeController;
+use App\Http\Controllers\ImageController;
 
 
 Route::get('/', function () {
@@ -91,6 +92,16 @@ Route::middleware(['auth'])->group(function () {
     Route::get('users/get-data', [UserController::class, 'getData'])->name('users.getData'); // Get data for DataTable or similar
     Route::get('users/my-profile', [UserController::class, 'myprofile'])->name('users.myprofile'); // Display the logged-in user's profile
     Route::post('users/update-profile', [UserController::class, 'updateprofile'])->name('users.updateprofile'); // Update profile
+
+
+
+    Route::get('/images', [ImageController::class, 'index'])->name('images.index');
+    Route::get('/images/create', [ImageController::class, 'create'])->name('images.create');
+    Route::post('/images', [ImageController::class, 'store'])->name('images.store');
+    Route::delete('/images', [ImageController::class, 'destroy'])->name('images.delete');
+    Route::get('/imageslist', [ImageController::class, 'listImages']);
+
+
 
 });
 
