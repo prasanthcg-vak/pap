@@ -29,6 +29,23 @@ return [
     */
 
     'disks' => [
+        'b2' => [
+            'driver' => 's3',
+            'key' => env('B2_KEY_ID'),
+            'secret' => env('B2_APP_KEY'),
+            'region' => 'us-east-005',  // Ensure this matches the correct region
+            'bucket' => 'cm-pap01',     // Bucket name
+            'endpoint' => 'https://s3.us-east-005.backblazeb2.com',
+        ],
+
+        'backblaze' => [
+            'driver' => 's3',
+            'key' => env('BACKBLAZE_KEY_ID'),
+            'secret' => env('BACKBLAZE_APPLICATION_KEY'),
+            'region' => 'us-east-005',
+            'bucket' => env('BACKBLAZE_BUCKET'),
+            'endpoint' => 'https://s3.us-east-005.backblazeb2.com',
+        ],
 
         'local' => [
             'driver' => 'local',
