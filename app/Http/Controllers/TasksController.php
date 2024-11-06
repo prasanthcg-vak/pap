@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Campaigns;
-use App\Models\Categorys;
+use App\Models\Category;
 use App\Models\Tasks;
 use Illuminate\Http\Request;
 
@@ -15,7 +15,7 @@ class TasksController extends Controller
     public function index()
     {
         $campaigns = Campaigns::all(); // Get all campaigns for the dropdown
-        $categories = Categorys::where('is_active', 1)->get();
+        $categories = Category::where('is_active', 1)->get();
         $tasks = Tasks::with(['campaign', 'status'])->where('is_active', 1)->get();
         return view('tasks.index', compact('tasks', 'campaigns','categories'));
     }
@@ -71,7 +71,7 @@ class TasksController extends Controller
     public function edit(Tasks $task)
     {
         $campaigns = Campaigns::all(); // Get all campaigns for the dropdown
-        $categories = Categorys::where('is_active', 1)->get();
+        $categories = Category::where('is_active', 1)->get();
         
         return view('tasks.edit', compact('task', 'campaigns','categories'));
     }
@@ -83,7 +83,7 @@ class TasksController extends Controller
     {
         // dd(auth()->check());
         $campaigns = Campaigns::all();
-        $categories = Categorys::where('is_active', 1)->get();
+        $categories = Category::where('is_active', 1)->get();
         return view('tasks.show', compact('task', 'campaigns','categories'));
     }
 

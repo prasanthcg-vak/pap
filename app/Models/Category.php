@@ -16,4 +16,9 @@ class Category extends Model
         'category_description',
         'is_active'
     ];
+    
+    public function tasks()
+    {
+        return $this->hasMany(Tasks::class);
+    }
 }
