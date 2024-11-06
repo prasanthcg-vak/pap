@@ -91,8 +91,8 @@ Route::middleware(['auth'])->group(function () {
 
     // Additional routes
     Route::get('users/get-data', [UserController::class, 'getData'])->name('users.getData'); // Get data for DataTable or similar
-    Route::get('users/my-profile', [UserController::class, 'myprofile'])->name('users.myprofile'); // Display the logged-in user's profile
-    Route::post('users/update-profile', [UserController::class, 'updateprofile'])->name('users.updateprofile'); // Update profile
+    Route::get('/myprofile', 'App\Http\Controllers\UserController@myprofile')->name('myprofile');
+    Route::put('/profile', [UserController::class, 'updateprofile'])->name('profile.update');
 
     Route::get('campaigns', [CampaignsController::class, 'index'])->name('campaigns.index');
     Route::get('campaigns/create', [CampaignsController::class, 'create'])->name('campaigns.create');

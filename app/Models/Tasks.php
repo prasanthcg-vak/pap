@@ -24,7 +24,7 @@ class Tasks extends Model
     }
     public function categorys()
     {
-        return $this->belongsTo(Categorys::class);
+        return $this->belongsTo(Category::class);
     }
     public function assets()
     {

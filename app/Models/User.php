@@ -19,7 +19,10 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'username',
         'password',
+        'role_id',
+        'is_active',
     ];
 
     /**
@@ -62,7 +65,8 @@ class User extends Authenticatable
         return false;
     }
 
-    public function quoteTemplateItems() {
+    public function quoteTemplateItems()
+    {
         return $this->hasMany('App\Models\QuoteTemplateItems', 'quote_id', 'id');
     }
 

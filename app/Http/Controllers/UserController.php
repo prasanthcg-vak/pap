@@ -135,16 +135,11 @@ class UserController extends Controller
      */
     public function updateprofile(Request $request)
     {
-        $user = Auth::user();
+        // dd($request->all());
 
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $user->id,
-            'username' => 'required|string|max:255',
-            'status' => 'required|in:active,inactive',
-        ]);
+        $user = Auth::user();  
 
-        $user->update($request->only(['name', 'email', 'username', 'status']));
+        $user->update($request->only(['name', 'email', 'username','is_active']));
 
         return redirect()->back()->with('success', 'Profile updated successfully.');
     }
