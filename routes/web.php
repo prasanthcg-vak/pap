@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CampaignsController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\RolePermissionController;
@@ -93,15 +94,21 @@ Route::middleware(['auth'])->group(function () {
     Route::get('users/my-profile', [UserController::class, 'myprofile'])->name('users.myprofile'); // Display the logged-in user's profile
     Route::post('users/update-profile', [UserController::class, 'updateprofile'])->name('users.updateprofile'); // Update profile
 
+    Route::get('campaigns', [CampaignsController::class, 'index'])->name('campaigns.index');
+    Route::get('campaigns/create', [CampaignsController::class, 'create'])->name('campaigns.create');
+    Route::post('campaigns', [CampaignsController::class, 'store'])->name('campaigns.store');
+    Route::get('campaigns/{id}', [CampaignsController::class, 'show'])->name('campaigns.show');
+    Route::get('campaigns/{id}/edit', [CampaignsController::class, 'edit'])->name('campaigns.edit');
+    Route::put('campaigns/{id}', [CampaignsController::class, 'update'])->name('campaigns.update');
+    Route::delete('campaigns/{id}', [CampaignsController::class, 'destroy'])->name('campaigns.destroy');
+    Route::get('/getcampaignslist', [CampaignsController::class, 'getData'])->name('getcampaignslist');
 
-
+ 
     Route::get('/images', [ImageController::class, 'index'])->name('images.index');
     Route::get('/images/create', [ImageController::class, 'create'])->name('images.create');
     Route::post('/images', [ImageController::class, 'store'])->name('images.store');
     Route::delete('/images', [ImageController::class, 'destroy'])->name('images.delete');
     Route::get('/imageslist', [ImageController::class, 'listImages']);
-
-
 
 });
 

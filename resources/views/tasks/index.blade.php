@@ -46,9 +46,9 @@
                     </div>
                 @endif
                 <div class="table-wrapper">
-                    <table id="datatable" style="width:100% !important">
+                    <table id="datatable" style="width:100%">
                         <thead>
-                            <tr>
+                            <tr style="width: 120%;">
                                 <th class="campaingn-title">
                                     <span>Task Title</span>
                                 </th>
@@ -67,7 +67,7 @@
                                 <th class="action">Actions</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody style="width: 120%;">
                             @foreach ($tasks as $task)
                                 <tr>
                                     <td class="campaingn-title">
