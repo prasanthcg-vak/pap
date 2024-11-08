@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Routing\UrlGenerator;
 use App\Models\User;
-use App\Models\Roles;
+use App\Models\Role;
 use App\Models\UserPermissions;
 use App\Models\Status;
 use App\Models\Tasks;
@@ -83,7 +83,7 @@ function _select_option($option = [], $name = null, $check = null, $class = null
 
 function get_roles()
 {
-    return Roles::where(['is_active' => 1])->pluck('name', 'id');
+    return Role::pluck('name', 'id');
 }
 
 function get_status()

@@ -1,24 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<style>
-    .toast {
-        transition: opacity 0.3s linear;
-    }
 
-    .toast.show {
-        opacity: 1;
-    }
-
-    .toast.hide {
-        opacity: 0;
-    }
-
-    .toast.error {
-        background-color: #dc3545; /* Bootstrap danger color */
-        color: white;
-    }
-</style>
 <div class="CM-main-content">
     <div class="container-fluid p-0">
         @if(session('success'))

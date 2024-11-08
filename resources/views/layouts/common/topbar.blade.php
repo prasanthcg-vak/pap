@@ -45,27 +45,34 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                        
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-item" href="{{ route('users.index') }}" >
-                                User Management
-                            </a>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-item" href="{{ route('roles.index') }}" >
-                                Role Management
-                            </a>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-item" href="{{ route('asset-types.index') }}" >
-                               Manage Assets Type 
-                            </a>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-item" href="{{ route('categories.index') }}" >
-                               Manage Categories
-                            </a>
-                        </li>
+                        @if (Auth::user()->hasRolePermission('users.index'))
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-item" href="{{ route('users.index') }}" >
+                                    User Management
+                                </a>
+                            </li>
+                        @endif
+                        @if (Auth::user()->hasRolePermission('roles.index'))
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-item" href="{{ route('roles.index') }}" >
+                                    Role Management
+                                </a>
+                            </li>
+                        @endif
+                        @if (Auth::user()->hasRolePermission('asset-types.index'))                            
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-item" href="{{ route('asset-types.index') }}" >
+                                Manage Assets Type 
+                                </a>
+                            </li>
+                        @endif
+                        @if (Auth::user()->hasRolePermission('categories.index'))
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-item" href="{{ route('categories.index') }}" >
+                                Manage Categories
+                                </a>
+                            </li>
+                        @endif
                     </ul>
                 </div>
                 <!-- <div class="profile-image">

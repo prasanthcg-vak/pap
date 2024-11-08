@@ -9,7 +9,7 @@
                 <!-- campaigns-contents -->
                 <div class="col-lg-12 task campaigns-contents">
                     <div class="campaigns-title">
-                        <h3>Users Management</h3>
+                        <h3>Users Management </h3>
                     </div>
                     <form>
                         {{-- <input type="text" name="search" placeholder="Search..."> --}}

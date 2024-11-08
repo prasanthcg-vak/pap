@@ -26,7 +26,7 @@ class UserController extends Controller
         $route = route('users.store');
         $method = 'POST';
 
-        return view('users.index', compact('title', 'sideBar', 'users','route','method'));
+        return view('users.index', compact('title', 'sideBar', 'users','route','method')); 
     }
 
     /**

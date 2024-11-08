@@ -2856,3 +2856,115 @@ th.active {
     }
 
 }
+
+/* toaster styles */
+.toast {
+    transition: opacity 0.3s linear;
+}
+
+.toast.show {
+    opacity: 1;
+}
+
+.toast.hide {
+    opacity: 0;
+}
+
+.toast.error {
+    background-color: #dc3545; /* Bootstrap danger color */
+    color: white;
+}
+
+
+/* common css */
+.common-label{
+    font-family: var(--Inter);
+    font-size: 16px;
+    color: #53545C;
+}
+.common-input {
+    width: 100%;
+    border: unset !important;
+    background-color: var(--inputbgColor);
+    padding: 0 16px;
+    color: #5E6366;
+    font-size: 16px;
+    border-radius: 8px;
+    height: 52px;
+}
+.common-textarea{
+    height: 163px;
+    width: 100%;
+    border: unset !important;
+    background-color: var(--inputbgColor);
+    padding: 0 16px;
+    color: #5E6366;
+    font-size: 16px;
+    border-radius: 8px;
+}
+.common-btn {
+    background-color: var(--Gold-Drop);
+    color: var(--Text-white);
+    padding: 15px 35px;
+    font-family: var(--Poppins);
+    font-weight: 400;
+    font-size: 18px;
+    line-height: 14.5px;
+    border-radius: 10px;
+    display: inline-block;
+    transition: all 0.3s ease;
+    border: 1px solid var(--Gold-Drop);
+    margin-top: 10px;
+}
+
+.common-btn:hover {
+    border: 1px solid var(--Gold-Drop);
+    background: transparent;
+    color: var(--Gold-Drop);
+}
+
+.common-button{
+    border-radius: 10px;
+    font-family: var(--Poppins);
+    font-size: 16px;
+    line-height: 16px;
+    padding: 15px 28px;
+    transition: all 0.5s ease;
+    text-transform: capitalize;
+    border: 1px solid #EB8205;
+    background-color: #EB8205;
+    color: #fff;
+}
+.common-button:hover{
+    border: 1px solid #EB8205;
+    background-color: transparent;
+    color: #EB8205;
+}
+
+.cancel-btn{
+    border-radius: 10px;
+    font-family: var(--Poppins);
+    font-size: 16px;
+    line-height: 16px;
+    padding: 15px 28px;
+    transition: all 0.5s ease;
+    text-transform: capitalize;
+    border: 1px solid #716E6B;
+    background-color: #716E6B;
+    color: #fff;
+}
+.cancel-btn:hover{
+    border: 1px solid #716E6B;
+    background-color: transparent;
+    color: #716E6B;
+}
+
+.primary-color{
+    color: #EB8205;
+}
+.secondary-color{
+    color: #716E6B;
+}
+.primary-green{
+    color: #538053;
+}

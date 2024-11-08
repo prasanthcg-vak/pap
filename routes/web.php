@@ -29,17 +29,23 @@ Route::middleware(['auth'])->group(function () {
     //Roles
     Route::get('roles', [RoleController::class, 'index'])->name('roles.index')->middleware('permission:roles.index');
     Route::post('roles', [RoleController::class, 'store'])->name('roles.store')->middleware('permission:roles.store');
-    Route::get('roles/create', [RoleController::class, 'create'])->name('roles.create')->middleware('permission:roles.create');
-    Route::get('roles/{role}', [RoleController::class, 'show'])->name('roles.show')->middleware('permission:roles.show');
+    Route::get('roles/{role}/edit', [RoleController::class, 'edit'])->name('roles.edit')->middleware('permission:roles.edit');
     Route::put('roles/{role}', [RoleController::class, 'update'])->name('roles.update')->middleware('permission:roles.update');
     Route::delete('roles/{role}', [RoleController::class, 'destroy'])->name('roles.destroy')->middleware('permission:roles.destroy');
-    Route::get('roles/{role}/edit', [RoleController::class, 'edit'])->name('roles.edit')->middleware('permission:roles.edit');
-    Route::post('/roles/update-status', [RoleController::class, 'updateStatus'])->name('roles.updateStatus');
+
+    // Route::get('roles', [RoleController::class, 'index'])->name('roles.index')->middleware('permission:roles.index');
+    // Route::post('roles', [RoleController::class, 'store'])->name('roles.store')->middleware('permission:roles.store');
+    // Route::get('roles/create', [RoleController::class, 'create'])->name('roles.create')->middleware('permission:roles.create');
+    // Route::get('roles/{role}', [RoleController::class, 'show'])->name('roles.show')->middleware('permission:roles.show');
+    // Route::put('roles/{role}', [RoleController::class, 'update'])->name('roles.update')->middleware('permission:roles.update');
+    // Route::delete('roles/{role}', [RoleController::class, 'destroy'])->name('roles.destroy')->middleware('permission:roles.destroy');
+    // Route::get('roles/{role}/edit', [RoleController::class, 'edit'])->name('roles.edit')->middleware('permission:roles.edit');
+    // Route::post('/roles/update-status', [RoleController::class, 'updateStatus'])->name('roles.updateStatus');
+
+    Route::get('/roles/{role}/permissions/edit', [RolePermissionController::class, 'edit'])->name('roles.permissions.edit')->middleware('permission:roles.permissions.edit');
+    Route::post('/roles/{role}/permissions/update', [RolePermissionController::class, 'update'])->name('roles.permissions.update')->middleware('permission:roles.permissions.update');
 
 
-    //permission
-    Route::get('roles/{role}/permissions', [RolePermissionController::class, 'edit'])->name('roles.permissions.edit')->middleware('permission:roles.permissions.edit');
-    Route::put('roles/{role}/permissions', [RolePermissionController::class, 'update'])->name('roles.permissions.update')->middleware('permission:roles.permissions.update');
 
     //user-roles
     Route::get('users/{user}/roles', [UserRoleController::class, 'edit'])->name('users.roles.edit')->middleware('permission:users.roles.edit');
