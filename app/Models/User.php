@@ -4,12 +4,17 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
     use HasFactory, Notifiable;
+    use SoftDeletes;
+
+    // Add the 'deleted_at' column to the $dates property
+    protected $dates = ['deleted_at'];
 
     /**
      * The attributes that are mass assignable.
@@ -23,6 +28,8 @@ class User extends Authenticatable
         'password',
         'role_id',
         'is_active',
+        'profile_picture',
+        'contact'
     ];
 
     /**
