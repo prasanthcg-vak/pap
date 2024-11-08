@@ -60,27 +60,6 @@ ul {
     list-style: none;
 }
 
-.primary-btn {
-    border-radius: 10px;
-    background-color: var(--Gold-Drop);
-    font-size: 18px;
-    font-weight: 400;
-    font-family: var(--Poppins);
-    color: var(--Text-white);
-    line-height: 15.5px;
-    padding: 15px 38px;
-    margin-left: 15px;
-    border: 1px solid var(--Gold-Drop);
-    display: inline-block;
-}
-
-.primary-btn:hover {
-    background: transparent;
-    border: 1px solid var(--Gold-Drop);
-    color: var(--Gold-Drop);
-    transition: all 0.3s ease;
-}
-
 /* status */
 .status {
     padding: 5px 8px;
@@ -1802,9 +1781,9 @@ a {
     flex-wrap: wrap;
 }
 
-/* .common-table {
+.common-table {
     margin-top: 20px;
-} */
+}
 
 .campaigns-title h3 {
     font-size: 18px;
@@ -1829,25 +1808,6 @@ a {
     box-shadow: 0px 4px 9px 0px rgba(54, 62, 147, 11%);
 }
 
-
-.dt-search input {
-    width: 410px;
-    border-radius: 10px;
-    font-size: 15px;
-    font-family: var(--chivo);
-    border: 0;
-    font-weight: 400;
-    background-color: var(--bg-white);
-    background-image: url('../images/search-icon.svg');
-    background-position: 15px center;
-    background-repeat: no-repeat;
-    padding: 12.5px 20px 12.5px 40px;
-    box-shadow: 0px 4px 9px 0px rgba(54, 62, 147, 11%);
-    margin-right: 5px !important;
-}
-.dt-search label{
-    display: none !important;
-}
 .common-table table {
     width: 100%;
 }
@@ -1943,42 +1903,16 @@ th.folder {
     justify-content: center;
     width: 70px !important;
 }
-a{
-    text-decoration: none !important;
-}
+
 td.campaingn-title,
 th.campaingn-title {
     min-width: 239px !important;
-    max-width: 600px;
-    flex: 4 !important;
 }
 
-tbody.dt-empty {
-    width: 169%;
-}
 td.description,
 th.description {
     min-width: 300px !important;
     max-width: 700px;
-    flex: 4 !important;
-}
-td.email,
-th.email {
-    min-width: 150px !important;
-    max-width: 500px;
-    flex: 4 !important;
-}
-
-td.slno,
-th.slno {
-    min-width: 50px !important;
-    max-width: 100px;
-    flex: 4 !important;
-}
-td.role,
-th.role {
-    min-width: 100px !important;
-    max-width: 200px;
     flex: 4 !important;
 }
 
@@ -2855,4 +2789,7 @@ th.active {
         width: 100%;
     }
 
+}
+a{
+    text-decoration: none !important;
 }
