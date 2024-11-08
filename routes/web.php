@@ -116,5 +116,16 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/images', [ImageController::class, 'destroy'])->name('images.delete');
     Route::get('/imageslist', [ImageController::class, 'listImages']);
 
+     // Show the form to create a new client-partner relationship
+     Route::get('clientpartner/create', [UserController::class, 'create_client_partner'])->name('clientpartner.create');
+     // Store the newly created client-partner relationship
+     Route::post('clientpartner', [UserController::class, 'store_client_partner'])->name('clientpartner.store');
+     // Show the form to edit a specific client-partner relationship
+     Route::get('clientpartner/{id}/edit', [UserController::class, 'edit_client_partner'])->name('clientpartner.edit');
+     // Update an existing client-partner relationship
+     Route::put('clientpartner/{id}', [UserController::class, 'update_client_partner'])->name('clientpartner.update');
+     // Delete a specific client-partner relationship
+     Route::delete('clientpartner/{id}', [UserController::class, 'destroy_client_partner'])->name('clientpartner.destroy');
+ 
 });
 
