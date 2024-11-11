@@ -26,50 +26,50 @@
                 <div class="campaigns-title">
                     <h3>Asset Types</h3>
                 </div>
+                 <button class="common-btn mb-3" onclick="openModal()">Create New Asset Type</button>
             </div>
         </div>
     </div>
+    <div class="table-wrapper">
+        <table id="assetTypesTable" class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Type Name</th>
+                    <th>Description</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach($assetTypes as $index => $assetType)
+                <tr>
+                    <td>{{ $index + 1 }}</td> 
+                    <td>{{ $assetType->type_name }}</td>
+                    <td>{{ $assetType->type_description }}</td>
+                    <td>{{ $assetType->is_active ? 'Active' : 'Inactive' }}</td>
+                    <td>
+                        <a href="#" class="btn btn-warning" onclick="editAssetType({{ json_encode($assetType) }})">
+                            <i class="fa-solid fa-pencil"></i>
+                        </a>
+
+                        <form action="{{ route('asset-types.destroy', $assetType->id) }}" method="POST" class="d-inline-block"
+                            onsubmit="return confirm('Are you sure you want to delete this asset type?');">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fa-regular fa-trash-can"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            @endforeach
+            </tbody>
+        </table>
+    </div>
 </div>
 
-<div class="container">
-    <button class="btn btn-primary mb-3" onclick="openModal()">Create New Asset Type</button>
 
-    <table id="assetTypesTable" class="table table-striped table-bordered">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Type Name</th>
-                <th>Description</th>
-                <th>Status</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        @foreach($assetTypes as $assetType)
-            <tr>
-                <td>{{ $assetType->id }}</td>
-                <td>{{ $assetType->type_name }}</td>
-                <td>{{ $assetType->type_description }}</td>
-                <td>{{ $assetType->is_active ? 'Active' : 'Inactive' }}</td>
-                <td>
-                    <a href="#" class="btn btn-warning" onclick="editAssetType({{ json_encode($assetType) }})">
-                        <i class="fa-solid fa-pencil"></i>
-                    </a>
-
-                    <form action="{{ route('asset-types.destroy', $assetType->id) }}" method="POST" class="d-inline-block"
-                        onsubmit="return confirm('Are you sure you want to delete this asset type?');">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-danger">
-                            <i class="fa-regular fa-trash-can"></i>
-                        </button>
-                    </form>
-                </td>
-            </tr>
-        @endforeach
-        </tbody>
-    </table>
-</div>
 
 <!-- Modal -->
 <div class="modal fade" id="assetTypeModal" tabindex="-1" role="dialog" aria-labelledby="assetTypeModalLabel" aria-hidden="true">
