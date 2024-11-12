@@ -73,6 +73,11 @@
                                 </a>
                             </li>
                         @endif
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-item" href="{{ route('client-groups.index') }}" >
+                                Client Groups
+                            </a>
+                        </li>
                     </ul>
                 </div>
                 <!-- <div class="profile-image">

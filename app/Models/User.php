@@ -78,6 +78,10 @@ class User extends Authenticatable
         return $this->belongsTo(Role::class, 'role_id');
     }
     
+    public function clientGroups()
+    {
+        return $this->belongsToMany(ClientGroup::class, 'pap_client_group_user');
+    }
 
 
 }

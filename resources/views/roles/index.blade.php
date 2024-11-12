@@ -22,16 +22,20 @@
                 </div>
             </div>
         </div>
+        <div class="campaingn-table pb-3 common-table">
+            <div class="col-lg-12 task campaigns-contents">
+                <div class="campaigns-title">
+                    <h3>Role Management </h3>
+                </div>
+                <button class="common-btn mb-3" onclick="openModal()">Add Role</button>
+            </div>
+        </div>
     </div>
-</div>
-    <div class="container">
-        <h1>Roles</h1>
-        <button class="btn btn-primary mb-3" onclick="openModal()">Create New Role</button>
-                
+    <div class="table-wrapper">
         <table id="rolesTable" class="table table-striped table-bordered">
             <thead>
                 <tr>
-                    <th>ID</th>
+                    <th>#</th>
                     <th>Name</th>
                     <th>Description</th>
                     <th>Actions</th>
@@ -69,39 +73,57 @@
             </tbody>
         </table>
     </div>
+</div>
 
-    <!-- Create Role Modal -->
-    <div class="modal fade createTask-modal" id="roleModal" tabindex="-1" aria-labelledby="roleMopdal"
-        aria-hidden="true" data-backdrop="static" data-keyboard="false">
-        <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel">CREATE ROLE</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="roleForm">
-                        @csrf
-                        <div class="modal-body">
-                            <input type="hidden" name="role_id" id="role_id">
-                            <div class="form-group">
+
+<!-- Create Role Modal -->
+<div class="modal fade roleModal modal-margin" id="roleModal" tabindex="-1" aria-labelledby="roleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-md modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">CREATE ROLE</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="roleForm">
+                    @csrf
+                    <div class="modal-body">
+                        <input type="hidden" name="role_id" id="role_id">
+                        <div class="row m-0">
+                            <div class="col-lg-12">
                                 <label for="name" class="common-label">Role Name:</label>
                                 <input type="text" name="name" id="role_name" class="common-input" required>
                             </div>
-                            <div class="form-group">
+                            <div class="col-lg-12">
                                 <label for="description" class="common-label">Description:</label>
                                 <textarea name="description" id="role_description" class="common-textarea" required></textarea>
                             </div>
                         </div>
-                        <div class="modal-footer">
-                            <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                    <div class="sic-action-btns d-flex justify-content-md-end justify-content-center flex-wrap">
+                        <div class="sic-btn">
+                            <button class="btn download" id="save" type="submit">
+                                save
+                            </button>
                         </div>
-                    </form>
+                        <div class="sic-btn">
+                            <button class="btn link-asset" id="cancel" data-bs-dismiss="modal" aria-label="Close">
+                                cancel
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div id="modalLoader" class="modal-loader" style="display: none;">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="sr-only">Loading...</span>
                 </div>
             </div>
         </div>
     </div>
-    <!-- End create Role Modal -->
+</div>
+<!-- End create Role Modal -->
 
 @endsection
 
@@ -112,9 +134,21 @@
                 responsive: true,
                 pageLength: 10,
                 columnDefs: [
-                    { orderable: false, targets: [0, 3] }
-                ]
+                    { 
+                        searchable: false, 
+                        orderable: false, 
+                        targets: 0 
+                    }
+                ],
+                order: [[1, 'asc']], // Initial sort
+                drawCallback: function(settings) {
+                    var api = this.api();
+                    api.column(0, { order: 'applied' }).nodes().each(function(cell, i) {
+                        cell.innerHTML = i + 1; // Number rows dynamically
+                    });
+                }
             });
+
             $('#roleModal').modal({
                 backdrop: 'static',
                 keyboard: false
@@ -142,19 +176,19 @@
         let method = roleId ? 'PUT' : 'POST';
 
         let formData = $(this).serializeArray();
-        console.log(formData);
-        
+        $('#modalLoader').show();
         $.ajax({
             url: url,
             method: method,
             data: $.param(formData),
             success: function(response) {
-                // Show toast notification
+                $('#modalLoader').hide();
                 showToast(response.success);
                 $('#roleModal').modal('hide');
                 location.reload(); // Reload the page to see updated asset types
             },
             error: function(error) {
+                $('#modalLoader').hide();
                 if (error.status === 422) {
                     let errors = error.responseJSON.errors;
                     let errorMessage = 'Validation Errors:\n';

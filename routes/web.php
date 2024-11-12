@@ -12,6 +12,7 @@ use App\Http\Controllers\TasksController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\AssetTypeController;
 use App\Http\Controllers\ImageController;
+// use App\Http\Controllers\ClientGroupsController;
 
 
 Route::get('/', function () {
@@ -35,7 +36,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('roles/{role}/edit', [RoleController::class, 'edit'])->name('roles.edit')->middleware('permission:roles.edit');
     Route::put('roles/{role}', [RoleController::class, 'update'])->name('roles.update')->middleware('permission:roles.update');
     Route::delete('roles/{role}', [RoleController::class, 'destroy'])->name('roles.destroy')->middleware('permission:roles.destroy');
-
     Route::get('/roles/{role}/permissions/edit', [RolePermissionController::class, 'edit'])->name('roles.permissions.edit')->middleware('permission:roles.permissions.edit');
     Route::post('/roles/{role}/permissions/update', [RolePermissionController::class, 'update'])->name('roles.permissions.update')->middleware('permission:roles.permissions.update');
 
@@ -46,24 +46,27 @@ Route::middleware(['auth'])->group(function () {
     // Categories Routes with Individual Permissions
     Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index')->middleware('permission:categories.index');
     Route::post('/categories', [CategoryController::class, 'store'])->name('categories.store')->middleware('permission:categories.store');
-    Route::get('/categories/{id}/edit', [CategoryController::class, 'edit'])->name('categories.edit')->middleware('permission:categories.edit');
+    // Route::get('/categories/{id}/edit', [CategoryController::class, 'edit'])->name('categories.edit')->middleware('permission:categories.edit');
     Route::put('/categories/{id}', [CategoryController::class, 'update'])->name('categories.update')->middleware('permission:categories.update');
     Route::delete('/categories/{id}', [CategoryController::class, 'destroy'])->name('categories.destroy')->middleware('permission:categories.destroy');
 
     //asset types
     Route::get('asset-types', [AssetTypeController::class, 'index'])->name('asset-types.index')->middleware('permission:asset-types.index');
     Route::post('asset-types', [AssetTypeController::class, 'store'])->name('asset-types.store')->middleware('permission:asset-types.store');
-    Route::get('asset-types/{assetType}/edit', [AssetTypeController::class, 'edit'])->name('asset-types.edit')->middleware('permission:asset-types.edit');
     Route::put('asset-types/{assetType}', [AssetTypeController::class, 'update'])->name('asset-types.update')->middleware('permission:asset-types.update');
     Route::delete('asset-types/{assetType}', [AssetTypeController::class, 'destroy'])->name('asset-types.destroy')->middleware('permission:asset-types.destroy');
 
+    //Users
     Route::get('/users', [UserController::class, 'index'])->name('users.index')->middleware('permission:users.index');
-    Route::post('/users/store', [UserController::class, 'store'])->name('users.store')->middleware('permission:users.store');
-    Route::post('/users/update/{id}', [UserController::class, 'update'])->name('users.update')->middleware('permission:users.update');
-    Route::post('/users/delete/{id}', [UserController::class, 'destroy'])->name('users.destroy')->middleware('permission:users.destroy');
-    Route::post('/users/toggle/{id}', [UserController::class, 'toggleActivation'])->name('users.toggleActivation')->middleware('permission:users.toggleActivation');
-    Route::post('/users/toggle-status/{id}', [UserController::class, 'toggleStatus'])->name('users.toggleStatus');
+    Route::post('/users', [UserController::class, 'store'])->name('users.store')->middleware('permission:users.store');
+    Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update')->middleware('permission:users.update');
+    Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy')->middleware('permission:users.destroy');
 
+    // Client Groups
+    Route::get('/client-groups', [ClientGroupsController::class, 'index'])->name('client-groups.index')->middleware('permission:client-groups.index');
+    Route::post('/client-groups', [ClientGroupsController::class, 'store'])->name('client-groups.store')->middleware('permission:client-groups.store');
+    Route::put('/client-groups/{clientGroups}', [ClientGroupsController::class, 'update'])->name('client-groups.update')->middleware('permission:client-groups.update');
+    Route::delete('/client-groups/{clientGroups}', [ClientGroupsController::class, 'destroy'])->name('client-groups.destroy')->middleware('permission:client-groups.destroy');
 
 
     //Tasks

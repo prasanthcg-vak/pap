@@ -75,6 +75,21 @@ ul {
     background: #E6FCF4;
 }
 
+.status.green {
+    color: var(--bg-light-green);
+    background: #E6FCF4;
+}
+
+.status.yellow {
+    color: #f7b951;
+    background: #fef4e4;
+}
+
+.status.red {
+    color: #f06948;
+    background: #fde8e4;
+}
+
 .check-list {
     position: relative;
     display: flex;
@@ -2893,6 +2908,17 @@ th.active {
     color: #716E6B;
 }
 
+.common-select {
+    width: 100%;
+    border: unset !important;
+    background-color: var(--inputbgColor);
+    padding: 0 16px;
+    color: #5E6366;
+    font-size: 16px;
+    border-radius: 8px;
+    height: 52px;
+}
+
 .primary-color{
     color: #EB8205;
 }
@@ -2904,4 +2930,21 @@ th.active {
 }
 a{
     text-decoration: none !important;
+}
+
+.modal-loader {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.7);
+    z-index: 1051; /* Higher than modal-content */
+}
+
+div.modal-margin .row .col-lg-12 {
+    margin-bottom: 24px;
 }
