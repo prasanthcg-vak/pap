@@ -43,86 +43,102 @@
                 <div class="campaigns-title">
                     <h3>Category</h3>
                 </div>
+                <button class="common-btn mb-3" onclick="openModal()">Add Category</button> 
             </div>
         </div>
     </div>
-</div>
 
-<div class="container">
-    <button class="btn btn-primary mb-3" onclick="openModal()">Create New Category</button> 
+    <div class="table-wrapper">
+        <table id="categoriesTable" class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Category Name</th>
+                    <th>Description</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach($categories as $category)
+                <tr>
+                    <td>{{ $category->id }}</td>
+                    <td>{{ $category->category_name }}</td>
+                    <td>{{ $category->category_description }}</td>
+                    <td>{{ $category->is_active ? 'Active' : 'Inactive' }}</td>
+                    <td>
+                        <!-- Edit Button -->
+                        <a href="#" class="btn btn-warning" data-bs-toggle="tooltip" title="Edit"
+                        onclick="editCategory({{ json_encode($category) }})">
+                            <i class="fa-solid fa-pencil"></i>
+                        </a>
 
-    <table id="categoriesTable" class="table table-striped table-bordered">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Category Name</th>
-                <th>Description</th>
-                <th>Status</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        @foreach($categories as $category)
-            <tr>
-                <td>{{ $category->id }}</td>
-                <td>{{ $category->category_name }}</td>
-                <td>{{ $category->category_description }}</td>
-                <td>{{ $category->is_active ? 'Active' : 'Inactive' }}</td>
-                <td>
-                    <!-- Edit Button -->
-                    <a href="#" class="btn btn-warning" data-bs-toggle="tooltip" title="Edit"
-                       onclick="editCategory({{ json_encode($category) }})">
-                        <i class="fa-solid fa-pencil"></i>
-                    </a>
-
-                    <!-- Delete Form -->
-                    <form action="{{ route('categories.destroy', $category->id) }}" method="POST" class="d-inline-block"
-                          onsubmit="return confirm('Are you sure you want to delete this category?');">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-danger" data-bs-toggle="tooltip" title="Delete">
-                            <i class="fa-regular fa-trash-can"></i>
-                        </button>
-                    </form>
-                </td>
-            </tr>
-        @endforeach
-        </tbody>
-    </table>
+                        <!-- Delete Form -->
+                        <form action="{{ route('categories.destroy', $category->id) }}" method="POST" class="d-inline-block"
+                            onsubmit="return confirm('Are you sure you want to delete this category?');">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger" data-bs-toggle="tooltip" title="Delete">
+                                <i class="fa-regular fa-trash-can"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            @endforeach
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <!-- Modal -->
-<div class="modal fade" id="categoryModal" tabindex="-1" role="dialog" aria-labelledby="categoryModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-l modal-dialog-scrollable">
+<div class="modal fade modal-margin" id="categoryModal" tabindex="-1" aria-labelledby="categoryModalLabel"
+        aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-md modal-dialog-scrollable">
         <div class="modal-content">
-            <form id="categoryForm">
-                @csrf
-                <div class="modal-header">
-                    <h5 class="modal-title" id="categoryModalLabel">Category</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <input type="hidden" name="category_id" id="category_id">
-                    <div class="form-group">
-                        <label for="category_name">Category Name:</label>
-                        <input type="text" name="category_name" id="category_name" class="form-control" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="category_description">Description:</label>
-                        <textarea name="category_description" id="category_description" class="form-control" required></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>Status:</label>
-                        <div class="form-check form-switch">
-                            <input type="checkbox" name="is_active" value="1" id="is_active" class="form-check-input">
-                            <label class="form-check-label" for="is_active">Active</label>
+            <div class="modal-header">
+                <h5 class="modal-title" id="categoryModalLabel">Category</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="categoryForm">
+                    @csrf
+                    <div class="row m-0">
+                        <input type="hidden" name="category_id" id="category_id">
+                        <div class="col-lg-12">
+                            <label for="category_name" class="common-label">Name:</label>
+                            <input type="text" name="category_name" id="category_name" class="form-control common-input" required>
+                        </div>
+                        <div class="col-lg-12">
+                            <label for="category_description" class="common-label">Description:</label>
+                            <textarea name="category_description" id="category_description" class="form-control common-textarea" required></textarea>
+                        </div>
+                        <div class="col-lg-12">
+                            <label class="common-label">Status:</label>
+                            <div class="form-check form-switch">
+                                <input type="checkbox" name="is_active" value="1" id="is_active" class="form-check-input">
+                                <label class="form-check-label" for="is_active">Active</label>
+                            </div>
                         </div>
                     </div>
+                    <div class="sic-action-btns d-flex justify-content-md-end justify-content-center flex-wrap">
+                        <div class="sic-btn">
+                            <button class="btn download" id="save" type="submit">
+                                save
+                            </button>
+                        </div>
+                        <div class="sic-btn">
+                            <button class="btn link-asset" id="cancel" data-bs-dismiss="modal" aria-label="Close">
+                                cancel
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div id="modalLoader" class="modal-loader" style="display: none;">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="sr-only">Loading...</span>
                 </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary">Save</button>
-                </div>
-            </form>
+            </div>
         </div>
     </div>
 </div>
@@ -134,6 +150,25 @@
             $('#categoriesTable').DataTable({
                 responsive: true,
                 pageLength: 10,
+                columnDefs: [
+                    { 
+                        searchable: false, 
+                        orderable: false, 
+                        targets: 0 
+                    }
+                ],
+                order: [[1, 'asc']], // Initial sort
+                drawCallback: function(settings) {
+                    var api = this.api();
+                    api.column(0, { order: 'applied' }).nodes().each(function(cell, i) {
+                        cell.innerHTML = i + 1; // Number rows dynamically
+                    });
+                }
+            });
+
+            $('#categoryModal').modal({
+                backdrop: 'static',
+                keyboard: false
             });
         });
 
@@ -160,17 +195,20 @@
             let method = categoryId ? 'PUT' : 'POST';
 
             let formData = $(this).serializeArray();
+            $('#modalLoader').show();
+
             $.ajax({
                 url: url,
                 method: method,
                 data: $.param(formData),
                 success: function(response) {
-                    // Show toast notification
+                    $('#modalLoader').hide();
                     showToast(response.success);
                     $('#categoryModal').modal('hide');
                     location.reload(); // Reload the page to see updated categories
                 },
                 error: function(error) {
+                    $('#modalLoader').hide();
                     if (error.status === 422) {
                         let errors = error.responseJSON.errors;
                         let errorMessage = 'Validation Errors:\n';

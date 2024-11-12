@@ -57,7 +57,8 @@ class User extends Authenticatable
 
     public function roles()
     {
-        return $this->belongsToMany(Role::class, 'role_user');
+        // return $this->belongsToMany(Role::class, 'role_user');
+        return $this->belongsToMany(Role::class, 'role_user', 'user_id', 'role_id');
     }
 
 
@@ -72,14 +73,15 @@ class User extends Authenticatable
         return false;
     }
 
-    public function quoteTemplateItems()
-    {
-        return $this->hasMany('App\Models\QuoteTemplateItems', 'quote_id', 'id');
-    }
+    public function role() {
 
-    // public function roles() {
-    //     return $this->belongsTo('App\Models\Roles', 'role_id', 'id');
-    // }
+        return $this->belongsTo(Role::class, 'role_id');
+    }
+    
+    public function clientGroups()
+    {
+        return $this->belongsToMany(ClientGroup::class, 'pap_client_group_user');
+    }
 
 
 }
