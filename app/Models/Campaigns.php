@@ -19,4 +19,8 @@ class Campaigns extends Model
     public function taskstatus() {
         return $this->belongsTo('App\Models\Status', 'status_id', 'id');
     }
+    public function image()
+    {
+        return $this->belongsTo(Image::class, 'image_id');
+    }
 }

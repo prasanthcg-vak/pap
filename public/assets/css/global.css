@@ -6,6 +6,9 @@
     padding: 0;
     box-sizing: border-box;
 }
+a{
+    text-decoration: none !important;
+}
 
 :root {
 
@@ -2185,38 +2188,37 @@ th.active {
     gap: 20px;
 }
 
-.task-table-info .library-action.task .btn.search {
+.btn.search {
     background-color: #dff0fa;
     color: #33a2df;
     font-size: 20px;
     transition: all 0.5s ease;
 }
-
-.task-table-info .library-action.task .btn.search:hover {
+.btn.search:hover {
     background-color: #33a2df;
     color: #fff;
 }
 
-.task-table-info .library-action.task .btn.edit {
+.btn.edit {
     background-color: #daf4f0;
     color: #21b9ad;
     font-size: 20px;
     transition: all 0.5s ease;
 }
 
-.task-table-info .library-action.task .btn.edit:hover {
+.btn.edit:hover {
     color: #fff;
     background-color: #21b9ad;
 }
 
-.task-table-info .library-action.task .btn.thumbs-up {
+.btn.thumbs-up {
     background-color: #e2e5ed;
     color: #405189;
     font-size: 20px;
     transition: all 0.5s ease;
 }
 
-.task-table-info .library-action.task .btn.thumbs-up:hover {
+.btn.thumbs-up:hover {
     background-color: #405189;
     color: #fff;
 }
@@ -2789,7 +2791,4 @@ th.active {
         width: 100%;
     }
 
-}
-a{
-    text-decoration: none !important;
 }

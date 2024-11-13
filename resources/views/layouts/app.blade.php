@@ -67,6 +67,5 @@
         new DataTable('#datatable');
     </script>
 
-</body>
+@include('layouts.common.footer')
 
-</html>
