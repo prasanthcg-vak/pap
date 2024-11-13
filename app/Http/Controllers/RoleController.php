@@ -3,75 +3,69 @@
 namespace App\Http\Controllers;
 
 use App\Models\Role;
+use App\Models\Permission;
 use Illuminate\Http\Request;
 
 class RoleController extends Controller
 {
     public function index()
     {
-        $roles = Role::all();
-        return view('roles.index', compact('roles'));
-    }
-
-    public function create()
-    {
-        return view('roles.create');
+        $roles = Role::all(); // Retrieve all roles
+        $permissions = Permission::all(); // Retrieve all permissions
+        $rolePermissions = []; // Empty array to handle each role's permissions separately
+    
+        return view('roles.index', compact('roles', 'permissions', 'rolePermissions'));
     }
 
     public function store(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'required|string|max:255',
-        ]);
+    {       
+        try {
+            $request->validate([
+                'name' => 'required|string|max:255',
+                'description' => 'nullable|string',
+            ]);
 
-        Role::create([
-            'name' => $request->name,
-            'description' => $request->description,
-            'status' => $request->has('status') ? 1 : 0,
-        ]);
+            $data = $request->all();
+            Role::create($data);
 
-        return redirect()->route('roles.index')->with('success', 'Role created successfully.');
-    }
-
-
-    public function show(Role $role)
-    {
-        return view('roles.show', compact('role'));
-    }
-
-    public function edit(Role $role)
-    {
-        return view('roles.edit', compact('role'));
+            return response()->json(['success' => 'Role created successfully']);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json(['error' => 'Validation Error', 'messages' => $e->errors()], 422);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'An error occurred while creating the role'], 500);
+        }
     }
 
     public function update(Request $request, Role $role)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string|max:255',
-        ]);
+        try {
+            $request->validate([
+               'name' => 'required|string|max:255',
+                'description' => 'nullable|string',
+            ]);
 
-        $role->update($request->all());
+            $data = $request->all();
+            $role->update($data);
 
-        return redirect()->route('roles.index')->with('success', 'Role updated successfully.');
-    }
-    
-    public function updateStatus(Request $request)
-    {
-        $role = Role::find($request->role_id);
-        if ($role) {
-            $role->status = $request->status;
-            $role->save();
-    
-            return response()->json(['message' => 'Status updated successfully']);
+            return response()->json(['success' => 'Role  updated successfully']);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json(['error' => 'Validation Error', 'messages' => $e->errors()], 422);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'An error occurred while updating the role'], 500);
         }
-        return response()->json(['message' => 'Role not found'], 404);
     }
     
-    public function destroy(Role $role)
+    public function destroy($id)
     {
-        $role->delete();
-        return redirect()->route('roles.index')->with('success', 'Role deleted successfully.');
+        try {
+            $role = Role::findOrFail($id);
+            $role->delete();
+
+            return redirect()->route('roles.index')->with('success', 'Role deleted successfully');
+        } catch (\ModelNotFoundException $e) {
+            return response()->json(['error' => 'Role not found'], 404);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'An error occurred while deleting the role'], 500);
+        }
     }
 }

@@ -2,122 +2,124 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use App\Models\Role;
-use App\Models\RoleUser;
+use App\Models\ClientPartner;
+use DB;
 use Illuminate\Http\Request;
-// use Yajra\DataTables\Facades\DataTables;
-use App\Mail\UserPasswordMail;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\DB;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Session;
+use Str;
 
 class UserController extends Controller
 {
+    public function __construct()
+    {
+        // Middleware could be added here if needed
+    }
+
+    /**
+     * Display a listing of users.
+     */
     public function index()
     {
-        $users = User::with('roles')->get();
-        return view('users.index', compact('users'));
+        $sideBar = 'dashboard';
+        $title = 'dashboard';
+        $users = User::all(); // Fetch all users
+        $route = route('users.store');
+        $method = 'POST';
+
+        return view('users.index', compact('title', 'sideBar', 'users', 'route', 'method'));
     }
 
+    /**
+     * Show the form for creating a new user.
+     */
+    public function create()
+    {
+        $sideBar = 'master';
+        $title = 'Create User';
+        $data = null;
+        $route = route('users.store');
+        $method = 'POST';
 
+        return view('users.add_edit', compact('title', 'data', 'route', 'method', 'sideBar'));
+    }
+
+    /**
+     * Store a newly created user in storage.
+     */
     public function store(Request $request)
     {
-        try {
-            // Validate the incoming data
-            $request->validate([
-                'name' => 'required|string|max:255',
-                'email' => 'required|email|unique:users,email', 
-                'is_active' => 'boolean',
-            ]);
+        $request->validate([
+            'name' => 'required',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|min:6',
+            'role_id' => 'required|integer',
+        ]);
 
-            // Generate a random password for the partner
-            $randomPassword = Str::random(10);
-            $status = $request->has('is_active') ? $request->input('is_active') : 0;
+        User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'role_id' => $request->role_id,
+            'is_active' => $request->is_active ?? 1,
+            'password' => Hash::make($request->password),
+        ]);
 
-            $user = User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'password' => Hash::make($randomPassword), 
-                'is_active' => $status, 
-            ]);
-
-            // Assign Role
-            DB::table('role_user')->insert([
-                'user_id' => $user->id,
-                'role_id' => $request->role_id,
-                'created_at' => now(),
-                'updated_at' => now()
-            ]);
-
- 
-            // Attempt to send email
-            Mail::to('k7.cgvak@gmail.com')->send(new UserPasswordMail($randomPassword));
-
-            return response()->json(['success' => 'User created successfully']);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json(['error' => 'Validation Error', 'messages' => $e->errors()], 422);
-        } catch (\Exception $e) {
-            Log::error('Error creating user or sending email: ' . $e->getMessage());
-            return response()->json(['error' => 'An error occurred while creating the user'], 500);
-        }
+        return redirect()->route('users.index')->with('success', 'User created successfully.');
     }
 
-
-    public function update(Request $request, User $user)
+    /**
+     * Show the form for editing the specified user.
+     */
+    public function edit($id)
     {
-        try {
-            $request->validate([
-                'name' => 'required|string|max:255',
-                'email' => 'required|email|unique:users,email,' . $request->user_id,  
-                'is_active' => 'boolean', 
-                'role_id' => 'required|exists:roles,id' 
-            ]);
-    
-            // Update user details
-            // $data = $request->all();
-            $data['name'] = $request->name;
-            $data['email'] = $request->email;
-            $data['is_active'] = $request->has('is_active') ? 1 : 0; 
-            $user->update($data);
+        $id = decrypt($id); // Assuming you have a custom decrypt function
+        $sideBar = 'dashboard';
+        $title = 'Edit User';
+        $data = User::findOrFail($id);
+        $route = route('users.update', encrypt($data->id)); // Assuming you have a custom encrypt function
+        $method = 'PUT';
 
-            if ($request->has('role_id')) {
-                $user->roles()->sync([$request->input('role_id')]); 
-            }
-
-            return response()->json(['success' => 'User updated successfully']);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json(['error' => 'Validation Error', 'messages' => $e->errors()], 422);
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'An error occurred while updating the user'], 500);
-        }
+        return view('users.add_edit', compact('title', 'data', 'route', 'method', 'sideBar'));
     }
-    
 
+    /**
+     * Update the specified user in storage.
+     */
+    public function update(Request $request, $id)
+    {
+        // $id = decrypt($id);
+        $request->validate([
+            'name' => 'required',
+            'email' => 'required|email|unique:users,email,' . $id,
+            'role_id' => 'required|integer',
+        ]);
+
+        $user = User::findOrFail($id);
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->role_id = $request->role_id;
+        $user->is_active = $request->is_active ?? 1;
+        if ($request->filled('password')) {
+            $user->password = Hash::make($request->password);
+        }
+        $user->save();
+
+        return redirect()->route('users.index')->with('success', 'User updated successfully.');
+    }
+
+    /**
+     * Remove the specified user from storage.
+     */
     public function destroy($id)
     {
-        try {
-            $assetType = User::findOrFail($id);
-            $assetType->delete();
+        // dd($id);
+        // $id = decrypt($id);
+        User::destroy($id);
 
-            return redirect()->route('users.index')->with('success', 'User deleted successfully');
-        } catch (\ModelNotFoundException $e) {
-            return response()->json(['error' => 'User not found'], 404);
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'An error occurred while deleting the users'], 500);
-        }
+        return redirect()->route('users.index')->with('success', 'User deleted successfully.');
     }
-
-    public function toggleStatus($id)
-    {
-        $user = User::findOrFail($id);
-        $user->is_active = !$user->is_active;
-        $user->save();
-        return response()->json(['success' => 'User activation status updated!']);
-    }
-
 
     /**
      * Display the current user's profile.
