@@ -3,11 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Models\Campaigns;
+use App\Models\Category;
+use App\Models\ClientPartner;
 use App\Models\Status;
 use Illuminate\Http\Request;
 use App\Models\UserPermissions;
 use App\Models\CampaignPartner;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Image;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
+use Aws\S3\S3Client;
+use Exception;
 
 class CampaignsController extends Controller
 {
@@ -16,9 +24,18 @@ class CampaignsController extends Controller
      */
     public function index()
     {
+        $authId = Auth::id();
+
+
+        $campaigns = Campaigns::with('image')->where('is_active', 1)->get();
+        $partners = ClientPartner::with(['client', 'partner'])
+            ->where('client_id', $authId)
+            ->get();
+
+        // dd($partners);
         $sideBar = 'dashboard';
         $title = 'dashboard';
-        return view('campaigns.index', compact('title', 'sideBar'));
+        return view('campaigns.index', compact('campaigns', 'partners'));
     }
 
     /**
@@ -26,7 +43,7 @@ class CampaignsController extends Controller
      */
     public function create()
     {
-        if(hasPermission('campaigns_create') == false){
+        if (hasPermission('campaigns_create') == false) {
             return redirect('accessdenied');
         }
         $sideBar = 'master';
@@ -35,7 +52,7 @@ class CampaignsController extends Controller
         $status = Status::where('is_active', 1)->get();
         $route = route('campaigns.store');
         $method = 'POST';
-        return view('campaigns.add_edit', compact('title', 'data', 'route', 'method', 'sideBar','status'));
+        return view('campaigns.add_edit', compact('title', 'data', 'route', 'method', 'sideBar', 'status'));
     }
 
     /**
@@ -43,33 +60,115 @@ class CampaignsController extends Controller
      */
     public function store(Request $request)
     {
+
+        // dd($request->all());
+        Log::info('Incoming request for image upload', [
+            'request_data' => $request->all(),
+        ]);
+        $image = new Image();
+        // Store the uploaded file in Backblaze B2
+        if ($request->hasFile('cover_image')) {
+
+            try {
+                $file = $request->file('cover_image');
+
+                // Log the file details
+                Log::info('File details', [
+                    'original_name' => $file->getClientOriginalName(),
+                    'mime_type' => $file->getMimeType(),
+                    'size' => $file->getSize(),
+                ]);
+
+                $randomName = Str::random(10) . '.' . $file->getClientOriginalExtension();
+                $filePath = 'images/' . $randomName;
+
+                // Log the file path and attempt storage
+                Log::info('Attempting to upload file to Backblaze', ['file_path' => $filePath]);
+
+                try {
+                    $s3Client = new S3Client([
+                        'version' => 'latest',
+                        'region' => 'us-east-005',
+                        'endpoint' => 'https://s3.us-east-005.backblazeb2.com',
+                        'credentials' => [
+                            'key' => env('BACKBLAZE_KEY_ID'),
+                            'secret' => env('BACKBLAZE_APPLICATION_KEY'),
+                        ],
+                    ]);
+
+                    $result = $s3Client->putObject([
+                        'Bucket' => 'cm-pap01',
+                        'Key' => $filePath,
+                        'Body' => file_get_contents($file),
+                        'ACL' => 'public-read',
+                    ]);
+
+                    // Store the image details in the database
+
+                    $image->path = $filePath; // Assuming you have a 'path' column in your 'images' table
+                    $image->file_name = $randomName; // Store the random name if needed
+                    $image->save();
+
+
+                    // Log successful storage
+                    Log::info('Image uploaded successfully', [
+                        'database_image_id' => $image->id,
+                    ]);
+
+                    // Redirect back to index with success message
+
+
+                } catch (Aws\Exception\AwsException $e) {
+
+                    // Catch any AWS SDK errors
+                    return response()->json(['error' => 'Backblaze upload failed: ' . $e->getAwsErrorMessage()], 500);
+                } catch (Exception $e) {
+
+                    return response()->json(['error' => 'File upload failed: ' . $e->getMessage()], 500);
+                }
+
+            } catch (\Exception $e) {
+                // Log the error
+                Log::error('Image upload error', [
+                    'error_message' => $e->getMessage(),
+                    'request_data' => $request->all(),
+                ]);
+                return redirect()->back()->withErrors(['error' => 'File upload failed: ' . $e->getMessage()]);
+            }
+        }
+        // dd($image->id);
+        // dd("test");
         $request->validate(
             [
                 'name' => 'required',
                 'description' => 'required',
                 'due_date' => 'required',
-                'status_id' => 'required',
+                // 'status_id' => 'required',
             ]
         );
+
         $data = new Campaigns();
         $data->name = $request->name;
         $data->description = $request->description;
         $data->due_date = $request->due_date;
-        $data->status_id = $request->status_id;
-        $data->is_active = $request->is_active;
+        $data->status_id = null;
+        $data->image_id = $image->id;
+        $data->is_active = 1;
         $data->save();
         $id = $data->id;
-        if(isset($request->partner_id)){
-            foreach($request->partner_id as $v){
+
+
+
+        if (isset($request->related_partner)) {
+            foreach ($request->related_partner as $partner) {
                 $data = new CampaignPartner();
                 $data->campaigns_id = $id;
-                $data->partner_id = $v;
+                $data->partner_id = $partner;
                 $data->save();
-            }}
-        
-        return response()->json([
-            'redirect_url' => url('campaigns')
-        ]);
+            }
+        }
+
+        return redirect()->route('campaigns.index')->with('success', 'campaigns Created successfully.');
     }
 
     /**
@@ -83,149 +182,158 @@ class CampaignsController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit($id)
     {
-        if(hasPermission('campaigns_edit') == false){
-            return redirect('accessdenied');
-        }
-
-        $id = encrypt_decrypt($id, 'd');
-        $sideBar = 'dashboard';
-        $title = 'Edit Campaign';
-        $status = Status::where('is_active', 1)->pluck('id','name');
-        $data = Campaigns::find($id);
-        $route = route('campaigns.update',encrypt_decrypt($data->id, 'e'));
-        $method = 'PUT';
-       
-        return view('campaigns.add_edit', compact('title', 'data', 'route', 'method', 'sideBar','status'));
+        $campaign = Campaigns::findOrFail($id);
+        $partners = ClientPartner::all(); // Assuming you have a Partner model
+        return view('campaigns.edit', compact('campaign', 'partners'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
-        $request->validate(
-            [
-                'name' => 'required',
-                'description' => 'required',
-                'due_date' => 'required',
-                'status_id' => 'required',
-                 'image' => 'required|image|max:2048'
-            ]
-        );
-
-        if ($request->hasFile('image')) {
-            $file = $request->file('image');
-            $name = time() . $file->getClientOriginalName();
-            $url = Storage::disk('backblaze')->put('/test', $request->file('image'));
-            $url = Storage::disk('backblaze')->url($url);
-            }
-
-      
-
-                   return response()->json([
-            'msg' => $url   
-        ], 401);
-
-       
-        $id = encrypt_decrypt($id, 'd');
-        $data = Campaigns::find($id);
-        $data->name = $request->name;
-        $data->description = $request->description;
-        $data->due_date = $request->due_date;
-        $data->status_id = $request->status_id;
-        $data->is_active = $request->is_active;
-        // $data->username = $request->username;
-        // $data->user_role_id = $request->user_role_id;
-        $data->save();
-        CampaignPartner::where('campaigns_id', $id)->delete();
-        if(isset($request->partner_id)){
-        foreach($request->partner_id as $v){
-            $data = new CampaignPartner();
-            $data->campaigns_id = $id;
-            $data->partner_id = $v;
-            $data->save();
-        }}
-        // return response()->json([
-        //     'msg' => ""   
-        // ], 401);
-        return response()->json([
-            'redirect_url' => url('campaigns')
+        $request->validate([
+            'name' => 'required',
+            'due_date' => 'required|date',
+            'campaign_brief' => 'nullable|string',
+            'cover_image' => 'nullable|image|mimes:jpeg,png|max:2048',
+            'additional_images.*' => 'nullable|image|mimes:jpeg,png|max:2048',
         ]);
+
+        Log::info('Incoming request for image upload', [
+            'request_data' => $request->all(),
+        ]);
+        $image = new Image();
+        // Store the uploaded file in Backblaze B2
+        if ($request->hasFile('cover_image')) {
+
+            try {
+                $file = $request->file('cover_image');
+
+                // Log the file details
+                Log::info('File details', [
+                    'original_name' => $file->getClientOriginalName(),
+                    'mime_type' => $file->getMimeType(),
+                    'size' => $file->getSize(),
+                ]);
+
+                $randomName = Str::random(10) . '.' . $file->getClientOriginalExtension();
+                $filePath = 'images/' . $randomName;
+
+                // Log the file path and attempt storage
+                Log::info('Attempting to upload file to Backblaze', ['file_path' => $filePath]);
+
+                try {
+                    $s3Client = new S3Client([
+                        'version' => 'latest',
+                        'region' => 'us-east-005',
+                        'endpoint' => 'https://s3.us-east-005.backblazeb2.com',
+                        'credentials' => [
+                            'key' => env('BACKBLAZE_KEY_ID'),
+                            'secret' => env('BACKBLAZE_APPLICATION_KEY'),
+                        ],
+                    ]);
+
+                    $result = $s3Client->putObject([
+                        'Bucket' => 'cm-pap01',
+                        'Key' => $filePath,
+                        'Body' => file_get_contents($file),
+                        'ACL' => 'public-read',
+                    ]);
+
+                    // Store the image details in the database
+
+                    $image->path = $filePath; // Assuming you have a 'path' column in your 'images' table
+                    $image->file_name = $randomName; // Store the random name if needed
+                    $image->save();
+
+
+                    // Log successful storage
+                    Log::info('Image uploaded successfully', [
+                        'database_image_id' => $image->id,
+                    ]);
+
+                    // Redirect back to index with success message
+
+
+                } catch (Aws\Exception\AwsException $e) {
+
+                    // Catch any AWS SDK errors
+                    return response()->json(['error' => 'Backblaze upload failed: ' . $e->getAwsErrorMessage()], 500);
+                } catch (Exception $e) {
+
+                    return response()->json(['error' => 'File upload failed: ' . $e->getMessage()], 500);
+                }
+
+            } catch (\Exception $e) {
+                // Log the error
+                Log::error('Image upload error', [
+                    'error_message' => $e->getMessage(),
+                    'request_data' => $request->all(),
+                ]);
+                return redirect()->back()->withErrors(['error' => 'File upload failed: ' . $e->getMessage()]);
+            }
+        }
+
+        $campaign = Campaigns::findOrFail($id);
+        $campaign->update($request->all());
+
+        if ($request->hasFile('cover_image')) {
+
+            $campaign->image_id = $image->id;
+            $campaign->save();
+        }
+
+        if ($request->hasFile('additional_images')) {
+            foreach ($request->file('additional_images') as $additionalImage) {
+                $additionalImagePath = $additionalImage->store('additional_images');
+                $campaign->additional_images()->create(['path' => $additionalImagePath]);
+            }
+        }
+
+        return redirect()->route('campaigns.index')->with('success', 'Campaign updated successfully.');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Request $request,string $id)
+    public function destroy(Request $request, string $id)
     {
-    //    $id = encrypt_decrypt($id, 'd');
-       $sideBar = 'dashboard';
-       $title = 'dashboard';
-    //    Session::flash('deleted_table', 'users');
-    //    Session::flash('deleted_id', $id);
-    //    Session::flash('deleted_msg', 'Your record has been deleted!.');
-    //    Session::flash('deleted_url', 'users');
-       return view('campaigns.index', compact('title', 'sideBar'));
+        //    $id = encrypt_decrypt($id, 'd');
+        $campaign = Campaigns::findOrFail($id);
+        $campaign->delete();
+
+        return redirect()->route('campaigns.index')->with('success', 'Campaign deleted successfully.');
+
+
+        // return view('campaigns.index', compact('title', 'sideBar'));
+    }
+    public function assets_view(string $id)
+{
+    $categories = Category::where('is_active', 1)->get();
+
+    $campaigns = Campaigns::with('image')->where('is_active', 1)->where('id', $id)->first();
+    if ($campaigns && $campaigns->image) {
+        $image_path = Storage::disk('backblaze')->url($campaigns->image->path);
+
+        // Get file type and size
+        $fileType = Storage::disk('backblaze')->mimeType($campaigns->image->path);
+        $fileSize = Storage::disk('backblaze')->size($campaigns->image->path); // Size in bytes
+        $fileExtension = pathinfo($campaigns->image->path, PATHINFO_EXTENSION); // Get the file extension
+
+
+        // Convert file size to KB for readability
+        $fileSizeKB = round($fileSize / 1024, 2);
+    } else {
+        $image_path = null;
+        $fileType = null;
+        $fileSizeKB = null;
     }
 
-    public function getData(Request $request)
-    {
-        ## Read value
-        $draw = $request->get('draw');
-        $start = $request->get("start");
-        $rowperpage = $request->get("length"); // Rows display per page
+    return view('campaigns.asset_view', compact('campaigns', 'image_path', 'categories', 'fileExtension', 'fileSizeKB'));
+}
 
-        $columnIndex_arr = $request->get('order');
-        $columnName_arr = $request->get('columns');
-        $order_arr = $request->get('order');
-        $search_arr = $request->get('search');
 
-        $columnIndex = $columnIndex_arr[0]['column']; // Column index
-        $columnName = $columnName_arr[$columnIndex]['data']; // Column name
-        $columnSortOrder = $order_arr[0]['dir']; // asc or desc
-        $searchValue = $search_arr['value']; // Search value
-        $query = Campaigns::where('name', '!=', null);
-        // $query->where('is_active', 1);
-        if ($request->search['value'] != '') {
-            $query->where('name', 'LIKE', '%' . $request->search['value'] . '%');
-        }
-        $query->orderBy('id', 'ASC');
-        $rec_count = $query;
-
-        $totalRecords = $rec_count->get()->count();
-        $totalRecordswithFilter = $rec_count->get()->count();
-
-        $query->skip($start);
-        $query->take($rowperpage);
-        $records = $query->get();
-        $data_arr = array();
-
-        $permission = [hasPermission('campaigns_edit'),hasPermission('campaigns_delete')];
-
-        foreach ($records as $record) {
-
-            if($record->is_active == 1){$status = "Active";}else{$status = "InActive";}
-
-            $data_arr[] = array(
-                // "id" => '<input type="checkbox"  data-id="'.$record->id.'" class="selectedId sub_chk" name="checkall[]" value="'.$record->id.'"/>',
-                "id" => $record->id,
-                "name" => $record->name,
-                "description" =>  $record->description,
-                "due_date" =>  $record->due_date,
-                "status_id" =>  @$record->taskstatus->name,
-                "is_active" => $status,
-                'action'   => _table_action_campaingn($record->id, 'campaigns', $permission)
-            );
-        }
-
-        $response = array(
-            "draw" => intval($draw),
-            "iTotalRecords" => $totalRecords,
-            "iTotalDisplayRecords" => $totalRecordswithFilter,
-            "aaData" => $data_arr
-        );
-        return response()->json($response);
-    }
 }

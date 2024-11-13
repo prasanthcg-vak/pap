@@ -99,7 +99,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('campaigns/{id}/edit', [CampaignsController::class, 'edit'])->name('campaigns.edit');
     Route::put('campaigns/{id}', [CampaignsController::class, 'update'])->name('campaigns.update');
     Route::delete('campaigns/{id}', [CampaignsController::class, 'destroy'])->name('campaigns.destroy');
-    Route::get('/getcampaignslist', [CampaignsController::class, 'getData'])->name('getcampaignslist');
+    Route::get('/campaigns/assets/{id}', [CampaignsController::class, 'assets_view'])->name('campaigns.assets_view');
 
  
     Route::get('/images', [ImageController::class, 'index'])->name('images.index');

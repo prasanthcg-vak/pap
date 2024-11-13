@@ -49,7 +49,7 @@
         @yield('content')
     </main>
 
-    @include('layouts.common.footer')
-</body>
 
-</html>
+    @include('layouts.common.footer')
+
+
