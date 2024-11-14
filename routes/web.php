@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CampaignsController;
+use App\Http\Controllers\GroupController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\RolePermissionController;
@@ -59,8 +60,8 @@ Route::middleware(['auth'])->group(function () {
     //Users
     Route::get('/users', [UserController::class, 'index'])->name('users.index')->middleware('permission:users.index');
     Route::post('/users', [UserController::class, 'store'])->name('users.store')->middleware('permission:users.store');
-    Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update')->middleware('permission:users.update');
-    Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy')->middleware('permission:users.destroy');
+    Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
+    Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
 
     // Client Groups
     Route::get('/client-groups', [ClientGroupsController::class, 'index'])->name('client-groups.index')->middleware('permission:client-groups.index');
@@ -96,28 +97,30 @@ Route::middleware(['auth'])->group(function () {
     Route::get('campaigns/create', [CampaignsController::class, 'create'])->name('campaigns.create');
     Route::post('campaigns', [CampaignsController::class, 'store'])->name('campaigns.store');
     Route::get('campaigns/{id}', [CampaignsController::class, 'show'])->name('campaigns.show');
-    Route::get('campaigns/{id}/edit', [CampaignsController::class, 'edit'])->name('campaigns.edit');
+    Route::get('campaigns/{id}/show', [CampaignsController::class, 'show'])->name('campaigns.show');
     Route::put('campaigns/{id}', [CampaignsController::class, 'update'])->name('campaigns.update');
     Route::delete('campaigns/{id}', [CampaignsController::class, 'destroy'])->name('campaigns.destroy');
     Route::get('/campaigns/assets/{id}', [CampaignsController::class, 'assets_view'])->name('campaigns.assets_view');
 
- 
+
     Route::get('/images', [ImageController::class, 'index'])->name('images.index');
     Route::get('/images/create', [ImageController::class, 'create'])->name('images.create');
     Route::post('/images', [ImageController::class, 'store'])->name('images.store');
     Route::delete('/images', [ImageController::class, 'destroy'])->name('images.delete');
     Route::get('/imageslist', [ImageController::class, 'listImages']);
 
-     // Show the form to create a new client-partner relationship
-     Route::get('clientpartner/create', [UserController::class, 'create_client_partner'])->name('clientpartner.create');
-     // Store the newly created client-partner relationship
-     Route::post('clientpartner', [UserController::class, 'store_client_partner'])->name('clientpartner.store');
-     // Show the form to edit a specific client-partner relationship
-     Route::get('clientpartner/{id}/edit', [UserController::class, 'edit_client_partner'])->name('clientpartner.edit');
-     // Update an existing client-partner relationship
-     Route::put('clientpartner/{id}', [UserController::class, 'update_client_partner'])->name('clientpartner.update');
-     // Delete a specific client-partner relationship
-     Route::delete('clientpartner/{id}', [UserController::class, 'destroy_client_partner'])->name('clientpartner.destroy');
- 
+    // Show the form to create a new client-partner relationship
+    Route::get('clientpartner/create', [UserController::class, 'create_client_partner'])->name('clientpartner.create');
+    // Store the newly created client-partner relationship
+    Route::post('clientpartner', [UserController::class, 'store_client_partner'])->name('clientpartner.store');
+    // Show the form to edit a specific client-partner relationship
+    Route::get('clientpartner/{id}/edit', [UserController::class, 'edit_client_partner'])->name('clientpartner.edit');
+    // Update an existing client-partner relationship
+    Route::put('clientpartner/{id}', [UserController::class, 'update_client_partner'])->name('clientpartner.update');
+    // Delete a specific client-partner relationship
+    Route::delete('clientpartner/{id}', [UserController::class, 'destroy_client_partner'])->name('clientpartner.destroy');
+
+
+    Route::resource('groups', GroupController::class);
 });
 

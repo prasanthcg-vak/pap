@@ -539,7 +539,7 @@
                             </div>
                             <div class="sic-btn">
 
-                                <span class="btn link-asset" data-dismiss="modal" aria-label="Close">cancel</span>
+                                <span class="btn link-asset" data-dismiss="modal" id="cancel" aria-label="Close">cancel</span>
                             </div>
                             <div class="sic-btn">
                                 <button class="btn download" id="save">

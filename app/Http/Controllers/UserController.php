@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ClientPartner;
 use App\Models\User;
 use App\Models\Role;
 use App\Models\RoleUser;
 use Illuminate\Http\Request;
 // use Yajra\DataTables\Facades\DataTables;
 use App\Mail\UserPasswordMail;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -18,18 +20,21 @@ class UserController extends Controller
 {
     public function index()
     {
-        $users = User::with('roles')->get();
+        $users = User::with('roles', 'group')->get();
+        // $data = User::with('roles')->get();
+        // dd($users[0]->group);
         return view('users.index', compact('users'));
     }
 
 
     public function store(Request $request)
     {
-        try {
+        
             // Validate the incoming data
             $request->validate([
                 'name' => 'required|string|max:255',
-                'email' => 'required|email|unique:users,email', 
+                'email' => 'required|email|unique:users,email',
+                'group_id' => 'required',
                 'is_active' => 'boolean',
             ]);
 
@@ -40,8 +45,9 @@ class UserController extends Controller
             $user = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
-                'password' => Hash::make($randomPassword), 
-                'is_active' => $status, 
+                'group_id' => (int) $request->group_id,
+                'password' => Hash::make($randomPassword),
+                'is_active' => $status,
             ]);
 
             // Assign Role
@@ -52,17 +58,12 @@ class UserController extends Controller
                 'updated_at' => now()
             ]);
 
- 
+
             // Attempt to send email
-            Mail::to('k7.cgvak@gmail.com')->send(new UserPasswordMail($randomPassword));
+            Mail::to($request->email)->send(new UserPasswordMail($randomPassword));
 
             return response()->json(['success' => 'User created successfully']);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json(['error' => 'Validation Error', 'messages' => $e->errors()], 422);
-        } catch (\Exception $e) {
-            Log::error('Error creating user or sending email: ' . $e->getMessage());
-            return response()->json(['error' => 'An error occurred while creating the user'], 500);
-        }
+       
     }
 
 
@@ -71,20 +72,23 @@ class UserController extends Controller
         try {
             $request->validate([
                 'name' => 'required|string|max:255',
-                'email' => 'required|email|unique:users,email,' . $request->user_id,  
-                'is_active' => 'boolean', 
-                'role_id' => 'required|exists:roles,id' 
+                'email' => 'required|email|unique:users,email,' . $request->user_id,
+                'is_active' => 'boolean',
+                'group_id' => 'required',
+                'role_id' => 'required|exists:roles,id'
             ]);
-    
+
             // Update user details
             // $data = $request->all();
             $data['name'] = $request->name;
             $data['email'] = $request->email;
-            $data['is_active'] = $request->has('is_active') ? 1 : 0; 
+            $data['group_id'] = (int) $request->group_id;
+            $data['is_active'] = $request->has('is_active') ? 1 : 0;
+            // dd($data);
             $user->update($data);
 
             if ($request->has('role_id')) {
-                $user->roles()->sync([$request->input('role_id')]); 
+                $user->roles()->sync([$request->input('role_id')]);
             }
 
             return response()->json(['success' => 'User updated successfully']);
@@ -94,20 +98,23 @@ class UserController extends Controller
             return response()->json(['error' => 'An error occurred while updating the user'], 500);
         }
     }
-    
+
 
     public function destroy($id)
     {
-        try {
-            $assetType = User::findOrFail($id);
-            $assetType->delete();
 
-            return redirect()->route('users.index')->with('success', 'User deleted successfully');
-        } catch (\ModelNotFoundException $e) {
-            return response()->json(['error' => 'User not found'], 404);
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'An error occurred while deleting the users'], 500);
+        $user = User::findOrFail($id);
+
+        $client_partner = ClientPartner::where('partner_id', $id)->first();
+        if ($client_partner != null) {
+            $client_partner->delete();
+            // dd($client_partner);
         }
+        // $client_partner->delete();
+        $user->delete();
+
+        return redirect()->route('users.index')->with('success', 'User deleted successfully');
+
     }
 
     public function toggleStatus($id)
@@ -204,9 +211,10 @@ class UserController extends Controller
         $user = User::create([
             'name' => $request->partner_name,
             'email' => $request->partner_email,
-            'password' => Hash::make($randomPassword), 
-            'contact'=> $request->partner_contact, // Hash the random password
+            'password' => Hash::make($randomPassword),
+            'contact' => $request->partner_contact, // Hash the random password
             'role_id' => 2,  // Assign a role (adjust as per your roles logic)
+            'pcode' => $randomPassword,
             'is_active' => $request->status == 'active' ? 1 : 0,  // Set status
         ]);
 
@@ -214,6 +222,12 @@ class UserController extends Controller
         ClientPartner::create([
             'client_id' => Auth::id(), // Using the authenticated client's ID
             'partner_id' => $user->id,  // Newly created partner's ID
+        ]);
+        DB::table('role_user')->insert([
+            'user_id' => $user->id,
+            'role_id' => 6,
+            'created_at' => now(),
+            'updated_at' => now()
         ]);
 
         // Handle logo upload

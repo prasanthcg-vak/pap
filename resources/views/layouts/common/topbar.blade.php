@@ -74,7 +74,7 @@
                             </li>
                         @endif
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-item" href="{{ route('client-groups.index') }}" >
+                            <a class="nav-link dropdown-item" href="/groups" >
                                 Client Groups
                             </a>
                         </li>

@@ -27,7 +27,7 @@
                 <div class="campaigns-title">
                     <h3>Role Management </h3>
                 </div>
-                <button class="common-btn mb-3" onclick="openModal()">Add Role</button>
+                {{-- <button class="common-btn mb-3" onclick="openModal()">Add Role</button> --}}
             </div>
         </div>
     </div>
@@ -48,22 +48,22 @@
                         <td>{{ $role->name }}</td>
                         <td>{{ $role->description }}</td>
                         <td>
-                            <a href="#" class="btn btn-warning" onclick="editAssetType({{ json_encode($role) }})">
-                                <i class="fa-solid fa-pencil"></i>
+                            {{-- <a href="#" class="btn search" onclick="editAssetType({{ json_encode($role) }})">
+                                <i class="fa-solid fa-pencil"></i> --}}
                             </a>
                            {{-- <a data-bs-toggle="tooltip" class="btn btn-warning" href="{{ route('roles.edit', $role) }}"
                                 data-bs-placement="top" title="Edit">
                                 <i class="fa-solid fa-pencil"></i>
                             </a> --}}
-                            <form action="{{  route('roles.destroy', $role) }}" class="d-inline-block" method="POST"
+                            {{-- <form action="{{  route('roles.destroy', $role) }}" class="d-inline-block" method="POST"
                                 onsubmit="return confirm('Are you sure you want to delete this role?');">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
+                                <button type="submit" class="btn trash" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
                                     <i class="fa-regular fa-trash-can"></i>
                                 </button>
-                            </form>
-                            <a class="btn btn-success" data-bs-toggle="tooltip" href="{{ route('roles.permissions.edit', ['role' => $role->id]) }}"
+                            </form> --}}
+                            <a class="btn edit" data-bs-toggle="tooltip" href="{{ route('roles.permissions.edit', ['role' => $role->id]) }}"
                                 title="Assign Permission">
                                 <i class="fa-solid fa-user-shield"></i>
                             </a>

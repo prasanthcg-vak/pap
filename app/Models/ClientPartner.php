@@ -8,10 +8,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class ClientPartner extends Model
 {
     use HasFactory;
-    use SoftDeletes;
+    // use SoftDeletes;
 
     // Add the 'deleted_at' column to the $dates property
     protected $dates = ['deleted_at'];
+    protected $table = 'client_partners';
 
     protected $fillable = [
         'client_id',
