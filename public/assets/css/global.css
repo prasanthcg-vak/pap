@@ -2209,9 +2209,20 @@ th.active {
     font-size: 20px;
     transition: all 0.5s ease;
 }
+
+.btn.trash {
+    background-color: #f4dada;
+    color: #b92121;
+    font-size: 20px;
+    transition: all 0.5s ease;
+}
+.btn.trash:hover {
+    background-color: #b92121;
+    color: #fff;
+}
 .btn.search:hover {
     background-color: #33a2df;
-    color: #fff;
+    color: #ffffff;
 }
 
 .btn.edit {

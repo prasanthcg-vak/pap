@@ -37,6 +37,7 @@
                     <th>Name</th>
                     <th>Email</th>
                     <th>Role</th>
+                    <th>Group</th>
                     <th>Status</th>
                     <th>Actions</th>
                 </tr>
@@ -52,16 +53,20 @@
                                 {{ $role->name }}{{ !$loop->last ? ', ' : '' }}
                             @endforeach
                         </td>
+                        <td>
+                           {{@$user->group->client_group_name}}
+                        </td>
+                        
                         <td>{{ $user->is_active ? 'Active' : 'Inactive' }}</td>
                         <td>
-                        <a href="#" class="btn btn-warning" onclick="editUser({{ json_encode($user) }})">
+                        <a href="#" class="btn search" onclick="editUser({{ json_encode($user) }})">
                             <i class="fa-solid fa-pencil"></i>
                         </a>
                         <form action="{{ route('users.destroy', $user->id) }}" method="POST" class="d-inline-block"
                             onsubmit="return confirm('Are you sure you want to delete this user?');">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="btn btn-danger">
+                            <button type="submit" class="btn trash">
                                 <i class="fa-regular fa-trash-can"></i>
                             </button>
                         </form>
@@ -106,6 +111,22 @@
                                 @enderror
                             </div>
                             <!-- Role Field -->
+                            <div class="col-lg-12">
+                                <label for="group_id" class="common-label">Group</label>
+                                <select id="group_id" name="group_id"
+                                    class="form-select @error('group_id') is-invalid @enderror common-select">
+                                    <option value="-1" >-Select-</option>
+                                    @foreach (get_groups() as $value => $label)
+                                        <option value="{{ $value }}"
+                                            {{ isset($data) && $data->group_id == $value ? 'selected' : '' }}>
+                                           {{ $label }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('group_id')
+                                    <span class="text-danger">{{ $message }}</span>
+                                @enderror
+                            </div>
                             <div class="col-lg-12">
                                 <label for="role_id" class="common-label">Role</label>
                                 <select id="role_id" name="role_id"
@@ -234,11 +255,16 @@ function editUser(user) {
     $('#name').val(user.name);
     $('#email').val(user.email);
     $('#is_active').prop('checked', user.is_active);
+
+    // Set the group_id and role_id for the selects
+    $('#group_id').val(user.group_id);
+    
     if (user.roles && user.roles.length > 0) {
         $('#role_id').val(user.roles[0].id);
     } else {
         $('#role_id').val('');
     }
+    
     $('#userModal').modal('show');
 }
 

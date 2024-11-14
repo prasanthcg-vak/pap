@@ -10,6 +10,7 @@ class Comment extends Model
     use HasFactory;
 
     protected $fillable = ['tasks_id', 'parent_id', 'content','created_by'];
+    protected $table = 'comments';
 
     // Relationship to get task
     public function task()

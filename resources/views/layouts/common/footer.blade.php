@@ -25,6 +25,14 @@
             // Toggle the 'img-upload-con' visibility
             document.querySelector('.img-upload-con').classList.toggle('d-none');
         });
+
+        const toastEl = document.getElementById('cancel');
+
+        toastEl.addEventListener('click', function() {
+            location.reload();
+
+            // alert('Cancel button clicked!');
+        });
     </script>
 
 

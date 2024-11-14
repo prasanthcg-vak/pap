@@ -6,6 +6,7 @@ use App\Models\Campaigns;
 use App\Models\Category;
 use App\Models\ClientPartner;
 use App\Models\Status;
+use App\Models\Tasks;
 use Illuminate\Http\Request;
 use App\Models\UserPermissions;
 use App\Models\CampaignPartner;
@@ -174,9 +175,41 @@ class CampaignsController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show($id)
     {
-        //
+        $campaign = Campaigns::findOrFail($id);
+        $task = Tasks::where('campaign_id',$id)->get();
+        // // dd($task);
+        // if ($campaign && $campaign->image) {
+        //     $image_path = Storage::disk('backblaze')->url($campaign->image->path);
+    
+        //     // Get file type and size
+        //     $fileType = Storage::disk('backblaze')->mimeType($campaign->image->path);
+        //     $fileSize = Storage::disk('backblaze')->size($campaign->image->path); // Size in bytes
+        //     $fileExtension = pathinfo($campaign->image->path, PATHINFO_EXTENSION); // Get the file extension
+    
+    
+        //     // Convert file size to KB for readability
+        //     $fileSizeKB = round($fileSize / 1024, 2);
+        // } else {
+        //     $image_path = null;
+        //     $fileExtension  = null;
+        //     $fileType = null;
+        //     $fileSizeKB = null;
+        // }
+
+        $images = Image::all(['file_name', 'path']);
+        
+        // Retrieve the URLs for each image
+        $imageUrls = $images->map(function ($image) {
+            return [
+                'name' => $image->file_name,
+                'path' => $image->path,
+                'url' => Storage::disk('backblaze')->url($image->path) // Generate the public URL
+            ];
+        });
+        $partners = ClientPartner::all(); // Assuming you have a Partner model
+        return view('campaigns.show', compact('campaign', 'partners','task','imageUrls'));
     }
 
     /**
@@ -188,6 +221,8 @@ class CampaignsController extends Controller
         $partners = ClientPartner::all(); // Assuming you have a Partner model
         return view('campaigns.edit', compact('campaign', 'partners'));
     }
+
+    
 
     /**
      * Update the specified resource in storage.
@@ -328,6 +363,7 @@ class CampaignsController extends Controller
         $fileSizeKB = round($fileSize / 1024, 2);
     } else {
         $image_path = null;
+        $fileExtension  = null;
         $fileType = null;
         $fileSizeKB = null;
     }

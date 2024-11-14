@@ -10,6 +10,7 @@ use App\Models\Role;
 use App\Models\UserPermissions;
 use App\Models\Status;
 use App\Models\Tasks;
+use App\Models\Group;
 use App\Models\CampaignPartner;
 
 function _table_actions($id, $table, $form_id)
@@ -86,6 +87,11 @@ function get_roles()
     return Role::pluck('name', 'id');
 }
 
+function get_groups()
+{
+    return Group::pluck('client_group_name', 'id');
+}
+
 function get_status()
 {
     return Status::where(['is_active' => 1])->pluck('name', 'id');
@@ -96,15 +102,17 @@ function _user_permission_modules($module, $sub_module, $role_id)
     return UserPermissions::where('permission_id', $module)->where('modules_id', $sub_module)->where('role_id', $role_id)->count();
 }
 
-function campaigns_count(){
-    $campaign_count =  Campaigns::where('is_active', 1)->count();
+function campaigns_count()
+{
+    $campaign_count = Campaigns::where('is_active', 1)->count();
 
     // dd($campaign_count);
     return $campaign_count;
 }
 
-function task_count(){
-    $task_count =  Tasks::where('is_active', 1)->count();
+function task_count()
+{
+    $task_count = Tasks::where('is_active', 1)->count();
 
     // dd($campaign_count);
     return $task_count;

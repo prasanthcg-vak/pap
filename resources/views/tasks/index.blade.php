@@ -119,7 +119,7 @@
                     <h1 class="modal-title fs-5" id="exampleModalLabel">Create Task
                     </h1>
                     <p class="status green">Active</p>
-                    <span class="btn-close" data-dismiss="modal" aria-label="Close"></span>
+                    <span class="btn-close" data-dismiss="modal"  aria-label="Close"></span>
                 </div>
                 <div class="modal-body">
                     <form action="{{ route('tasks.store') }}" method="POST">
@@ -197,7 +197,7 @@
                                 </button>
                             </div>
                             <div class="sic-btn">
-                                <span class="btn link-asset" data-dismiss="modal" aria-label="Close">cancel</span>
+                                <span class="btn link-asset" data-dismiss="modal" id="cancel" aria-label="Close">cancel</span>
                             </div>
                             <div class="sic-btn">
                                 <button class="btn download" id="save">

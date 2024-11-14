@@ -57,7 +57,7 @@
                     <h1 class="modal-title fs-5" id="exampleModalLabel">Create Task
                     </h1>
                     <p class="status green">Active</p>
-                    <span class="btn-close" data-dismiss="modal" aria-label="Close"></span>
+                    <span class="btn-close" data-dismiss="modal" id="cancel" aria-label="Close"></span>
                 </div>
                 <div class="modal-body">
                     <form action="{{ route('tasks.store') }}" method="POST">
@@ -65,7 +65,7 @@
 
                         <div class="row m-0">
                             <div class="col-xl-4">
-                                <select class="form-select" name="campaign_id" required aria-label="Default select example">
+                                <select class="form-select" name="campaign_id" required  aria-label="Default select example">
                                     {{-- <option selected>Select Campaign</option> --}}
                                     {{-- @foreach ($campaigns as $campaign) --}}
                                         <option value="{{ $campaigns->id }}">{{ $campaigns->name }}</option>
@@ -103,7 +103,7 @@
                         <div class="row m-0">
                             <div class="col-lg-6 col-xl-4 mb-4 mb-lg-0">
 
-                                <select class="form-select" name="category1" disabled aria-label="Default select example">
+                                <select class="form-select" name="category1"  aria-label="Default select example">
                                     <option selected>Select Category</option>
                                     @foreach ($categories as $category)
                                         <option value="{{ $category->id }} ">
@@ -139,7 +139,7 @@
                                 </button>
                             </div>
                             <div class="sic-btn">
-                                <button type="button" class="btn thumbs-up " data-bs-dismiss="modal">Cancel</button>
+                                <button type="button" class="btn thumbs-up " id="cancel" data-bs-dismiss="modal">Cancel</button>
                             </div>
                             <div class="sic-btn">
                                 <button class="btn download" id="save">

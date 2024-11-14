@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class CampaignPartner extends Model
 {
     use HasFactory;
+    
     protected $fillable = ['name', 'description', 'is_active'];
 
     public function tasks()

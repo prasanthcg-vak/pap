@@ -85,9 +85,12 @@
                                             }
 
                                         @endphp
-                                        <a href="{{ route('campaigns.assets_view', ['id' => $campaign->id]) }}" class="btn search">
+                                        {{-- @if ($campaign->image_id != null) --}}
+                                        <a href="{{ route('campaigns.show', ['id' => $campaign->id]) }}" class="btn edit">
                                             <i class="bx bx-show"></i>
                                         </a>
+                                        {{-- @endif --}}
+                                        
 
                                         <button type="button" class="btn search" data-bs-toggle="modal"
                                             data-bs-target="#createcampaign"
@@ -194,7 +197,7 @@
 
 
                             <div class="d-flex justify-content-end mb-3">
-                                <button type="button" class="btn thumbs-up " data-bs-dismiss="modal">Cancel</button>
+                                <button type="button" class="btn thumbs-up " id="cancel"  data-bs-dismiss="modal">Cancel</button>
                                 <button type="button" class="btn search m-2" id="uploadAsset">Upload Assets</button>
                                 <button type="submit" class="btn edit m-2">Save</button>
                             </div>
