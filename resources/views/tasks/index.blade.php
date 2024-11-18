@@ -48,7 +48,7 @@
                 <div class="table-wrapper">
                     <table id="datatable" style="width:100%">
                         <thead>
-                            <tr style="width: 120%;">
+                            <tr >
                                 <th class="campaingn-title">
                                     <span>Task Title</span>
                                 </th>
@@ -67,7 +67,7 @@
                                 <th class="action">Actions</th>
                             </tr>
                         </thead>
-                        <tbody style="width: 120%;">
+                        <tbody >
                             @foreach ($tasks as $task)
                                 <tr>
                                     <td class="campaingn-title">
@@ -105,7 +105,7 @@
                                 </tr>
                             @endforeach
                         </tbody>
-                        
+
                     </table>
                 </div>
             </div>
@@ -119,7 +119,7 @@
                     <h1 class="modal-title fs-5" id="exampleModalLabel">Create Task
                     </h1>
                     <p class="status green">Active</p>
-                    <span class="btn-close" data-dismiss="modal"  aria-label="Close"></span>
+                    <span class="btn-close" data-dismiss="modal" aria-label="Close"></span>
                 </div>
                 <div class="modal-body">
                     <form action="{{ route('tasks.store') }}" method="POST">
@@ -145,7 +145,7 @@
                             <div class="col-xl-4">
                                 <label for="">Date Required</label>
                                 <div class="input-wrap">
-                                    <input type="text" name="date_required" id="datepicker" required
+                                    <input type="date" name="date_required" id="datepicker" required
                                         placeholder="Date Required">
 
                                     <div class="form-group">
@@ -174,6 +174,17 @@
                                     @endforeach
                                 </select>
                             </div>
+                            <div class="col-lg-6 col-xl-4 mb-4 mb-lg-0">
+
+                                <select class="form-select" name="category" required aria-label="Default select example">
+                                    <option selected>Select Asset</option>
+                                    @foreach ($assets as $asset)
+                                        <option value="{{ $asset->id }} ">
+                                            {{ $asset->type_name	 }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
                             <div class="col-lg-6 col-xl-3 p-xl-0">
                                 <div class="input-wrap">
                                     <input type="text" name="size_width" id="size_width" required
@@ -197,7 +208,8 @@
                                 </button>
                             </div>
                             <div class="sic-btn">
-                                <span class="btn link-asset" data-dismiss="modal" id="cancel" aria-label="Close">cancel</span>
+                                <span class="btn link-asset" data-dismiss="modal" id="cancel"
+                                    aria-label="Close">cancel</span>
                             </div>
                             <div class="sic-btn">
                                 <button class="btn download" id="save">

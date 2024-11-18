@@ -29,13 +29,40 @@
             document.querySelector('.img-upload-con').classList.toggle('d-none');
         });
 
-        const toastEl = document.getElementById('cancel');
+        const toastEl1 = document.getElementById('cancel');
 
-        toastEl.addEventListener('click', function() {
+        toastEl1.addEventListener('click', function() {
             location.reload();
 
             // alert('Cancel button clicked!');
         });
+
+        const toastEl2 = document.getElementById('model-close');
+
+        toastEl2.addEventListener('click', function() {
+            location.reload();
+
+            // alert('Cancel button clicked!');
+        });
+        document.addEventListener('DOMContentLoaded', function() {
+    // Select all elements with the modal class `.modal.fade`
+    document.querySelectorAll('.modal.fade').forEach((modalElement) => {
+        // Initialize each modal with options
+        const modalInstance = new bootstrap.Modal(modalElement, {
+            backdrop: 'static',
+            keyboard: false
+        });
+
+        // Optional: attach event listeners for opening modals with the specified options
+        modalElement.addEventListener('show.bs.modal', function() {
+            modalInstance._config.backdrop = 'static';
+            modalInstance._config.keyboard = false;
+        });
+    });
+});
+
+                    // Show the modal with the specified options
+                    // myModal.show();
     </script>
 
 

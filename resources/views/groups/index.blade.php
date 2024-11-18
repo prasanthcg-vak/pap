@@ -88,7 +88,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h1 class="modal-title fs-5" id="modalTitle">Create Group</h1>
-                    <span class="btn-close" data-bs-dismiss="modal" aria-label="Close"></span>
+                    <span class="btn-close" id="model-close" data-bs-dismiss="modal" aria-label="Close"></span>
                 </div>
                 <div class="modal-body">
                     <form id="groupForm" action="{{ route('groups.store') }}" method="POST">

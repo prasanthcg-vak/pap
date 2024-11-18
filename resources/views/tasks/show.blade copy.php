@@ -613,7 +613,7 @@
                 <div class="modal-header">
                     <h1 class="modal-title fs-5" id="editTaskLabel">Edit Task</h1>
                     <p class="status green">Active</p>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" id="model-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <form action="{{ route('tasks.update', $task->id) }}" method="POST" enctype="multipart/form-data">
