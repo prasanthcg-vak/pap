@@ -173,7 +173,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h1 class="modal-title fs-5" id="exampleModalLabel">EDIT CLIENT PROFILE</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" id="model-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data">
@@ -252,7 +252,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h1 class="modal-title fs-5" id="exampleModalLabel">CHANGE PASSWORD</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" id="model-close" data-bs-dismiss="modal" aria-label="Close"
                 </div>
                 <div class="modal-body">
                     <form action="{{ route('password.update') }}" method="POST">

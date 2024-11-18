@@ -6,7 +6,8 @@
     padding: 0;
     box-sizing: border-box;
 }
-a{
+
+a {
     text-decoration: none !important;
 }
 
@@ -789,14 +790,37 @@ div#Edit-My-Profile .row .col-lg-12 {
     margin-bottom: 24px;
 }
 
-.upload--col {
+.multiple-image {
+    display: flex;
     width: 100%;
+    flex-wrap: wrap;
+    gap:18px;
+}
+
+.upload--col {
+    width: 18%;
     max-width: 100%;
-    margin: 35px auto 0;
+    /* margin: 35px auto 0; */
+    /* margin-right: 10px; */
+    margin-top: 10px;
     display: flex;
     flex-direction: column;
     gap: 30px;
+    flex-wrap: wrap;
+    position: relative;
 
+}
+
+button.btn.btn-danger.btn-sm.mt-2.remove-btn {
+    position: absolute;
+    top: 0;
+    right: 5px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .drop-zone {
@@ -845,7 +869,7 @@ div#Edit-My-Profile .row .col-lg-12 {
 .drop-zone__prompt {
     color: #3F4A49;
     font-weight: 600;
-    font-size: 18px;
+    font-size: 16px;
 
 
 }
@@ -964,7 +988,7 @@ div#Edit-My-Profile .row .col-lg-12 {
 }
 
 .Change-password-CP-modal label,
-.Change-password-MP-modal label{
+.Change-password-MP-modal label {
     font-family: var(--Inter);
     font-size: 16px;
     color: #53545C;
@@ -981,10 +1005,12 @@ div#Edit-My-Profile .row .col-lg-12 {
     font-size: 16px;
     border-radius: 8px;
 }
+
 .Change-password-CP-modal .row .col-lg-12,
 .Change-password-MP-modal .row .col-lg-12 {
     margin-bottom: 24px;
 }
+
 #Edit-My-Profile form input,
 #Edit-group-Profile input {
     height: 52px;
@@ -2203,6 +2229,10 @@ th.active {
     gap: 20px;
 }
 
+colgroup {
+    display: none;
+}
+
 .btn.search {
     background-color: #dff0fa;
     color: #33a2df;
@@ -2216,10 +2246,12 @@ th.active {
     font-size: 20px;
     transition: all 0.5s ease;
 }
+
 .btn.trash:hover {
     background-color: #b92121;
     color: #fff;
 }
+
 .btn.search:hover {
     background-color: #33a2df;
     color: #ffffff;
@@ -2498,6 +2530,9 @@ th.active {
 @media(max-width:991px) {
     .modal .card-grid-contents .card-img_text {
         max-width: 48%;
+    }
+    .upload--col {
+        width: 47%;
     }
 
     .web-link-col .check-list>span>a {
@@ -2834,17 +2869,19 @@ th.active {
 }
 
 .toast.error {
-    background-color: #dc3545; /* Bootstrap danger color */
+    background-color: #dc3545;
+    /* Bootstrap danger color */
     color: white;
 }
 
 
 /* common css */
-.common-label{
+.common-label {
     font-family: var(--Inter);
     font-size: 16px;
     color: #53545C;
 }
+
 .common-input {
     width: 100%;
     border: unset !important;
@@ -2855,7 +2892,8 @@ th.active {
     border-radius: 8px;
     height: 52px;
 }
-.common-textarea{
+
+.common-textarea {
     height: 163px;
     width: 100%;
     border: unset !important;
@@ -2865,6 +2903,7 @@ th.active {
     font-size: 16px;
     border-radius: 8px;
 }
+
 .common-btn {
     background-color: var(--Gold-Drop);
     color: var(--Text-white);
@@ -2886,7 +2925,7 @@ th.active {
     color: var(--Gold-Drop);
 }
 
-.common-button{
+.common-button {
     border-radius: 10px;
     font-family: var(--Poppins);
     font-size: 16px;
@@ -2898,13 +2937,14 @@ th.active {
     background-color: #EB8205;
     color: #fff;
 }
-.common-button:hover{
+
+.common-button:hover {
     border: 1px solid #EB8205;
     background-color: transparent;
     color: #EB8205;
 }
 
-.cancel-btn{
+.cancel-btn {
     border-radius: 10px;
     font-family: var(--Poppins);
     font-size: 16px;
@@ -2916,7 +2956,8 @@ th.active {
     background-color: #716E6B;
     color: #fff;
 }
-.cancel-btn:hover{
+
+.cancel-btn:hover {
     border: 1px solid #716E6B;
     background-color: transparent;
     color: #716E6B;
@@ -2933,16 +2974,19 @@ th.active {
     height: 52px;
 }
 
-.primary-color{
+.primary-color {
     color: #EB8205;
 }
-.secondary-color{
+
+.secondary-color {
     color: #716E6B;
 }
-.primary-green{
+
+.primary-green {
     color: #538053;
 }
-a{
+
+a {
     text-decoration: none !important;
 }
 
@@ -2956,7 +3000,8 @@ a{
     justify-content: center;
     align-items: center;
     background-color: rgba(255, 255, 255, 0.7);
-    z-index: 1051; /* Higher than modal-content */
+    z-index: 1051;
+    /* Higher than modal-content */
 }
 
 div.modal-margin .row .col-lg-12 {

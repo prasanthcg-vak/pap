@@ -1,6 +1,19 @@
 @extends('layouts.app')
 
 @section('content')
+    <style>
+        /* Style for image thumbnails */
+        .preview-image {
+            width: 100px;
+            height: 100px;
+            margin-right: 10px;
+        }
+
+        /* Style for the delete button */
+        .delete-btn {
+            margin-left: 10px;
+        }
+    </style>
     <!-- Table -->
     <div class="CM-main-content">
         <div class="container-fluid p-0">
@@ -35,13 +48,13 @@
                                 <th class="slno">
                                     <span>S.No</span>
                                 </th>
-                                <th class="campaingn-title1">
+                                <th class="campaingn-title">
                                     <span>Name</span>
                                 </th>
                                 <th class="description">
                                     <span>Description</span>
                                 </th>
-                                <th class="campaingn-title">
+                                <th class="campaingn-title1">
                                     <span>Due Date</span>
                                 </th>
                                 <th class="campaingn-title">
@@ -59,18 +72,19 @@
                                     <td class="slno">
                                         <span>{{ $loop->iteration }}</span>
                                     </td>
-                                    <td class="campaingn-title1">
+                                    <td class="campaingn-title">
                                         <span>{{ $campaign->name }}</span>
                                     </td>
                                     <td class="description">
                                         <span>{{ $campaign->description }}</span>
                                     </td>
-                                    <td class="campaingn-title">
+                                    <td class="campaingn-title1">
                                         <span>{{ $campaign->due_date ? \Carbon\Carbon::parse($campaign->due_date)->format('Y-m-d') : '' }}</span>
                                     </td>
                                     <td class="campaingn-title">
                                         <span>
-                                            <p class="status green">{{ $campaign->is_active ? 'Active' : 'Inactive' }}</p>
+                                            <p class="status {{ $campaign->is_active ? 'green' : 'red' }}">
+                                                {{ $campaign->is_active ? 'Active' : 'Inactive' }}</p>
                                         </span>
                                     </td>
                                     <td class="active action-btn-icons">
@@ -90,7 +104,7 @@
                                             <i class="bx bx-show"></i>
                                         </a>
                                         {{-- @endif --}}
-                                        
+
 
                                         <button type="button" class="btn search" data-bs-toggle="modal"
                                             data-bs-target="#createcampaign"
@@ -122,7 +136,8 @@
                 <div class="modal-header">
                     <h1 class="modal-title fs-5" id="exampleModalLabel">Campaign</h1>
                     <p class="status green active_header_block" id="active_header_block" style="display: none;">Active</p>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" id="model-close" id="model-close" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <form id="campaignForm" method="POST" enctype="multipart/form-data">
@@ -153,7 +168,7 @@
                                 <label for="description">Campaign Brief</label>
                                 <textarea name="description" id="campaign_brief" class="form-control" rows="3"
                                     placeholder="Add a description for your campaign"></textarea>
-                                <span class="info-text">Add a description for your Task</span>
+                                {{-- <span class="info-text">Add a description for your Task</span> --}}
                             </div>
                         </div>
                         <div class="row m-0 ">
@@ -165,9 +180,8 @@
                                         </div>
                                         <div class="col-sm-8">
                                             <div>
-                                                <input type="checkbox" id="html" name="fav_language"
-                                                    value="HTML">
-                                                <label for="html">Active</label><br>
+                                                <input type="checkbox" id="active" name="active" value="active">
+                                                <label for="active">Active</label><br>
                                             </div>
                                         </div>
                                     </div>
@@ -196,47 +210,58 @@
 
 
 
-                            <div class="d-flex justify-content-end mb-3">
-                                <button type="button" class="btn thumbs-up " id="cancel"  data-bs-dismiss="modal">Cancel</button>
-                                <button type="button" class="btn search m-2" id="uploadAsset">Upload Assets</button>
-                                <button type="submit" class="btn edit m-2">Save</button>
+                            <div class="sic-action-btns d-flex justify-content-md-end justify-content-center flex-wrap">
+                                <button type="button" class="btn download" id="uploadAsset">Upload Assets</button>
+                                <button type="submit" class="btn create-task">Save</button>
+                                <button type="button" class="btn link-asset" id="cancel"
+                                    data-bs-dismiss="modal">Cancel</button>
                             </div>
 
                             <div class="img-upload-con d-none">
-                                <div class="upload--col">
+                                {{-- <div class="upload--col">
                                     <div class="drop-zone">
                                         <div class="drop-zone__prompt">
                                             <div class="drop-zone_color-txt">
                                                 <span><img src="assets/images/Image.png" alt=""></span> <br />
                                                 <span><img src="assets/images/fi_upload-cloud.svg" alt=""> Upload
-                                                    Cover
                                                     Image</span>
                                             </div>
                                             <div class="file-format">
-                                                <p>Upload a cover image for your product.</p>
+                                                <p>Upload images for your product.</p>
                                                 <p>File Format: <b>jpeg, png</b>. Recommended Size: <b>600x600 (1:1)</b></p>
                                             </div>
                                         </div>
-                                        <input type="file" name="cover_image" class="drop-zone__input">
+                                        <input type="file" id="cover_image" name="cover_image" class="drop-zone__input" accept="image/*">
+                                    </div>
+                                </div>
+                                
+                                <!-- Container to display the list of added images -->
+                                <div id="file-list-container" class="mt-3">
+                                    <ul id="file-list"></ul>
+                                </div> --}}
+                                <div class="sic-action-btns justify-content-center flex-wrap">
+                                    <div><button type="button" id="add-more-btn" class="btn download">Add More</button>
                                     </div>
                                 </div>
 
-                                {{-- <div class="additional-img">
-                                <label for="">Additional Images</label>
-                                <div class="upload--col">
-                                    <div class="drop-zone">
-                                        <div class="drop-zone__prompt">
-                                            <div class="drop-zone_color-txt">
-                                                <span><img src="assets/images/Image.png" alt=""></span> <br />
-                                                <span><img src="assets/images/fi_upload-cloud.svg" alt=""> Upload
-                                                    Image</span>
+                                <div id="additional-images-container" class="additional-img my-3">
+                                    {{-- <label>Additional Images</label> --}}
+                                    <div class="multiple-image" id="multiple-image" style="display: flex;">
+                                    <div class="upload--col">
+                                        <div class="drop-zone">
+                                            <div class="drop-zone__prompt">
+                                                <div class="drop-zone_color-txt">
+                                                    <span><img src="assets/images/Image.png" alt=""></span> <br />
+                                                    <span><img src="assets/images/fi_upload-cloud.svg" alt="">
+                                                        Upload Image</span>
+                                                </div>
                                             </div>
+                                            <input type="file" name="additional_images[]" class="drop-zone__input">
                                         </div>
-                                        <input type="file" name="additional_images[]" class="drop-zone__input"
-                                            multiple>
                                     </div>
                                 </div>
-                            </div> --}}
+                                </div>
+
                             </div>
                     </form>
                 </div>
@@ -259,6 +284,9 @@
 
             document.getElementById('related_partner').value = campaign.related_partner;
             document.getElementById('campaign_brief').value = campaign.description;
+
+            const activeCheckbox = document.getElementById('active');
+            activeCheckbox.checked = campaign.is_active === 1;
 
             // Handle active checkbox visibility
             document.getElementById('active_block').style.display = 'block';

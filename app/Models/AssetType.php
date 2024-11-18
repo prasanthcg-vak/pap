@@ -16,4 +16,9 @@ class AssetType extends Model
         'type_description',
         'is_active',
     ];
+
+    public function tasks()
+    {
+        return $this->hasMany(Tasks::class);
+    }
 }

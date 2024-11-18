@@ -1,39 +1,81 @@
+document.getElementById('add-more-btn').addEventListener('click', function () {
+  const container = document.getElementById('multiple-image');
 
-document.querySelectorAll(".drop-zone__input").forEach((inputElement) => {
-  const dropZoneElement = inputElement.closest(".drop-zone");
+  // Create a new image upload section
+  const newSection = document.createElement('div');
+  newSection.classList.add('upload--col');
 
-  dropZoneElement.addEventListener("click", (e) => {
-    inputElement.click();
+  newSection.innerHTML = `
+          <div class="drop-zone">
+              <div class="drop-zone__prompt">
+                  <div class="drop-zone_color-txt">
+                      <span><img src="assets/images/Image.png" alt=""></span> <br />
+                      <span><img src="assets/images/fi_upload-cloud.svg" alt=""> Upload Image</span>
+                  </div>
+              </div>
+              <input type="file" name="additional_images[]" class="drop-zone__input">
+
+          </div>
+          <button type="button" class="btn btn-danger btn-sm mt-2 remove-btn">X</button>
+
+  `;
+
+  // Append the new section to the container
+  container.appendChild(newSection);
+
+  // Add delete functionality to the delete button
+  const deleteButton = newSection.querySelector('.remove-btn');
+  deleteButton.addEventListener('click', function () {
+      newSection.remove();
   });
 
-  inputElement.addEventListener("change", (e) => {
-    if (inputElement.files.length) {
-      updateThumbnail(dropZoneElement, inputElement.files[0]);
-    }
-  });
-
-  dropZoneElement.addEventListener("dragover", (e) => {
-    e.preventDefault();
-    dropZoneElement.classList.add("drop-zone--over");
-  });
-
-  ["dragleave", "dragend"].forEach((type) => {
-    dropZoneElement.addEventListener(type, (e) => {
-      dropZoneElement.classList.remove("drop-zone--over");
-    });
-  });
-
-  dropZoneElement.addEventListener("drop", (e) => {
-    e.preventDefault();
-
-    if (e.dataTransfer.files.length) {
-      inputElement.files = e.dataTransfer.files;
-      updateThumbnail(dropZoneElement, e.dataTransfer.files[0]);
-    }
-
-    dropZoneElement.classList.remove("drop-zone--over");
-  });
+  // Initialize the drop-zone functionality for the new section
+  initializeDropZone(newSection.querySelector('.drop-zone'));
 });
+
+// Initialize drop-zone functionality for all elements
+function initializeDropZone(dropZoneElement) {
+  const fileInput = dropZoneElement.querySelector('.drop-zone__input');
+
+  // Make the drop zone clickable
+  dropZoneElement.addEventListener('click', (event) => {
+      if (event.target !== fileInput) {
+          fileInput.click();
+      }
+  });
+
+  fileInput.addEventListener('change', (e) => {
+      if (fileInput.files.length) {
+          updateThumbnail(dropZoneElement, fileInput.files[0]);
+      }
+  });
+
+  dropZoneElement.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZoneElement.classList.add('drop-zone--over');
+  });
+
+  ['dragleave', 'dragend'].forEach((type) => {
+      dropZoneElement.addEventListener(type, () => {
+          dropZoneElement.classList.remove('drop-zone--over');
+      });
+  });
+
+  dropZoneElement.addEventListener('drop', (e) => {
+      e.preventDefault();
+
+      if (e.dataTransfer.files.length) {
+          fileInput.files = e.dataTransfer.files;
+          updateThumbnail(dropZoneElement, e.dataTransfer.files[0]);
+      }
+
+      dropZoneElement.classList.remove('drop-zone--over');
+  });
+}
+
+// Initialize existing drop zones on page load
+document.querySelectorAll('.drop-zone').forEach(initializeDropZone);
+
 
 function updateThumbnail(dropZoneElement, file) {
   let thumbnailElement = dropZoneElement.querySelector(".drop-zone__thumb");
@@ -66,13 +108,14 @@ function updateThumbnail(dropZoneElement, file) {
 }
 
 
+
 $('.owl-carousel').owlCarousel({
   loop:true,
   margin:10,
   dots:false,
   navText: [
-      '<img src="assets/images/previous.svg" alt="Previous" />', // Custom previous arrow
-      '<img src="assets/images/next.svg" alt="Next" />'      // Custom next arrow
+      '<img src="/assets/images/previous.svg" alt="Previous" />', // Custom previous arrow
+      '<img src="/assets/images/next.svg" alt="Next" />'      // Custom next arrow
   ],
   nav:true,
   autoplay: true,              

@@ -28,7 +28,9 @@ class CampaignsController extends Controller
         $authId = Auth::id();
 
 
-        $campaigns = Campaigns::with('image')->where('is_active', 1)->get();
+        // $campaigns = Campaigns::with('image')->where('is_active', 1)->get();
+        $campaigns = Campaigns::with('image')->get();
+
         $partners = ClientPartner::with(['client', 'partner'])
             ->where('client_id', $authId)
             ->get();
@@ -62,31 +64,36 @@ class CampaignsController extends Controller
     public function store(Request $request)
     {
 
-        // dd($request->all());
+        dd($request->all());
         Log::info('Incoming request for image upload', [
             'request_data' => $request->all(),
         ]);
-        $image = new Image();
-        // Store the uploaded file in Backblaze B2
+        $data = new Campaigns();
+        $data->name = $request->name;
+        $data->description = $request->description;
+        $data->due_date = $request->due_date;
+        $data->status_id = null;
+        // $data->image_id = $image->id;
+        $data->is_active = 1;
+        $data->save();
         if ($request->hasFile('cover_image')) {
-
-            try {
-                $file = $request->file('cover_image');
-
-                // Log the file details
-                Log::info('File details', [
-                    'original_name' => $file->getClientOriginalName(),
-                    'mime_type' => $file->getMimeType(),
-                    'size' => $file->getSize(),
-                ]);
-
-                $randomName = Str::random(10) . '.' . $file->getClientOriginalExtension();
-                $filePath = 'images/' . $randomName;
-
-                // Log the file path and attempt storage
-                Log::info('Attempting to upload file to Backblaze', ['file_path' => $filePath]);
-
+            foreach ($request->file('cover_image') as $file) {
                 try {
+                    $image = new Image();
+
+                    // Generate a random name for the file
+                    $randomName = Str::random(10) . '.' . $file->getClientOriginalExtension();
+                    $filePath = 'images/' . $randomName;
+
+                    // Log file details
+                    Log::info('Processing file', [
+                        'original_name' => $file->getClientOriginalName(),
+                        'mime_type' => $file->getMimeType(),
+                        'size' => $file->getSize(),
+                        'file_path' => $filePath,
+                    ]);
+
+                    // Backblaze S3 client configuration
                     $s3Client = new S3Client([
                         'version' => 'latest',
                         'region' => 'us-east-005',
@@ -97,6 +104,7 @@ class CampaignsController extends Controller
                         ],
                     ]);
 
+                    // Upload the file to Backblaze
                     $result = $s3Client->putObject([
                         'Bucket' => 'cm-pap01',
                         'Key' => $filePath,
@@ -104,39 +112,29 @@ class CampaignsController extends Controller
                         'ACL' => 'public-read',
                     ]);
 
-                    // Store the image details in the database
-
-                    $image->path = $filePath; // Assuming you have a 'path' column in your 'images' table
-                    $image->file_name = $randomName; // Store the random name if needed
+                    // Save file details in the database
+                    $image->path = $filePath;
+                    $image->campaign_id = $data->id;
+                    $image->file_name = $randomName;
                     $image->save();
 
-
-                    // Log successful storage
-                    Log::info('Image uploaded successfully', [
-                        'database_image_id' => $image->id,
+                    Log::info('File uploaded successfully', [
+                        'file_id' => $image->id,
                     ]);
 
-                    // Redirect back to index with success message
-
-
-                } catch (Aws\Exception\AwsException $e) {
-
-                    // Catch any AWS SDK errors
+                } catch (\Aws\Exception\AwsException $e) {
+                    Log::error('AWS S3 Upload Error', ['error_message' => $e->getAwsErrorMessage()]);
                     return response()->json(['error' => 'Backblaze upload failed: ' . $e->getAwsErrorMessage()], 500);
-                } catch (Exception $e) {
-
+                } catch (\Exception $e) {
+                    Log::error('File upload error', ['error_message' => $e->getMessage()]);
                     return response()->json(['error' => 'File upload failed: ' . $e->getMessage()], 500);
                 }
-
-            } catch (\Exception $e) {
-                // Log the error
-                Log::error('Image upload error', [
-                    'error_message' => $e->getMessage(),
-                    'request_data' => $request->all(),
-                ]);
-                return redirect()->back()->withErrors(['error' => 'File upload failed: ' . $e->getMessage()]);
             }
+
+            // If all files uploaded successfully
+            return response()->json(['success' => 'Files uploaded successfully']);
         }
+
         // dd($image->id);
         // dd("test");
         $request->validate(
@@ -148,14 +146,7 @@ class CampaignsController extends Controller
             ]
         );
 
-        $data = new Campaigns();
-        $data->name = $request->name;
-        $data->description = $request->description;
-        $data->due_date = $request->due_date;
-        $data->status_id = null;
-        $data->image_id = $image->id;
-        $data->is_active = 1;
-        $data->save();
+       
         $id = $data->id;
 
 
@@ -178,17 +169,17 @@ class CampaignsController extends Controller
     public function show($id)
     {
         $campaign = Campaigns::findOrFail($id);
-        $task = Tasks::where('campaign_id',$id)->get();
+        $task = Tasks::where('campaign_id', $id)->get();
         // // dd($task);
         // if ($campaign && $campaign->image) {
         //     $image_path = Storage::disk('backblaze')->url($campaign->image->path);
-    
+
         //     // Get file type and size
         //     $fileType = Storage::disk('backblaze')->mimeType($campaign->image->path);
         //     $fileSize = Storage::disk('backblaze')->size($campaign->image->path); // Size in bytes
         //     $fileExtension = pathinfo($campaign->image->path, PATHINFO_EXTENSION); // Get the file extension
-    
-    
+
+
         //     // Convert file size to KB for readability
         //     $fileSizeKB = round($fileSize / 1024, 2);
         // } else {
@@ -199,7 +190,7 @@ class CampaignsController extends Controller
         // }
 
         $images = Image::all(['file_name', 'path']);
-        
+
         // Retrieve the URLs for each image
         $imageUrls = $images->map(function ($image) {
             return [
@@ -209,7 +200,7 @@ class CampaignsController extends Controller
             ];
         });
         $partners = ClientPartner::all(); // Assuming you have a Partner model
-        return view('campaigns.show', compact('campaign', 'partners','task','imageUrls'));
+        return view('campaigns.show', compact('campaign', 'partners', 'task', 'imageUrls'));
     }
 
     /**
@@ -222,7 +213,7 @@ class CampaignsController extends Controller
         return view('campaigns.edit', compact('campaign', 'partners'));
     }
 
-    
+
 
     /**
      * Update the specified resource in storage.
@@ -313,7 +304,10 @@ class CampaignsController extends Controller
         }
 
         $campaign = Campaigns::findOrFail($id);
+        $campaign->is_active = $request->has('active') ? 1 : 0;
+
         $campaign->update($request->all());
+        // dd($campaign);
 
         if ($request->hasFile('cover_image')) {
 
@@ -346,30 +340,30 @@ class CampaignsController extends Controller
         // return view('campaigns.index', compact('title', 'sideBar'));
     }
     public function assets_view(string $id)
-{
-    $categories = Category::where('is_active', 1)->get();
+    {
+        $categories = Category::where('is_active', 1)->get();
 
-    $campaigns = Campaigns::with('image')->where('is_active', 1)->where('id', $id)->first();
-    if ($campaigns && $campaigns->image) {
-        $image_path = Storage::disk('backblaze')->url($campaigns->image->path);
+        $campaigns = Campaigns::with('image')->where('is_active', 1)->where('id', $id)->first();
+        if ($campaigns && $campaigns->image) {
+            $image_path = Storage::disk('backblaze')->url($campaigns->image->path);
 
-        // Get file type and size
-        $fileType = Storage::disk('backblaze')->mimeType($campaigns->image->path);
-        $fileSize = Storage::disk('backblaze')->size($campaigns->image->path); // Size in bytes
-        $fileExtension = pathinfo($campaigns->image->path, PATHINFO_EXTENSION); // Get the file extension
+            // Get file type and size
+            $fileType = Storage::disk('backblaze')->mimeType($campaigns->image->path);
+            $fileSize = Storage::disk('backblaze')->size($campaigns->image->path); // Size in bytes
+            $fileExtension = pathinfo($campaigns->image->path, PATHINFO_EXTENSION); // Get the file extension
 
 
-        // Convert file size to KB for readability
-        $fileSizeKB = round($fileSize / 1024, 2);
-    } else {
-        $image_path = null;
-        $fileExtension  = null;
-        $fileType = null;
-        $fileSizeKB = null;
+            // Convert file size to KB for readability
+            $fileSizeKB = round($fileSize / 1024, 2);
+        } else {
+            $image_path = null;
+            $fileExtension = null;
+            $fileType = null;
+            $fileSizeKB = null;
+        }
+
+        return view('campaigns.asset_view', compact('campaigns', 'image_path', 'categories', 'fileExtension', 'fileSizeKB'));
     }
-
-    return view('campaigns.asset_view', compact('campaigns', 'image_path', 'categories', 'fileExtension', 'fileSizeKB'));
-}
 
 
 }
