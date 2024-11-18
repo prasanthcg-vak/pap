@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AssetType;
 use App\Models\Campaigns;
 use App\Models\Category;
 use App\Models\Tasks;
@@ -16,8 +17,10 @@ class TasksController extends Controller
     {
         $campaigns = Campaigns::all(); // Get all campaigns for the dropdown
         $categories = Category::where('is_active', 1)->get();
+        $assets = AssetType::where('is_active', 1)->get();
+        // dd($asset);
         $tasks = Tasks::with(['campaign', 'status'])->where('is_active', 1)->get();
-        return view('tasks.index', compact('tasks', 'campaigns','categories'));
+        return view('tasks.index', compact('tasks', 'campaigns', 'categories', 'assets'));
     }
 
 
@@ -72,8 +75,8 @@ class TasksController extends Controller
     {
         $campaigns = Campaigns::all(); // Get all campaigns for the dropdown
         $categories = Category::where('is_active', 1)->get();
-        
-        return view('tasks.edit', compact('task', 'campaigns','categories'));
+
+        return view('tasks.edit', compact('task', 'campaigns', 'categories'));
     }
 
     /**
@@ -84,7 +87,8 @@ class TasksController extends Controller
         // dd(auth()->check());
         $campaigns = Campaigns::all();
         $categories = Category::where('is_active', 1)->get();
-        return view('tasks.show', compact('task', 'campaigns','categories'));
+        $assets = AssetType::where('is_active', 1)->get();
+        return view('tasks.show', compact('task', 'campaigns', 'categories', 'assets'));
     }
 
     // Update the task
@@ -96,8 +100,9 @@ class TasksController extends Controller
             'campaign_id' => 'nullable|exists:campaigns,id',
             'name' => 'required|string|max:255',
             'date_required' => 'required|date',
-            'task_urgent' => 'sometimes|boolean',
-            'category_id' => 'required|string|max:255',
+            // 'task_urgent' => 'sometimes|boolean',
+            // 'category_id' => 'required|string|max:255',
+            'asset' => 'required',
             'size_width' => 'required|integer',
             'size_height' => 'required|integer',
             'description' => 'required|string',
@@ -109,7 +114,8 @@ class TasksController extends Controller
             'name' => $validatedData['name'],
             'date_required' => $validatedData['date_required'],
             'task_urgent' => $validatedData['task_urgent'] ?? 0,
-            'category_id' => $validatedData['category_id'],
+            'category_id' => $request['category_id'],
+            'asset_id' => $validatedData['asset'],
             'size_width' => $validatedData['size_width'],
             'size_height' => $validatedData['size_height'],
             'description' => $validatedData['description'],

@@ -80,6 +80,15 @@
             <div class="campaign-card-contents task-table-info ">
                 <div class="col-lg-12 p-0">
                     <div class="card">
+                        @if ($errors->any())
+                    <div class="alert alert-danger">
+                        <ul>
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
                         <div class="heading_text">
                             <div class="title_status">
                                 <h3> {{ strtoupper($task->name ?? 'N/A') }}</h3>
@@ -503,18 +512,35 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row m-0">
-                            <div class="col-lg-6 col-xl-4 mb-4 mb-lg-0">
-                                <select class="form-select" name="category" required aria-label="Default select example">
-                                    <option>Select Category</option>
-                                    @foreach ($categories as $category)
-                                        <option value="{{ $category->id }}"
-                                            {{ $task->category_id == $category->id ? 'selected' : '' }}>
-                                            {{ $category->category_name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
+                        {{-- @foreach ($categories as $category) --}}
+                        @php
+                    @endphp
+                    {{-- @endforeach --}}
+                        <div class="row m-0"><div class="col-lg-6 col-xl-4 mb-4 mb-lg-0">
+                            <select class="form-select" name="category_id" required aria-label="Default select example">
+                                <option>Select Category</option>
+                                @foreach ($categories as $category)
+                                    <option value="{{ $category->id }}"
+                                        
+                                        {{ $task->category_id == $category->id ? 'selected' : '' }}>
+                                       
+                                        {{ $category->category_name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-lg-6 col-xl-4 mb-4 mb-lg-0">
+                            <select class="form-select" name="asset" required aria-label="Default select example">
+                                <option>Select Asset</option>
+                                @foreach ($assets as $asset)
+                                    <option value="{{ $asset->id }}"
+                                        {{ $task->asset_id == $asset->id ? 'selected' : '' }}>
+                                        {{ $asset->type_name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        
                             <div class="col-lg-6 col-xl-3 p-xl-0">
                                 <div class="input-wrap">
                                     <input type="text" name="size_width" id="size_width" required

@@ -9,7 +9,7 @@ class Tasks extends Model
     use SoftDeletes;
     protected $fillable = [
         'campaign_id', 'name', 'description', 'date_required', 'task_urgent', 
-        'category_id', 'size_width', 'size_height', 'status_id', 'is_active'
+        'category_id', 'size_width', 'size_height', 'status_id', 'asset_id', 'is_active'
     ];
 
     protected $dates = ['deleted_at'];
@@ -25,6 +25,10 @@ class Tasks extends Model
     public function categorys()
     {
         return $this->belongsTo(Category::class);
+    }
+    public function asset()
+    {
+        return $this->belongsTo(AssetType::class);
     }
     public function assets()
     {
