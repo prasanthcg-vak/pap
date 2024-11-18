@@ -146,6 +146,14 @@
                                     @endforeach
                                 </select>
                             </div>
+                            <div class="mb-3">
+                                <label for="roleSelect" class="form-label">Role</label>
+                                <select id="roleSelect" class="form-select select2" multiple>
+                                <option value="1">Admin</option>
+                                <option value="2">Editor</option>
+                                <option value="3">Viewer</option>
+                                </select>
+                            </div>
                         </div>
 
                         <div class="row m-0">
@@ -243,46 +251,57 @@
             </div>
         </div>
     </div>
-    <script>
-        function editCampaign(campaign, imgUrl) {
-            // Change form action and method for updating
-            const form = document.getElementById('campaignForm');
-            form.action = `/campaigns/${campaign.id}`;
-            document.getElementById('campaignMethod').value = 'PUT';
+@endsection
 
-            // Populate form fields with campaign data
-            document.getElementById('campaign_name').value = campaign.name;
+@section('script')
 
-            // Extract date portion from due_date (YYYY-MM-DD)
-            const formattedDate = campaign.due_date.split(' ')[0];
-            document.getElementById('date').value = formattedDate;
+<script>
 
-            document.getElementById('related_partner').value = campaign.related_partner;
-            document.getElementById('campaign_brief').value = campaign.description;
+$(document).ready(function() {
+    $('.select2').select2({
+        theme: 'bootstrap-5'  // Optional: to make Select2 match Bootstrap 5 styles
+    });
 
-            // Handle active checkbox visibility
-            document.getElementById('active_block').style.display = 'block';
-            document.getElementById('active_header_block').style.display = 'block';
+    $('#myModal').on('shown.bs.modal', function () {
+        $('#roleSelect').select2();
+    });
+});
+function editCampaign(campaign, imgUrl) {
+    // Change form action and method for updating
+    const form = document.getElementById('campaignForm');
+    form.action = `/campaigns/${campaign.id}`;
+    document.getElementById('campaignMethod').value = 'PUT';
 
-            // Display existing cover image if available
-            const existingImage = document.getElementById('existingImage');
-            if (imgUrl) {
-                existingImage.src = imgUrl; // Set the image source to the URL passed from the backend
+    // Populate form fields with campaign data
+    document.getElementById('campaign_name').value = campaign.name;
 
-                document.getElementById('existingImageDiv').style.display = 'block';
-                // existingImage.style.display = 'block'; // Ensure the image is visible
+    // Extract date portion from due_date (YYYY-MM-DD)
+    const formattedDate = campaign.due_date.split(' ')[0];
+    document.getElementById('date').value = formattedDate;
 
-            } else {
-                document.getElementById('existingImageDiv').style.display = 'none';
-                // existingImage.style.display = 'none'; // Hide the image if no URL is passed
-            }
+    document.getElementById('related_partner').value = campaign.related_partner;
+    document.getElementById('campaign_brief').value = campaign.description;
 
-            // Display the modal
-            $('#createcampaign').modal('show');
-        }
-    </script>
+    // Handle active checkbox visibility
+    document.getElementById('active_block').style.display = 'block';
+    document.getElementById('active_header_block').style.display = 'block';
 
+    // Display existing cover image if available
+    const existingImage = document.getElementById('existingImage');
+    if (imgUrl) {
+        existingImage.src = imgUrl; // Set the image source to the URL passed from the backend
 
+        document.getElementById('existingImageDiv').style.display = 'block';
+        // existingImage.style.display = 'block'; // Ensure the image is visible
 
+    } else {
+        document.getElementById('existingImageDiv').style.display = 'none';
+        // existingImage.style.display = 'none'; // Hide the image if no URL is passed
+    }
+
+    // Display the modal
+    $('#createcampaign').modal('show');
+}
+</script>
 
 @endsection
