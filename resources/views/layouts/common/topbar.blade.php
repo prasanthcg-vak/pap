@@ -161,7 +161,7 @@
                         <span>{{task_count()}}</span>
                     </div>
                 </a>
-                <a href="#" class="card-item orange">
+                <a href="{{ route('library.index') }}" class="card-item orange">
                     <div class="circle_text ">
                         <div class="circle-icon orange">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -182,9 +182,6 @@
                         <div class="card-text">
                             <p>LIBRARY</p>
                         </div>
-                    </div>
-                    <div class="values orange">
-                        <span>2432</span>
                     </div>
                 </a>
             </div>

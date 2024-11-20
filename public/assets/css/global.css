@@ -98,7 +98,7 @@ ul {
     position: relative;
     display: flex;
     gap: 24px;
-    cursor: pointer;
+    /* cursor: pointer; */
 }
 
 .check-list>span {
