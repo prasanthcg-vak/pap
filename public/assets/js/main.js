@@ -136,22 +136,6 @@ $('.owl-carousel').owlCarousel({
 
 
 $(document).ready(function(){
-$(".layout-btn").click(function() {
-  var targetTable = $(".common-table table");
 
-    // Remove 'active' class from all buttons and add it to the clicked button
-  $(".layout-btn").removeClass("active");
-  $(this).addClass("active");
-    
-  // Check if the clicked button has the 'list' class
-  if ($(this).hasClass("list")) {
-    $(this)
-    targetTable.removeClass("grid-view").addClass("list-view");
-  } 
-  // Otherwise, check if it has the 'grid' class
-  else if ($(this).hasClass("grid")) {
-    targetTable.removeClass("list-view").addClass("grid-view");
-  }
-});
 
 })

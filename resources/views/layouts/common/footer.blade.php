@@ -15,53 +15,15 @@
     <script type="text/javascript" src="https://cdn.datatables.net/responsive/3.0.3/js/dataTables.responsive.js"></script>
     <script type="text/javascript" src="https://cdn.datatables.net/responsive/3.0.3/js/responsive.bootstrap5.js"></script>
 
-    @yield('script')
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
+    
     <script>
         new DataTable('#datatable');
     </script>
-    <script>
-        document.getElementById('uploadAsset').addEventListener('click', function() {
-            // Toggle the 'img-upload-con' visibility
-            document.querySelector('.img-upload-con').classList.toggle('d-none');
-        });
 
-        const toastEl1 = document.getElementById('cancel');
-
-        toastEl1.addEventListener('click', function() {
-            location.reload();
-
-            // alert('Cancel button clicked!');
-        });
-
-        const toastEl2 = document.getElementById('model-close');
-
-        toastEl2.addEventListener('click', function() {
-            location.reload();
-
-            // alert('Cancel button clicked!');
-        });
-        document.addEventListener('DOMContentLoaded', function() {
-    // Select all elements with the modal class `.modal.fade`
-    document.querySelectorAll('.modal.fade').forEach((modalElement) => {
-        // Initialize each modal with options
-        const modalInstance = new bootstrap.Modal(modalElement, {
-            backdrop: 'static',
-            keyboard: false
-        });
-
-        // Optional: attach event listeners for opening modals with the specified options
-        modalElement.addEventListener('show.bs.modal', function() {
-            modalInstance._config.backdrop = 'static';
-            modalInstance._config.keyboard = false;
-        });
-    });
-});
-
-                    // Show the modal with the specified options
-                    // myModal.show();
-    </script>
-
+    @yield('script')
 
     </body>
 

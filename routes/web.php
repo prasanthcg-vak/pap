@@ -13,6 +13,7 @@ use App\Http\Controllers\TasksController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\AssetTypeController;
 use App\Http\Controllers\ImageController;
+use App\Http\Controllers\LibraryController;
 // use App\Http\Controllers\ClientGroupsController;
 
 
@@ -30,6 +31,7 @@ Auth::routes(['verify' => true]);
 Route::middleware(['auth'])->group(function () {
 
     Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+    Route::get('/dashboard', [ImageController::class, 'listCampaignImages'])->name('dashboard');
 
     //Roles
     Route::get('roles', [RoleController::class, 'index'])->name('roles.index')->middleware('permission:roles.index');
@@ -107,8 +109,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/images/create', [ImageController::class, 'create'])->name('images.create');
     Route::post('/images', [ImageController::class, 'store'])->name('images.store');
     Route::delete('/images', [ImageController::class, 'destroy'])->name('images.delete');
-    Route::get('/imageslist', [ImageController::class, 'listImages']);
-
+    Route::get('/library', [LibraryController::class, 'index'])->name('library.index');
+    
+  
     // Show the form to create a new client-partner relationship
     Route::get('clientpartner/create', [UserController::class, 'create_client_partner'])->name('clientpartner.create');
     // Store the newly created client-partner relationship
@@ -124,3 +127,32 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('groups', GroupController::class);
 });
 
+// Clear application cache
+Route::get('/clear-cache', function () {
+    Artisan::call('cache:clear');
+    return 'Application cache has been cleared';
+});
+
+// Clear route cache
+Route::get('/route-cache', function () {
+    Artisan::call('route:cache');
+    return 'Routes cache has been cleared';
+});
+
+// Clear config cache
+Route::get('/config-cache', function () {
+    Artisan::call('config:cache');
+    return 'Config cache has been cleared';
+});
+
+// Clear view cache
+Route::get('/view-clear', function () {
+    Artisan::call('view:clear');
+    return 'View cache has been cleared';
+});
+
+// Optimize application
+Route::get('/optimize-clear', function () {
+    Artisan::call('optimize:clear');
+    return 'Optimization has been cleared';
+});

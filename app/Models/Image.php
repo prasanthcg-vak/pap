@@ -10,4 +10,20 @@ class Image extends Model
 
     // Optional: specify fillable fields if needed
     protected $fillable = ['file_name', 'path'];
+
+    public function campaign()
+    {
+        return $this->belongsTo(Campaigns::class);
+    }
+
+    public function task()
+    {
+        return $this->belongsTo(Tasks::class, 'task_id');
+    }
+
+    public function campaigns()
+    {
+        return $this->belongsTo(Campaigns::class, 'campaign_id');
+    }
+
 }
