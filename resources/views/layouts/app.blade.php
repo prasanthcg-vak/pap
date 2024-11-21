@@ -4,6 +4,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta property="og:title" content="Partner Asset Portal" />
+    <meta property="og:description" content="Description of the content." />
+    <meta property="og:image" content="https://www.example.com/image.jpg" />
+    <meta property="og:url" content="https://www.example.com" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Partner Asset Portal" />
+    <meta name="twitter:description" content="Description of the content." />
+    <meta name="twitter:image" content="https://www.example.com/image.jpg" />
+
     <title>Crew Mark</title>
 
     <!-- Bootstrap 5.2 CSS cdn link-->
@@ -43,6 +53,8 @@
         href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.14.0-beta2/css/bootstrap-select.min.css"
         integrity="sha512-mR/b5Y7FRsKqrYZou7uysnOdCIJib/7r5QeJMFvLNHNhtye3xJp1TdJVPLtetkukFn227nKpXD9OjUc09lx97Q=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+
 </head>
 
 <body class="bg-alabaster">
