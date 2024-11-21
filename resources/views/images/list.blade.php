@@ -9,8 +9,16 @@
                 @foreach ($assets as $asset)
                     <div class="card-img_text">
                         <div class="Detail-card-image">
-                            <img src="{{ $asset['image'] }}"
-                                alt="{{ $asset['file_name'] }}">
+                        @php
+                            $thumbnail = match($asset['image_type']) {
+                                'image' => $asset['image'],
+                                'video' => asset('assets/images/video.png'),
+                                default => asset('assets/images/document.png'),
+                            };
+                        @endphp
+
+                        <img src="{{ $thumbnail }}" class="img-fluid" style="max-height: 200px;" alt="{{ $asset['file_name'] }}">
+                            {{-- <img src="{{ $asset['file_name'] }}" alt="{{ $asset['file_name'] }}"> --}}
                         </div>
                         {{-- <div class="crew-mark cross">
                             <svg width="12" height="12" viewBox="0 0 12 12" fill="none"

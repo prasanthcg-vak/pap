@@ -25,6 +25,7 @@ class LibraryController extends Controller
                     'thumbnail' => Storage::disk('backblaze')->url($task->image->path) ?? null,
                     'image_name' => $task->image->file_name ?? null,
                     'image_path' => $task->image->path ?? null,
+                    'image_type' => $task->image->file_type ?? null,
                     'campaign_name' => $task->campaign->name ?? null,
                     'dimensions' => $task->size_width . 'x' . $task->size_height,
                     'category' => $task->category->name ?? null,
