@@ -66,7 +66,7 @@
                                             style="display:inline;">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="btn comment">
+                                            <button type="submit" class="btn delete">
                                                 <i class="bx bx-trash"></i>
                                             </button>
                                         </form>

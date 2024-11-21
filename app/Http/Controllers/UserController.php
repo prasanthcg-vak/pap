@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CampaignPartner;
 use App\Models\ClientPartner;
 use App\Models\User;
 use App\Models\Role;
@@ -29,41 +30,41 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
-        
-            // Validate the incoming data
-            $request->validate([
-                'name' => 'required|string|max:255',
-                'email' => 'required|email|unique:users,email',
-                'group_id' => 'required',
-                'is_active' => 'boolean',
-            ]);
 
-            // Generate a random password for the partner
-            $randomPassword = Str::random(10);
-            $status = $request->has('is_active') ? $request->input('is_active') : 0;
+        // Validate the incoming data
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'group_id' => 'required',
+            'is_active' => 'boolean',
+        ]);
 
-            $user = User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'group_id' => (int) $request->group_id,
-                'password' => Hash::make($randomPassword),
-                'is_active' => $status,
-            ]);
+        // Generate a random password for the partner
+        $randomPassword = Str::random(10);
+        $status = $request->has('is_active') ? $request->input('is_active') : 0;
 
-            // Assign Role
-            DB::table('role_user')->insert([
-                'user_id' => $user->id,
-                'role_id' => $request->role_id,
-                'created_at' => now(),
-                'updated_at' => now()
-            ]);
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'group_id' => (int) $request->group_id,
+            'password' => Hash::make($randomPassword),
+            'is_active' => $status,
+        ]);
+
+        // Assign Role
+        DB::table('role_user')->insert([
+            'user_id' => $user->id,
+            'role_id' => $request->role_id,
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
 
 
-            // Attempt to send email
-            Mail::to($request->email)->send(new UserPasswordMail($randomPassword));
+        // Attempt to send email
+        Mail::to($request->email)->send(new UserPasswordMail($randomPassword));
 
-            return response()->json(['success' => 'User created successfully']);
-       
+        return response()->json(['success' => 'User created successfully']);
+
     }
 
 
@@ -189,6 +190,7 @@ class UserController extends Controller
 
     public function create_client_partner()
     {
+        // dd(Auth::user()->group_id);
         return view('clientpartner.create');
     }
 
@@ -215,6 +217,7 @@ class UserController extends Controller
             'contact' => $request->partner_contact, // Hash the random password
             'role_id' => 2,  // Assign a role (adjust as per your roles logic)
             'pcode' => $randomPassword,
+            'group_id' => Auth::user()->group_id,  
             'is_active' => $request->status == 'active' ? 1 : 0,  // Set status
         ]);
 
@@ -223,6 +226,7 @@ class UserController extends Controller
             'client_id' => Auth::id(), // Using the authenticated client's ID
             'partner_id' => $user->id,  // Newly created partner's ID
         ]);
+        
         DB::table('role_user')->insert([
             'user_id' => $user->id,
             'role_id' => 6,
@@ -333,4 +337,17 @@ class UserController extends Controller
             return redirect()->route('myprofile')->with('error', 'An error occurred while deleting.');
         }
     }
+    public function getPartnersByCampaign($id)
+    {
+        $authId = Auth::id();
+
+        // Fetch partners related to the selected campaign
+        $partners = CampaignPartner::with(['partner'])
+            ->where('campaigns_id', $id)          // ->where('campaign_id', $id) // Assuming 'campaign_id' is the relation field
+            ->get();
+
+        // Return JSON response
+        return response()->json($partners);
+    }
+
 }

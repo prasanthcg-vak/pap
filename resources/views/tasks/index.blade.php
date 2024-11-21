@@ -48,7 +48,7 @@
                 <div class="table-wrapper">
                     <table id="datatable" style="width:100%">
                         <thead>
-                            <tr >
+                            <tr>
                                 <th class="campaingn-title">
                                     <span>Task Title</span>
                                 </th>
@@ -67,7 +67,7 @@
                                 <th class="action">Actions</th>
                             </tr>
                         </thead>
-                        <tbody >
+                        <tbody>
                             @foreach ($tasks as $task)
                                 <tr>
                                     <td class="campaingn-title">
@@ -108,6 +108,8 @@
 
                     </table>
                 </div>
+
+                
             </div>
         </div>
     </div>
@@ -122,18 +124,27 @@
                     <span class="btn-close" data-dismiss="modal" aria-label="Close"></span>
                 </div>
                 <div class="modal-body">
-                    <form action="{{ route('tasks.store') }}" method="POST">
+                    <form action="{{ route('tasks.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
 
                         <div class="row m-0">
                             <div class="col-xl-4">
-                                <select class="form-select" name="campaign_id" required aria-label="Default select example">
-                                    <option selected>Select Campaign</option>
+                                <select class="form-select" id="campaign-select" name="campaign_id" required
+                                    aria-label="Default select example">
+                                    <option value="" selected>Select Campaign</option>
                                     @foreach ($campaigns as $campaign)
                                         <option value="{{ $campaign->id }}">{{ $campaign->name }}</option>
                                     @endforeach
                                 </select>
-
+                            </div>
+                            <div class="col-xl-4">
+                                <select class="form-select" id="partner-select" name="partner_id" required
+                                    aria-label="Default select example">
+                                    <option value="" selected>Select Partner</option>
+                                    {{-- @foreach ($partners as $partner)
+                                        <option value="{{$partner->id}}">{{$partner->partner->name}} </option>
+                                    @endforeach --}}
+                                </select>
                             </div>
                         </div>
                         <div class="row m-0">
@@ -165,8 +176,8 @@
                         <div class="row m-0">
                             <div class="col-lg-6 col-xl-4 mb-4 mb-lg-0">
 
-                                <select class="form-select" name="category" required aria-label="Default select example">
-                                    <option selected>Select Category</option>
+                                <select class="form-select" name="category_id" required aria-label="Default select example">
+                                    <option value="" selected>Select Category</option>
                                     @foreach ($categories as $category)
                                         <option value="{{ $category->id }} ">
                                             {{ $category->category_name }}
@@ -176,20 +187,20 @@
                             </div>
                             <div class="col-lg-6 col-xl-4 mb-4 mb-lg-0">
 
-                                <select class="form-select" name="category" required aria-label="Default select example">
-                                    <option selected>Select Asset</option>
+                                <select class="form-select" name="asset_id" required aria-label="Default select example">
+                                    <option value="" selected>Select Asset</option>
                                     @foreach ($assets as $asset)
                                         <option value="{{ $asset->id }} ">
-                                            {{ $asset->type_name	 }}
+                                            {{ $asset->type_name }}
                                         </option>
                                     @endforeach
                                 </select>
                             </div>
                             <div class="col-lg-6 col-xl-3 p-xl-0">
                                 <div class="input-wrap">
-                                    <input type="text" name="size_width" id="size_width" required
+                                    <input type="number" name="size_width" id="size_width" required
                                         placeholder="Size (Width)">
-                                    <input type="text" name="size_height" id="size_height" required
+                                    <input type="number" name="size_height" id="size_height" required
                                         placeholder="Size (Height)">
                                 </div>
                             </div>
@@ -197,15 +208,15 @@
                         <div class="row m-0">
                             <div class="col-md-12">
                                 <label for="">Task Brief</label>
-                                <textarea name="description" required id="description"></textarea>
+                                <textarea name="description" placeholder="Add a description for your Task" required id="description"></textarea>
                             </div>
-                            <span class="info-text">Add a description for your Task</span>
+                            {{-- <span class="info-text">Add a description for your Task</span> --}}
                         </div>
                         <div class="sic-action-btns d-flex justify-content-md-end justify-content-center flex-wrap">
                             <div class="sic-btn">
-                                <button class="btn create-task" id="uploadAsset">
+                                <a class="btn create-task" id="uploadAsset">
                                     upload assets
-                                </button>
+                                </a>
                             </div>
                             <div class="sic-btn">
                                 <span class="btn link-asset" data-dismiss="modal" id="cancel"
@@ -219,7 +230,7 @@
                         </div>
 
                         <div class="img-upload-con d-none">
-                            <div class="upload--col">
+                            <div class="upload--col w-100">
                                 <div class="drop-zone">
                                     <div class="drop-zone__prompt">
 
@@ -239,7 +250,7 @@
 
                                 <!-- <button type="submit" class="primary-btn">Add</button> -->
                             </div>
-                            <div class="additional-img">
+                            {{-- <div class="additional-img">
                                 <label for="">Additional Images</label>
 
                                 <div class="upload--col">
@@ -257,7 +268,7 @@
 
                                     <!-- <button type="submit" class="primary-btn">Add</button> -->
                                 </div>
-                            </div>
+                            </div> --}}
                         </div>
 
                     </form>
@@ -302,7 +313,7 @@
             });
         });
     </script>
-
+   
 
     <!-- Include Bootstrap JS and dependencies -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>

@@ -3,10 +3,20 @@
 namespace App\Http\Controllers;
 
 use App\Models\AssetType;
+use App\Models\CampaignPartner;
 use App\Models\Campaigns;
 use App\Models\Category;
+use App\Models\ClientPartner;
+use App\Models\Image;
 use App\Models\Tasks;
+use Aws\S3\S3Client;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+
 
 class TasksController extends Controller
 {
@@ -15,12 +25,17 @@ class TasksController extends Controller
      */
     public function index()
     {
+        $authId = Auth::id();
+
         $campaigns = Campaigns::all(); // Get all campaigns for the dropdown
         $categories = Category::where('is_active', 1)->get();
         $assets = AssetType::where('is_active', 1)->get();
+        $partners = ClientPartner::with(['client', 'partner'])
+        ->where('client_id', $authId)
+        ->get();
         // dd($asset);
         $tasks = Tasks::with(['campaign', 'status'])->where('is_active', 1)->get();
-        return view('tasks.index', compact('tasks', 'campaigns', 'categories', 'assets'));
+        return view('tasks.index', compact('tasks', 'campaigns', 'categories', 'assets','partners'));
     }
 
 
@@ -39,7 +54,7 @@ class TasksController extends Controller
     {
         // Validate the incoming request data
         $validatedData = $request->validate([
-            'campaign_id' => 'nullable|exists:campaigns,id',
+            'campaign_id' => 'required',
             'name' => 'required|string|max:255',
             'date_required' => 'required|date',
             // 'task_urgent' => 'sometimes|boolean',
@@ -48,21 +63,101 @@ class TasksController extends Controller
             'description' => 'required|string',
         ]);
         $date = $validatedData['date_required'];
-        $formattedDate = \DateTime::createFromFormat('m/d/Y', $date)->format('Y-m-d');
+        // dd($date);
+        $formattedDate =  $date;
         // dd($formattedDate);
 
+        // dd($request->all());
+        Log::info('Incoming request for image upload', [
+            'request_data' => $request->all(),
+        ]);
+
+        // Store the uploaded file in Backblaze B2
+        $image = new Image();
+
+        if ($request->hasFile('myFile')) {
+            try {
+                $file = $request->file('myFile');
+
+                // Log the file details
+                Log::info('File details', [
+                    'original_name' => $file->getClientOriginalName(),
+                    'mime_type' => $file->getMimeType(),
+                    'size' => $file->getSize(),
+                ]);
+
+                $randomName = Str::random(10) . '.' . $file->getClientOriginalExtension();
+                $filePath = 'images/' . $randomName;
+
+                // Log the file path and attempt storage
+                Log::info('Attempting to upload file to Backblaze', ['file_path' => $filePath]);
+
+                try {
+                    $s3Client = new S3Client([
+                        'version' => 'latest',
+                        'region' => 'us-east-005',
+                        'endpoint' => 'https://s3.us-east-005.backblazeb2.com',
+                        'credentials' => [
+                            'key' => env('BACKBLAZE_KEY_ID'),
+                            'secret' => env('BACKBLAZE_APPLICATION_KEY'),
+                        ],
+                    ]);
+
+                    $result = $s3Client->putObject([
+                        'Bucket' => 'cm-pap01',
+                        'Key' => $filePath,
+                        'Body' => file_get_contents($file),
+                        'ACL' => 'public-read',
+                    ]);
+
+                    // Store the image details in the database
+                    $image->path = $filePath; // Assuming you have a 'path' column in your 'images' table
+                    $image->file_name = $randomName; // Store the random name if needed
+                    $image->save();
+
+                    // Log successful storage
+                    Log::info('Image uploaded successfully', [
+                        'database_image_id' => $image->id,
+                    ]);
+
+                    // Redirect back to index with success message
+
+                } catch (Aws\Exception\AwsException $e) {
+
+                    // Catch any AWS SDK errors
+                    return response()->json(['error' => 'Backblaze upload failed: ' . $e->getAwsErrorMessage()], 500);
+                } catch (Exception $e) {
+
+                    return response()->json(['error' => 'File upload failed: ' . $e->getMessage()], 500);
+                }
+
+            } catch (\Exception $e) {
+                // Log the error
+                Log::error('Image upload error', [
+                    'error_message' => $e->getMessage(),
+                    'request_data' => $request->all(),
+                ]);
+                return redirect()->back()->withErrors(['error' => 'File upload failed: ' . $e->getMessage()]);
+            }
+        }
+        $image_id = $image->id;
         // Create a new task using the validated data
         Tasks::create([
-            'campaign_id' => $validatedData['campaign_id'],
+            'campaign_id' => (int)$request->campaign_id,
             'name' => $validatedData['name'],
             'date_required' => $formattedDate,
             'task_urgent' => $validatedData['task_urgent'] ?? 0, // Default to 0 if not checked
             'size_width' => $validatedData['size_width'],
             'size_height' => $validatedData['size_height'],
+            'image_id' => $image_id,
+            'partner_id' => (int) $request->partner_id,
+            'category_id' => (int) $request->category_id            ,
+            'asset_id' => (int) $request->asset_id,
             'description' => $validatedData['description'],
             'status_id' => null, // Set this as needed
             'is_active' => 1
         ]);
+
 
         // Redirect to the tasks index page with a success message
         return redirect()->route('tasks.index')->with('success', 'Task created successfully!');
@@ -84,46 +179,157 @@ class TasksController extends Controller
      */
     public function show(Tasks $task)
     {
-        // dd(auth()->check());
+        $authId = Auth::id();
+    
         $campaigns = Campaigns::all();
         $categories = Category::where('is_active', 1)->get();
         $assets = AssetType::where('is_active', 1)->get();
-        return view('tasks.show', compact('task', 'campaigns', 'categories', 'assets'));
+    
+        $partners = CampaignPartner::with(['partner'])
+            ->where('campaigns_id', $task->campaign_id)
+            ->get();
+    
+        // Fetch the associated image for the task
+        $image = $task->image_id 
+            ? Image::find($task->image_id) 
+            : null;
+    
+        $imageUrl = $image 
+            ? Storage::disk('backblaze')->url($image->path) 
+            : null;
+    
+        return view('tasks.show', compact('task', 'campaigns', 'categories', 'assets', 'partners', 'imageUrl'));
     }
+    
 
     // Update the task
-    public function update(Request $request, Tasks $task)
-    {
-        // dd($request->all());
-        // Validate the incoming request data
-        $validatedData = $request->validate([
-            'campaign_id' => 'nullable|exists:campaigns,id',
-            'name' => 'required|string|max:255',
-            'date_required' => 'required|date',
-            // 'task_urgent' => 'sometimes|boolean',
-            // 'category_id' => 'required|string|max:255',
-            'asset' => 'required',
-            'size_width' => 'required|integer',
-            'size_height' => 'required|integer',
-            'description' => 'required|string',
-        ]);
+    // public function update(Request $request, Tasks $task)
+    // {
+    //     // dd($request->all());
+    //     // Validate the incoming request data
+    //     $validatedData = $request->validate([
+    //         'campaign_id' => 'nullable|exists:campaigns,id',
+    //         'name' => 'required|string|max:255',
+    //         'date_required' => 'required|date',
+    //         // 'task_urgent' => 'sometimes|boolean',
+    //         // 'category_id' => 'required|string|max:255',
+    //         'asset' => 'required',
+    //         'size_width' => 'required|integer',
+    //         'size_height' => 'required|integer',
+    //         'description' => 'required|string',
+    //     ]);
 
-        // Update the task with validated data
-        $task->update([
-            'campaign_id' => $validatedData['campaign_id'],
-            'name' => $validatedData['name'],
-            'date_required' => $validatedData['date_required'],
-            'task_urgent' => $validatedData['task_urgent'] ?? 0,
-            'category_id' => $request['category_id'],
-            'asset_id' => $validatedData['asset'],
-            'size_width' => $validatedData['size_width'],
-            'size_height' => $validatedData['size_height'],
-            'description' => $validatedData['description'],
-        ]);
+    //     // Update the task with validated data
+    //     $task->update([
+    //         'campaign_id' => $validatedData['campaign_id'],
+    //         'name' => $validatedData['name'],
+    //         'date_required' => $validatedData['date_required'],
+    //         'task_urgent' => $validatedData['task_urgent'] ?? 0,
+    //         'category_id' => $request['category_id'],
+    //         'asset_id' => $validatedData['asset'],
+    //         'size_width' => $validatedData['size_width'],
+    //         'size_height' => $validatedData['size_height'],
+    //         'description' => $validatedData['description'],
+    //     ]);
 
-        // Redirect back with a success message
-        return redirect()->route('tasks.index')->with('success', 'Task updated successfully!');
+    //     // Redirect back with a success message
+    //     return redirect()->route('tasks.index')->with('success', 'Task updated successfully!');
+    // }
+    public function update(Request $request, $id)
+{
+    // Validate the incoming request data
+    $validatedData = $request->validate([
+        'campaign_id' => 'required',
+        'name' => 'required|string|max:255',
+        'date_required' => 'required|date',
+        'size_width' => 'required|integer',
+        'size_height' => 'required|integer',
+        'description' => 'required|string',
+        'partner_id' => 'required|integer',
+        'category_id' => 'required|integer',
+        'asset_id' => 'nullable|integer',
+    ]);
+
+    // Retrieve the existing task
+    $task = Tasks::findOrFail($id);
+
+    // Format the date if necessary
+    $formattedDate = $validatedData['date_required'];
+
+    // Log the update request
+    Log::info('Incoming request to update task', [
+        'task_id' => $id,
+        'request_data' => $request->all(),
+    ]);
+
+    // Handle image upload if a new file is provided
+    if ($request->hasFile('myFile')) {
+        try {
+            $file = $request->file('myFile');
+            $randomName = Str::random(10) . '.' . $file->getClientOriginalExtension();
+            $filePath = 'images/' . $randomName;
+
+            $s3Client = new S3Client([
+                'version' => 'latest',
+                'region' => 'us-east-005',
+                'endpoint' => 'https://s3.us-east-005.backblazeb2.com',
+                'credentials' => [
+                    'key' => env('BACKBLAZE_KEY_ID'),
+                    'secret' => env('BACKBLAZE_APPLICATION_KEY'),
+                ],
+            ]);
+
+            $result = $s3Client->putObject([
+                'Bucket' => 'cm-pap01',
+                'Key' => $filePath,
+                'Body' => file_get_contents($file),
+                'ACL' => 'public-read',
+            ]);
+
+            // Update the image in the database
+            if ($task->image_id) {
+                $image = Image::findOrFail($task->image_id);
+                $image->path = $filePath;
+                $image->file_name = $randomName;
+                $image->save();
+            } else {
+                $image = new Image();
+                $image->path = $filePath;
+                $image->file_name = $randomName;
+                $image->save();
+                $task->image_id = $image->id;
+            }
+
+            Log::info('Image updated successfully', ['image_id' => $image->id]);
+        } catch (\Exception $e) {
+            Log::error('Error updating image', ['error' => $e->getMessage()]);
+            return redirect()->back()->withErrors(['error' => 'Image upload failed: ' . $e->getMessage()]);
+        }
     }
+
+    // Update the task details
+    $task->update([
+        'campaign_id' => (int) $request->campaign_id,
+        'name' => $validatedData['name'],
+        'date_required' => $formattedDate,
+        'task_urgent' => $validatedData['task_urgent'] ?? 0,
+        'size_width' => $validatedData['size_width'],
+        'size_height' => $validatedData['size_height'],
+        'partner_id' => (int) $request->partner_id,
+        'category_id' => (int) $request->category_id,
+        'asset_id' => (int) $request->asset_id,
+        'description' => $validatedData['description'],
+        'status_id' => null,
+        'is_active' => 1,
+    ]);
+
+    // Log the successful update
+    Log::info('Task updated successfully', ['task_id' => $task->id]);
+
+    // Redirect to the tasks index page with a success message
+    return redirect()->route('tasks.index')->with('success', 'Task updated successfully!');
+}
+
 
 
 
@@ -141,4 +347,5 @@ class TasksController extends Controller
         return redirect()->route('tasks.index')->with('success', 'Task soft deleted successfully!');
 
     }
+    
 }

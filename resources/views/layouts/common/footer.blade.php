@@ -7,6 +7,9 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js"></script>
     <script src="https://unpkg.com/boxicons@2.1.4/dist/boxicons.js"></script>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.14.0-beta2/js/bootstrap-select.min.js"
+integrity="sha512-FHZVRMUW9FsXobt+ONiix6Z0tIkxvQfxtCSirkKc5Sb4TKHmqq1dZa8DphF0XqKb3ldLu/wgMa8mT6uXiLlRlw=="
+crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script> --}}
     <script src="https://cdn.datatables.net/2.1.8/js/dataTables.js"></script>
     <script src="https://cdn.datatables.net/2.1.8/js/dataTables.bootstrap5.js"></script>
@@ -14,6 +17,7 @@
     {{-- <script type="text/javascript"  src="https://cdn.datatables.net/2.1.8/js/dataTables.bootstrap5.min.js"></script> --}}
     <script type="text/javascript" src="https://cdn.datatables.net/responsive/3.0.3/js/dataTables.responsive.js"></script>
     <script type="text/javascript" src="https://cdn.datatables.net/responsive/3.0.3/js/responsive.bootstrap5.js"></script>
+
 
     @yield('script')
 
@@ -60,6 +64,24 @@
 
                     // Show the modal with the specified options
                     // myModal.show();
+                    document.addEventListener("DOMContentLoaded", function() {
+    const navItems = document.querySelectorAll(".nav-item");
+    const currentPath = window.location.pathname;
+
+    // Loop through each nav item and check if it matches the current path
+    navItems.forEach(function(navItem) {
+        const link = navItem.querySelector("a");
+        const linkHref = link ? link.getAttribute("href") : "";
+        
+        // Compare the href with the current path
+        if (currentPath === linkHref || currentPath.startsWith(linkHref)) {
+            navItem.classList.add("active"); // Add active class to matching item
+        } else {
+            navItem.classList.remove("active"); // Remove active class from non-matching items
+        }
+    });
+});
+
     </script>
 
 

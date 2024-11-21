@@ -120,6 +120,7 @@ Route::middleware(['auth'])->group(function () {
     // Delete a specific client-partner relationship
     Route::delete('clientpartner/{id}', [UserController::class, 'destroy_client_partner'])->name('clientpartner.destroy');
 
+    Route::get('/partner/{id}', [UserController::class, 'getPartnersByCampaign'])->name('clientpartner.fetch');
 
     Route::resource('groups', GroupController::class);
 });

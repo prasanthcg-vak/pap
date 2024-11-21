@@ -3,93 +3,102 @@
 @section('content')
 <div class="CM-main-content">
     <div class="container-fluid p-0">
-         @if(session('success'))
-            <div class="alert alert-success">
-                {{ session('success') }}
-            </div>
-        @endif
-
-        <div id="toast-container" aria-live="polite" aria-atomic="true" style="position: absolute; top: 20px; right: 20px;">
-            <div id="toast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="toast-header">
-                    <strong class="me-auto">Notification</strong>
-                    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-                </div>
-                <div class="toast-body">
-                    <span id="toast-message"></span>
-                </div>
-            </div>
-        </div>
-        <div class="campaingn-table pb-3 common-table">
+        <!-- Table -->
+        <div class="task campaingn-table pb-3 common-table">
+            <!-- campaigns-contents -->
             <div class="col-lg-12 task campaigns-contents">
                 <div class="campaigns-title">
-                    <h3>Users Management </h3>
+                    <h3>USER MANAGEMENT</h3>
                 </div>
-                <button class="common-btn mb-3" onclick="openModal()">Add User</button>
+                <form>
+                    {{-- <input type="text" name="search" placeholder="Search..."> --}}
+                    <a class="common-btn mb-3" id="model-close" onclick="openModal()">Add User</a>
+                </form>
+            </div>
+            <!-- campaigns-contents -->
+            <div class="table-wrapper">
+                <table id="datatable" class="">
+                    <thead>
+                        <tr>
+                            <th class="campaingn-title">
+                                <span>Name</span>
+                            </th>
+                            <th class="description">
+                                <span>Email</span>
+                            </th>
+                            <th>
+                                <span>Role</span>
+                            </th>
+                            <th>
+                                <span>Group</span>
+                            </th>
+                            <th class="active">
+                                <span>Status</span>
+                            </th>
+                            <th class="action">
+                                <span>Actions</span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($users as $user)
+                            <tr>
+                                <td class="campaingn-title">
+                                    <span>{{ $user->name }}</span>
+                                </td>
+                                <td class="description">
+                                    <span>{{ $user->email }}</span>
+                                </td>
+                                <td>
+                                    @foreach ($user->roles as $role)
+                                        <span>{{ $role->name }}{{ !$loop->last ? ', ' : '' }}</span>
+                                    @endforeach
+                                </td>
+                                <td>
+                                    <span>{{ @$user->group->client_group_name }}</span>
+                                </td>
+                                <td class="active">
+                                    <span>{{ $user->is_active ? 'Active' : 'Inactive' }}</span>
+                                </td>
+                                <td class="action">
+                                    <div class="action-btn-icons">
+                                        <a href="#" class="btn search" onclick="editUser({{ json_encode($user) }})">
+                                            <i class="fa-solid fa-pencil" title="Edit"></i>
+                                        </a>
+                                        <form action="{{ route('users.destroy', $user->id) }}" method="POST" class="d-inline-block" onsubmit="return confirm('Are you sure you want to delete this user?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn trash">
+                                                <i class="fa-regular fa-trash-can" title="Delete"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+                
+                
             </div>
         </div>
-    </div>
-    <div class="table-wrapper">
-        <table id="usersTable" class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Role</th>
-                    <th>Group</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($users as $index => $user)
-                    <tr>
-                        <td>{{ $index + 1 }}</td> 
-                        <td>{{ $user->name }}</td>
-                        <td>{{ $user->email }}</td>
-                        <td>
-                            @foreach($user->roles as $role)
-                                {{ $role->name }}{{ !$loop->last ? ', ' : '' }}
-                            @endforeach
-                        </td>
-                        <td>
-                           {{@$user->group->client_group_name}}
-                        </td>
-                        
-                        <td>{{ $user->is_active ? 'Active' : 'Inactive' }}</td>
-                        <td>
-                        <a href="#" class="btn search" onclick="editUser({{ json_encode($user) }})">
-                            <i class="fa-solid fa-pencil"></i>
-                        </a>
-                        <form action="{{ route('users.destroy', $user->id) }}" method="POST" class="d-inline-block"
-                            onsubmit="return confirm('Are you sure you want to delete this user?');">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn trash">
-                                <i class="fa-regular fa-trash-can"></i>
-                            </button>
-                        </form>
-                        </td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
+        <!-- Table -->
     </div>
 </div>
+  
 
-<!-- user modal for create and edit -->
-<div class="modal fade modal-margin" id="userModal" tabindex="-1" aria-labelledby="userModalLabel"
-    aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-md modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="userModalLabel">Users</h5>
-                <button type="button" class="btn-close" id="model-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="userForm">
-                    @csrf
+    <!-- user modal for create and edit -->
+    <div class="modal fade modal-margin" id="userModal" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-md modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="userModalLabel">Users</h5>
+                    <button type="button" class="btn-close" id="model-close" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="userForm">
+                        @csrf
                         <input type="hidden" name="user_id" id="user_id">
                         <div class="row m-0">
                             <!-- Name Field -->
@@ -111,22 +120,25 @@
                                 @enderror
                             </div>
                             <!-- Role Field -->
+                            <!-- Group Field -->
                             <div class="col-lg-12">
                                 <label for="group_id" class="common-label">Group</label>
                                 <select id="group_id" name="group_id"
                                     class="form-select @error('group_id') is-invalid @enderror common-select">
-                                    <option value="-1" >-Select-</option>
+                                    <option value="">-Select-</option>
                                     @foreach (get_groups() as $value => $label)
                                         <option value="{{ $value }}"
                                             {{ isset($data) && $data->group_id == $value ? 'selected' : '' }}>
-                                           {{ $label }}
+                                            {{ $label }}
                                         </option>
                                     @endforeach
                                 </select>
+                                <div class="invalid-feedback" id="group_idError"></div>
                                 @error('group_id')
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
                             </div>
+
                             <div class="col-lg-12">
                                 <label for="role_id" class="common-label">Role</label>
                                 <select id="role_id" name="role_id"
@@ -147,11 +159,12 @@
                                 <div class="status-radio-btn">
                                     <label for="status" class="common-label">Status</label>
                                     <div>
-                                    <input type="checkbox" class="@error('is_active') is-invalid @enderror" id="is_active"
-                                        name="is_active" value="1" {{ @$data->is_active ? 'checked' : '' }}>
-                                    @error('is_active')
-                                        <span class="text-danger">{{ $message }}</span>
-                                    @enderror
+                                        <input type="checkbox" class="@error('is_active') is-invalid @enderror"
+                                            id="is_active" name="is_active" value="1"
+                                            {{ @$data->is_active ? 'checked' : '' }}>
+                                        @error('is_active')
+                                            <span class="text-danger">{{ $message }}</span>
+                                        @enderror
                                         <label for="html">Active</label><br>
                                     </div>
                                 </div>
@@ -164,125 +177,148 @@
                                 </button>
                             </div>
                             <div class="sic-btn">
-                                <button class="btn link-asset" id="cancel" data-bs-dismiss="modal" aria-label="Close">
+                                <button class="btn link-asset" id="cancel" data-bs-dismiss="modal"
+                                    aria-label="Close">
                                     cancel
                                 </button>
                             </div>
                         </div>
-                </form>
-            </div>
-            <div id="modalLoader" class="modal-loader" style="display: none;">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="sr-only">Loading...</span>
+                    </form>
+                </div>
+                <div id="modalLoader" class="modal-loader" style="display: none;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
-
 @endsection
 
 @section('script')
-<script>
-$(document).ready(function() {
-    $('#usersTable').DataTable({
-        responsive: true,
-        pageLength: 10,
-        columnDefs: [
-            { 
-                searchable: false, 
-                orderable: false, 
-                targets: 0 
-            }
-        ],
-        order: [[1, 'asc']], // Initial sort by name
-        drawCallback: function(settings) {
-            var api = this.api();
-            api.column(0, { order: 'applied' }).nodes().each(function(cell, i) {
-                cell.innerHTML = i + 1; // Number rows dynamically
+    <script>
+        $(document).ready(function() {
+            $('#usersTable').DataTable({
+                responsive: true,
+                pageLength: 10,
+                columnDefs: [{
+                    searchable: false,
+                    orderable: false,
+                    targets: 0
+                }],
+                order: [
+                    [1, 'asc']
+                ], // Initial sort by name
+                drawCallback: function(settings) {
+                    var api = this.api();
+                    api.column(0, {
+                        order: 'applied'
+                    }).nodes().each(function(cell, i) {
+                        cell.innerHTML = i + 1; // Number rows dynamically
+                    });
+                }
             });
+
+            $('#userModal').modal({
+                backdrop: 'static',
+                keyboard: false
+            });
+        });
+
+        function openModal() {
+            $('#userForm')[0].reset();
+            $('#user_id').val('');
+            $('#is_active').prop('checked', false); // Reset checkbox
+            $('#userModal').modal('show');
         }
-    });
 
-    $('#userModal').modal({
-        backdrop: 'static',
-        keyboard: false
-    });
-});
+        $('#userForm').on('submit', function(e) {
+            e.preventDefault();
 
-function openModal() {
-    $('#userForm')[0].reset();
-    $('#user_id').val('');
-    $('#is_active').prop('checked', false); // Reset checkbox
-    $('#userModal').modal('show');
+            // Reset validation feedback
+            $('.is-invalid').removeClass('is-invalid');
+            $('.invalid-feedback').text('');
+
+            // Collect form data
+            let formData = $(this).serializeArray();
+            let userId = $('#user_id').val();
+            let url = userId ? `/users/${userId}` : '{{ route('users.store') }}';
+            let method = userId ? 'PUT' : 'POST';
+
+            // Show loader
+            $('#modalLoader').show();
+
+            // Perform AJAX request
+            $.ajax({
+                url: url,
+                method: method,
+                data: $.param(formData),
+                success: function(response) {
+                    $('#modalLoader').hide();
+                    $('#userModal').modal('hide');
+                    showToast(response.success, 'success');
+                    location.reload();
+                },
+                error: function(xhr) {
+                    $('#modalLoader').hide();
+
+                    if (xhr.status === 422) {
+                        // Handle validation errors
+                        let errors = xhr.responseJSON.errors;
+
+                        // Loop through the errors and show them in the modal
+                        $.each(errors, function(field, messages) {
+                            // Add invalid class and error message
+                            $(`#${field}`).addClass(
+                            'is-invalid'); // Add invalid class to the input field
+                            $(`#${field}Error`).text(messages[
+                            0]); // Show the first error message under the input field
+                        });
+
+                        // Optionally, you can also display the general message in a toast or modal
+                        showToast(xhr.responseJSON.message, 'error');
+                    } else {
+                        showToast('An error occurred.', 'error');
+                    }
+                }
+            });
+        });
+
+        function showToast(message, type) {
+    // Use a simple alert or a toast library for a better UI
+    alert(type.toUpperCase() + ": " + message);
 }
 
-$('#userForm').on('submit', function(e) {
-    e.preventDefault();
+        function editUser(user) {
+            $('#user_id').val(user.id);
+            $('#name').val(user.name);
+            $('#email').val(user.email);
+            $('#is_active').prop('checked', user.is_active);
 
-    let userId = $('#user_id').val();
-    let url = userId ? `/users/${userId}` : '{{ route("users.store") }}';
-    let method = userId ? 'PUT' : 'POST';
+            // Set the group_id and role_id for the selects
+            $('#group_id').val(user.group_id);
 
-    let formData = $(this).serializeArray();
-    $('#modalLoader').show();
-    $.ajax({
-        url: url,
-        method: method,
-        data: $.param(formData),
-        success: function(response) {
-            $('#modalLoader').hide();
-            $('#userModal').modal('hide');
-            showToast(response.success, 'success'); 
-            location.reload();
-        },
-        error: function(xhr) {
-            $('#modalLoader').hide();
-            if (xhr.status === 422) {
-                let errors = xhr.responseJSON.error;
-                $.each(errors, function(key, message) {
-                    showToast(message[0], 'error');
-                });
+            if (user.roles && user.roles.length > 0) {
+                $('#role_id').val(user.roles[0].id);
             } else {
-                showToast('An error occurred.', 'error');
+                $('#role_id').val('');
             }
+
+            $('#userModal').modal('show');
         }
-    });
-});
 
-function editUser(user) {
-    $('#user_id').val(user.id);
-    $('#name').val(user.name);
-    $('#email').val(user.email);
-    $('#is_active').prop('checked', user.is_active);
+        function showToast(message, type = 'success') {
+            $('#toast-message').text(message);
+            const toastEl = document.getElementById('toast');
+            const toast = new bootstrap.Toast(toastEl);
 
-    // Set the group_id and role_id for the selects
-    $('#group_id').val(user.group_id);
-    
-    if (user.roles && user.roles.length > 0) {
-        $('#role_id').val(user.roles[0].id);
-    } else {
-        $('#role_id').val('');
-    }
-    
-    $('#userModal').modal('show');
-}
+            if (type === 'success') {
+                $('#toast').removeClass('bg-danger').addClass('bg-success');
+            } else {
+                $('#toast').removeClass('bg-success').addClass('bg-danger');
+            }
 
-function showToast(message, type = 'success') {
-    $('#toast-message').text(message);
-    const toastEl = document.getElementById('toast');
-    const toast = new bootstrap.Toast(toastEl);
-
-    if (type === 'success') {
-        $('#toast').removeClass('bg-danger').addClass('bg-success');
-    } else {
-        $('#toast').removeClass('bg-success').addClass('bg-danger');
-    }
-
-    toast.show();
-}
-
-</script>
-
+            toast.show();
+        }
+    </script>
 @endsection
-

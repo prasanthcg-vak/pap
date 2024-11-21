@@ -68,7 +68,7 @@
                     <td>{{ $category->is_active ? 'Active' : 'Inactive' }}</td>
                     <td>
                         <!-- Edit Button -->
-                        <a href="#" class="btn btn-warning" data-bs-toggle="tooltip" title="Edit"
+                        <a href="#" class="btn search" data-bs-toggle="tooltip" title="Edit"
                         onclick="editCategory({{ json_encode($category) }})">
                             <i class="fa-solid fa-pencil"></i>
                         </a>
@@ -78,7 +78,7 @@
                             onsubmit="return confirm('Are you sure you want to delete this category?');">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="btn btn-danger" data-bs-toggle="tooltip" title="Delete">
+                            <button type="submit" class="btn delete" data-bs-toggle="tooltip" title="Delete">
                                 <i class="fa-regular fa-trash-can"></i>
                             </button>
                         </form>

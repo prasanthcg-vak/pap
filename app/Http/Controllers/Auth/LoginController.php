@@ -3,7 +3,10 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Traits\AttemptLoginTrait;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Http\Request;
+
 
 class LoginController extends Controller
 {
@@ -18,9 +21,13 @@ class LoginController extends Controller
     |
     */
 
-    use AuthenticatesUsers;
+    use AuthenticatesUsers, AttemptLoginTrait {
+        // Use the credentials method from the AttemptLoginTrait
+        AttemptLoginTrait::credentials insteadof AuthenticatesUsers;
 
-    /**
+        // Use the attemptLogin method from the AttemptLoginTrait
+        AttemptLoginTrait::attemptLogin insteadof AuthenticatesUsers;
+    }    /**
      * Where to redirect users after login.
      *
      * @var string
@@ -37,4 +44,16 @@ class LoginController extends Controller
         $this->middleware('guest')->except('logout');
         $this->middleware('auth')->only('logout');
     }
+
+    public function login(Request $request)
+{
+    $this->validateLogin($request);
+
+    if ($this->attemptLogin($request)) {
+        return $this->sendLoginResponse($request);
+    }
+
+    return $this->sendFailedLoginResponse($request);
+}
+    
 }

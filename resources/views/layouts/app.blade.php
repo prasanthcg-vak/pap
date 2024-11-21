@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
 
     <!-- Custom CSS Stylesheet -->
-    <link rel="stylesheet" href="{{asset('assets/css/global.css')}}">
+    <link rel="stylesheet" href="{{ asset('assets/css/global.css') }}">
 
     <!-- Owl Carousel slider -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css"
@@ -38,7 +38,11 @@
 
     <link rel="stylesheet" href="https://cdn.datatables.net/2.1.8/css/dataTables.bootstrap5.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/responsive/3.0.3/css/responsive.bootstrap5.css">
-
+    <!-- Multiselect -->
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.14.0-beta2/css/bootstrap-select.min.css"
+        integrity="sha512-mR/b5Y7FRsKqrYZou7uysnOdCIJib/7r5QeJMFvLNHNhtye3xJp1TdJVPLtetkukFn227nKpXD9OjUc09lx97Q=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 
 <body class="bg-alabaster">
@@ -51,5 +55,3 @@
 
 
     @include('layouts.common.footer')
-
-

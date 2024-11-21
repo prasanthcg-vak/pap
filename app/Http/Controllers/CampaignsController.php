@@ -64,7 +64,7 @@ class CampaignsController extends Controller
     public function store(Request $request)
     {
 
-        dd($request->all());
+        // dd($request->all());
         Log::info('Incoming request for image upload', [
             'request_data' => $request->all(),
         ]);
@@ -169,8 +169,8 @@ class CampaignsController extends Controller
     public function show($id)
     {
         $campaign = Campaigns::findOrFail($id);
-        $task = Tasks::where('campaign_id', $id)->get();
-        // // dd($task);
+        $tasks = Tasks::with('status')->where('campaign_id', $id)->get();
+        // dd($tasks);
         // if ($campaign && $campaign->image) {
         //     $image_path = Storage::disk('backblaze')->url($campaign->image->path);
 
@@ -200,7 +200,7 @@ class CampaignsController extends Controller
             ];
         });
         $partners = ClientPartner::all(); // Assuming you have a Partner model
-        return view('campaigns.show', compact('campaign', 'partners', 'task', 'imageUrls'));
+        return view('campaigns.show', compact('campaign', 'partners', 'tasks', 'imageUrls'));
     }
 
     /**
