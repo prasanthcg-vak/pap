@@ -31,7 +31,7 @@
                         <p>{{$campaign->description}}</p>
                     </div>
                     <!-- campaign-cost-task -->
-                    <div class="campaign-cost-task">
+                    {{-- <div class="campaign-cost-task">
                         <div class="col-lg-12">
                             <div class="campaign-cost-task-header">
                                 <h3>CAMPAIGN TASK COST TO DATE: $XXX</h3>
@@ -81,10 +81,10 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div> --}}
                     <!-- campaign-cost-task -->
                     <!-- Owl carousel -->
-                    <div class="row d-flex justify-content-center">
+                    {{-- <div class="row d-flex justify-content-center">
                         <div class="col-lg-9 col-md-10 col-sm-10 p-0">
                             <div class="owl-carousel owl-theme">
                                 @foreach ($imageUrls as $img)
@@ -113,6 +113,70 @@
                                
                             </div>
                         </div>
+                    </div> --}}
+
+                    <div class="row d-flex justify-content-center">
+                        <div class="col-lg-9 col-md-10 col-sm-10 p-0">
+                            <div class="owl-carousel owl-theme">
+                                <div class="item py-3">
+                                    <a href="#">
+                                        <div class="card-img_text">
+                                            <div class="Detail-card-image">
+                                                <img src="{{asset('assets/images/automated-prompt-generation-with-generative-ai 1.png')}}"
+                                                    alt="automated-prompt-generation">
+                                            </div>
+                                            <div class="crew-mark cross">
+                                                <svg width="12" height="12" viewBox="0 0 12 12" fill="none"
+                                                    xmlns="http://www.w3.org/2000/svg">
+                                                    <path
+                                                        d="M1.369 0.234884C1.05582 -0.0782947 0.548061 -0.0782947 0.234883 0.234884C-0.0782944 0.548063 -0.0782944 1.05583 0.234883 1.36901L4.86588 6.00002L0.234931 10.631C-0.0782463 10.9442 -0.0782466 11.4519 0.234931 11.7651C0.548109 12.0783 1.05587 12.0783 1.36905 11.7651L6 7.13415L10.631 11.7651C10.9441 12.0783 11.4519 12.0783 11.7651 11.7651C12.0782 11.4519 12.0782 10.9442 11.7651 10.631L7.13412 6.00002L11.7651 1.36901C12.0783 1.05583 12.0783 0.548063 11.7651 0.234884C11.4519 -0.0782947 10.9442 -0.0782947 10.631 0.234884L6 4.8659L1.369 0.234884Z"
+                                                        fill="black" />
+                                                </svg>
+
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+                                <div class="item py-3">
+                                    <a href="#">
+                                        <div class="card-img_text">
+                                            <div class="Detail-card-image">
+                                                <img src="{{asset('assets/images/autumn-forest-lake-landscape 1.png')}}"
+                                                    alt="assets/images/autumn-forest">
+                                            </div>
+                                            <div class="crew-mark cross">
+                                                <svg width="12" height="12" viewBox="0 0 12 12" fill="none"
+                                                    xmlns="http://www.w3.org/2000/svg">
+                                                    <path
+                                                        d="M1.369 0.234884C1.05582 -0.0782947 0.548061 -0.0782947 0.234883 0.234884C-0.0782944 0.548063 -0.0782944 1.05583 0.234883 1.36901L4.86588 6.00002L0.234931 10.631C-0.0782463 10.9442 -0.0782466 11.4519 0.234931 11.7651C0.548109 12.0783 1.05587 12.0783 1.36905 11.7651L6 7.13415L10.631 11.7651C10.9441 12.0783 11.4519 12.0783 11.7651 11.7651C12.0782 11.4519 12.0782 10.9442 11.7651 10.631L7.13412 6.00002L11.7651 1.36901C12.0783 1.05583 12.0783 0.548063 11.7651 0.234884C11.4519 -0.0782947 10.9442 -0.0782947 10.631 0.234884L6 4.8659L1.369 0.234884Z"
+                                                        fill="black" />
+                                                </svg>
+
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+                                <div class="item py-3">
+                                    <a href="#">
+                                        <div class="card-img_text">
+                                            <div class="Detail-card-image">
+                                                <img src="{{asset('assets/images/cascade-boat-clean-china-natural-rural 1.png')}}"
+                                                    alt="cascade-boat-clean">
+                                            </div>
+                                            <div class="crew-mark cross">
+                                                <svg width="12" height="12" viewBox="0 0 12 12" fill="none"
+                                                    xmlns="http://www.w3.org/2000/svg">
+                                                    <path
+                                                        d="M1.369 0.234884C1.05582 -0.0782947 0.548061 -0.0782947 0.234883 0.234884C-0.0782944 0.548063 -0.0782944 1.05583 0.234883 1.36901L4.86588 6.00002L0.234931 10.631C-0.0782463 10.9442 -0.0782466 11.4519 0.234931 11.7651C0.548109 12.0783 1.05587 12.0783 1.36905 11.7651L6 7.13415L10.631 11.7651C10.9441 12.0783 11.4519 12.0783 11.7651 11.7651C12.0782 11.4519 12.0782 10.9442 11.7651 10.631L7.13412 6.00002L11.7651 1.36901C12.0783 1.05583 12.0783 0.548063 11.7651 0.234884C11.4519 -0.0782947 10.9442 -0.0782947 10.631 0.234884L6 4.8659L1.369 0.234884Z"
+                                                        fill="black" />
+                                                </svg>
+
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <!-- owl carousel -->
                     <!-- Table -->
@@ -137,88 +201,45 @@
                                         <th class="description">
                                             <span>description</span>
                                         </th>
-                                        <th class="active">
+                                        <th class="">
                                             <span>active</span>
                                         </th>
+                                        {{-- <th class="">
+                                            <span>action</span>
+                                        </th> --}}
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    @foreach ($tasks as $task)
                                     <tr>
                                         <td class="campaingn-title">
-                                            <span>Banner Creation x 3</span>
+                                            <span>{{$task->name}}</span>
                                         </td>
                                         <td>
-                                            <span>Campaign 5</span>
+                                            <span>{{$campaign->name}}</span>
                                         </td>
                                         <td>
-                                            <span>05/10/2024</span>
+                                            <span>{{$task->date_required}}</span>
                                         </td>
                                         <td class="description">
-                                            <span>Short overview goes here Short overview goes here Short overview
-                                                goes here
+                                            <span>{{$task->description}}
                                             </span>
                                         </td>
-                                        <td class="active">
-                                            <span>Started</span>
+                                        <td class="">
+                                            <span>{{ optional($task->status)->name ?? 'No Status' }}</span>
                                         </td>
+                                        {{-- <td class=""> --}}
+                                            {{-- <span><div class="action-btn-icons "> --}}
+                                                {{-- <button class="btn search"><i class='bx bx-search-alt-2'></i></button> --}}
+                                                {{-- <a href="{{ route('tasks.show', $task->id) }}" class="btn search"><i --}}
+                                                        {{-- class="fa fa-eye" title="show"></i></a> --}}
+
+                                                {{-- <button class="btn edit"><i class='bx bx-edit'></i></button> --}}
+                                            {{-- </div></span> --}}
+                                        {{-- </td> --}}
                                     </tr>
-                                    <tr>
-                                        <td class="campaingn-title">
-                                            <span>Banner Creation x 3</span>
-                                        </td>
-                                        <td>
-                                            <span>Campaign 5</span>
-                                        </td>
-                                        <td>
-                                            <span>05/10/2024</span>
-                                        </td>
-                                        <td class="description">
-                                            <span>Short overview goes here Short overview goes here Short overview
-                                                goes here
-                                            </span>
-                                        </td>
-                                        <td class="active">
-                                            <span>Awaiting Approval</span>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="campaingn-title">
-                                            <span>Banner Creation x 3</span>
-                                        </td>
-                                        <td>
-                                            <span>Campaign 5</span>
-                                        </td>
-                                        <td>
-                                            <span>05/10/2024</span>
-                                        </td>
-                                        <td class="description">
-                                            <span>Short overview goes here Short overview goes here Short overview
-                                                goes here
-                                            </span>
-                                        </td>
-                                        <td class="active">
-                                            <span>Approved 09/07/24</span>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="campaingn-title">
-                                            <span>Banner Creation x 3</span>
-                                        </td>
-                                        <td>
-                                            <span>Campaign 5</span>
-                                        </td>
-                                        <td>
-                                            <span>05/10/2024</span>
-                                        </td>
-                                        <td class="description">
-                                            <span>Short overview goes here Short overview goes here Short overview
-                                                goes here
-                                            </span>
-                                        </td>
-                                        <td class="active">
-                                            <span>Awaiting Approval</span>
-                                        </td>
-                                    </tr>
+                                    @endforeach
+                                    
                                 </tbody>
                             </table>
                         </div>

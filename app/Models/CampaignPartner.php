@@ -20,4 +20,8 @@ class CampaignPartner extends Model
     public function taskstatus() {
         return $this->belongsTo('App\Models\Status', 'status_id', 'id');
     }
+    public function partner()
+    {
+        return $this->belongsTo(User::class, 'partner_id');
+    }
 }

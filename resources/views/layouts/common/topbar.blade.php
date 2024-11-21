@@ -48,63 +48,55 @@
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         @if (Auth::user()->hasRolePermission('users.index'))
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-item" href="{{ route('users.index') }}" >
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('users.index') ? 'active' : '' }}" 
+                                    href="{{ route('users.index') }}">
                                     User Management
                                 </a>
                             </li>
                         @endif
                         @if (Auth::user()->hasRolePermission('roles.index'))
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-item" href="{{ route('roles.index') }}" >
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('roles.index') ? 'active' : '' }}" 
+                                    href="{{ route('roles.index') }}">
                                     Role Management
                                 </a>
                             </li>
                         @endif
-                        @if (Auth::user()->hasRolePermission('asset-types.index'))                            
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-item" href="{{ route('asset-types.index') }}" >
-                                Manage Assets Type 
+                        @if (Auth::user()->hasRolePermission('asset-types.index'))
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('asset-types.index') ? 'active' : '' }}" 
+                                    href="{{ route('asset-types.index') }}">
+                                    Manage Assets Type
                                 </a>
                             </li>
                         @endif
                         @if (Auth::user()->hasRolePermission('categories.index'))
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-item" href="{{ route('categories.index') }}" >
-                                Manage Categories
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('categories.index') ? 'active' : '' }}" 
+                                    href="{{ route('categories.index') }}">
+                                    Manage Categories
                                 </a>
                             </li>
                         @endif
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-item" href="/groups" >
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->is('groups') ? 'active' : '' }}" 
+                                href="/groups">
                                 Client Groups
                             </a>
                         </li>
                     </ul>
                 </div>
-                <!-- <div class="profile-image">
-                    <div class="dropdown">
-                        <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
-                            aria-expanded="false">
-                            <img src="assets/images/profile-image.svg" alt="profile-image" class="img-fluid">
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end dropdown-menu-lg-start">
-                            <li><a class="dropdown-item" href="#">Partner</a></li>
-                            <li><a class="dropdown-item" href="#">My Profile</a></li>
-                            <li><a class="dropdown-item" href="#">Group Profile</a></li>
-                            <li><a class="dropdown-item" href="#">Logout</a></li>
-                        </ul>
-                    </div>
-                </div> -->
             </div>
         </nav>
     </div>
+    
     <!--fixed menu-->
     <div class="fixed-box-area">
         <div class="container-fluid p-0">
             <!-- top-card-items -->
             <div class="top-card-items">
-                <a href="{{route('campaigns.index')}}" class="card-item purple">
+                <a href="{{route('campaigns.index')}}" class="card-item purple active">
                     <div class="circle_text">
                         <div class="circle-icon purple">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none"

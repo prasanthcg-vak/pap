@@ -101,13 +101,15 @@
                                             <div class="drop-zone">
                                                 <div class="drop-zone__prompt">
                                                     <div class="drop-zone_color-txt">
-                                                        <span><img src="assets/images/Image.png" alt=""></span> <br>
-                                                        <span><img src="assets/images/fi_upload-cloud.svg" alt=""> Upload Image</span>
+                                                        <span><img src="{{asset('assets/images/Image.png')}}" alt=""></span> <br>
+                                                        <span><img src="{{asset('assets/images/fi_upload-cloud.svg')}}" alt=""> Upload Image</span>
                                                     </div>
                                                 </div>
                                                 <input type="file" name="logo" class="drop-zone__input">
                                             </div>
                                         </div>
+
+                                        
                                     </div>
                                     @error('logo')
                                         <div class="text-danger">{{ $message }}</div>

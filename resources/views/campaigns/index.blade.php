@@ -136,7 +136,8 @@
                 <div class="modal-header">
                     <h1 class="modal-title fs-5" id="exampleModalLabel">Campaign</h1>
                     <p class="status green active_header_block" id="active_header_block" style="display: none;">Active</p>
-                    <button type="button" class="btn-close" id="model-close" id="model-close" data-bs-dismiss="modal"
+                    <p class="status red inactive_header_block" id="inactive_header_block" style="display: none;">Inactive</p>
+                                        <button type="button" class="btn-close" id="model-close" id="model-close" data-bs-dismiss="modal"
                         aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -154,20 +155,18 @@
                             </div>
 
                             <div class="col-xl-4 mb-3">
-                                <select name="related_partner[]" id="related_partner" class="form-select" multiple>
-                                    <option value="" disabled>Select Related Partners</option>
-                                    @foreach ($partners as $partner)
-                                        <option value="{{ $partner->id }}">{{ $partner->partner->name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label for="roleSelect" class="form-label">Role</label>
-                                <select id="roleSelect" class="form-select select2" multiple>
-                                <option value="1">Admin</option>
-                                <option value="2">Editor</option>
-                                <option value="3">Viewer</option>
-                                </select>
+                                
+                                <div class="multiselect_dropdown">
+
+                                    <select name="related_partner[]" class="selectpicker" id="related_partner"
+                                        class="selectpicker" multiple aria-label="size 1 select example " multiple data-selected-text-format="count > 5" data-live-search="true">
+                                        <option value="" disabled>Select Related Partners</option>
+                                        @foreach ($partners as $partner)
+                                            <option value="{{ $partner->id }}">{{ $partner->partner->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
                             </div>
                         </div>
 
@@ -255,19 +254,21 @@
                                 <div id="additional-images-container" class="additional-img my-3">
                                     {{-- <label>Additional Images</label> --}}
                                     <div class="multiple-image" id="multiple-image" style="display: flex;">
-                                    <div class="upload--col">
-                                        <div class="drop-zone">
-                                            <div class="drop-zone__prompt">
-                                                <div class="drop-zone_color-txt">
-                                                    <span><img src="assets/images/Image.png" alt=""></span> <br />
-                                                    <span><img src="assets/images/fi_upload-cloud.svg" alt="">
-                                                        Upload Image</span>
+                                        <div class="upload--col">
+                                            <div class="drop-zone">
+                                                <div class="drop-zone__prompt">
+                                                    <div class="drop-zone_color-txt">
+                                                        <span><img src="assets/images/Image.png" alt=""></span>
+                                                        <br />
+                                                        <span><img src="assets/images/fi_upload-cloud.svg" alt="">
+                                                            Upload Image</span>
+                                                    </div>
                                                 </div>
+                                                <input type="file" name="additional_images[]"
+                                                    class="drop-zone__input">
                                             </div>
-                                            <input type="file" name="additional_images[]" class="drop-zone__input">
                                         </div>
                                     </div>
-                                </div>
                                 </div>
 
                             </div>
@@ -310,14 +311,22 @@ function editCampaign(campaign, imgUrl) {
             const activeCheckbox = document.getElementById('active');
             activeCheckbox.checked = campaign.is_active === 1;
 
-    // Handle active checkbox visibility
-    document.getElementById('active_block').style.display = 'block';
-    document.getElementById('active_header_block').style.display = 'block';
+            // Handle active checkbox visibility
 
-    // Display existing cover image if available
-    const existingImage = document.getElementById('existingImage');
-    if (imgUrl) {
-        existingImage.src = imgUrl; // Set the image source to the URL passed from the backend
+            document.getElementById('active_block').style.display = 'block';
+            document.getElementById('active_header_block').style.display = 'block';
+
+            if (campaign.is_active === 1) {
+        document.getElementById('active_header_block').style.display = 'block'; // Show Active
+        document.getElementById('inactive_header_block').style.display = 'none'; // Hide Inactive
+    } else {
+        document.getElementById('inactive_header_block').style.display = 'block'; // Show Inactive
+        document.getElementById('active_header_block').style.display = 'none'; // Hide Active
+    }
+            // Display existing cover image if available
+            const existingImage = document.getElementById('existingImage');
+            if (imgUrl) {
+                existingImage.src = imgUrl; // Set the image source to the URL passed from the backend
 
         document.getElementById('existingImageDiv').style.display = 'block';
         // existingImage.style.display = 'block'; // Ensure the image is visible

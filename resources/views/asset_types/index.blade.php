@@ -49,7 +49,7 @@
                     <td>{{ $assetType->type_description }}</td>
                     <td>{{ $assetType->is_active ? 'Active' : 'Inactive' }}</td>
                     <td>
-                        <a href="#" class="btn btn-warning" onclick="editAssetType({{ json_encode($assetType) }})">
+                        <a href="#" class="btn search" onclick="editAssetType({{ json_encode($assetType) }})">
                             <i class="fa-solid fa-pencil"></i>
                         </a>
 
@@ -57,7 +57,7 @@
                             onsubmit="return confirm('Are you sure you want to delete this asset type?');">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="btn btn-danger">
+                            <button type="submit" class="btn delete">
                                 <i class="fa-regular fa-trash-can"></i>
                             </button>
                         </form>
