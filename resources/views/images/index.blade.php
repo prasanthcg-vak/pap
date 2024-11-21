@@ -17,8 +17,17 @@
             @foreach($imageUrls as $image)
                 <div class="col-md-3 mb-4">
                     <div class="card">
-                        <!-- Display image thumbnail -->
-                        <img src="{{ $image['url'] }}" class="card-img-top img-thumbnail" style="max-height: 200px;" alt="{{ $image['name'] }}">
+                        <!-- Display media thumbnail -->
+                        @php
+                            $thumbnail = match($image['type']) {
+                                'image' => $image['url'],
+                                'video' => asset('assets/images/video.png'),
+                                default => asset('assets/images/document.png'),
+                            };
+                        @endphp
+
+                        <img src="{{ $thumbnail }}" class="card-img-top img-thumbnail" style="max-height: 200px;" alt="{{ $image['name'] }}">
+
                         <div class="card-body text-center">
                             <!-- View button opens the modal with the full image -->
                             <button class="btn btn-primary" data-toggle="modal" data-target="#viewModal" onclick="showImage('{{ $image['url'] }}')">View</button>

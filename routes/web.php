@@ -106,6 +106,7 @@ Route::middleware(['auth'])->group(function () {
 
 
     Route::get('/images', [ImageController::class, 'index'])->name('images.index');
+    Route::get('/imageslist', [ImageController::class, 'list_all_images'])->name('images.imglist');
     Route::get('/images/create', [ImageController::class, 'create'])->name('images.create');
     Route::post('/images', [ImageController::class, 'store'])->name('images.store');
     Route::delete('/images', [ImageController::class, 'destroy'])->name('images.delete');

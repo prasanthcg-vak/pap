@@ -53,9 +53,18 @@
                         @foreach($assets as $index => $asset)
                             <tr>
                                 <td class="library-img">
-                                    <span><img class="img-fluid"
-                                            src="{{ $asset['thumbnail'] }}"
-                                            alt=""></span>
+                                    <span>
+                                    @php
+                                        $thumbnail = match($asset['image_type']) {
+                                            'image' => $asset['thumbnail'],
+                                            'video' => asset('assets/images/video.png'),
+                                            default => asset('assets/images/document.png'),
+                                        };
+                                    @endphp
+
+                                    <img src="{{ $thumbnail }}" class="img-fluid" style="max-height: 200px;" alt="{{ $asset['image_name'] }}">
+                                    {{-- <img class="img-fluid"  src="{{ $asset['thumbnail'] }}" alt=""> --}}
+                                </span>
                                 </td>
                                 <td class="library-camp-title">
                                     <span>{{ $asset['campaign_name'] }}</span>
@@ -227,7 +236,6 @@ $(document).ready(function() {
     });
 });
 
-
 document.addEventListener('DOMContentLoaded', () => {
     const buttons = document.querySelectorAll('.download-btn');
 
@@ -261,17 +269,11 @@ function openLinkModal(publicUrl,description) {
 
     console.log("Public URL: ", publicUrl); // Check if URL is valid
     console.log("Encoded URL: ", encodedUrl); // Check the encoded URL
-
-    // LinkedIn
+    
     $('#linkedinShare').attr('href', `https://www.linkedin.com/shareArticle?mini=true&url=${encodedUrl}&summary=${encodedDescription}&title=${encodedDescription}`);
-
-    // Facebook
     $('#facebookShare').attr('href', `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}&quote=${encodedDescription}`);
-
-    // Twitter
     $('#twitterShare').attr('href', `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedDescription}`);
-
-    // $('#redditShare').href = `https://www.reddit.com/submit?url=${encodeURIComponent(publicUrl)}`;
+    $('#redditShare').attr('href',`https://www.reddit.com/submit?url=${encodeURIComponent(publicUrl)}`);
 
     $('#linkAssetModal').modal('show');
 }
