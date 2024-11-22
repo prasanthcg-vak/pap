@@ -1,68 +1,87 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="CM-main-content">
-    <div class="container-fluid p-0">
-        <!-- Table -->
-        <div class=" p-3">
-            <!-- campaigns-contents -->
-            <div class="col-lg-12 task campaigns-contents">
-                <div class="campaigns-title">
-                    <h3>USER MANAGEMENT</h3>
+    @php
+        $store = Auth::user()->hasRolePermission('users.store');
+        $edit = Auth::user()->hasRolePermission('users.update');
+        $delete = Auth::user()->hasRolePermission('users.destroy');
+
+    @endphp
+    <div class="CM-main-content">
+        <div class="container-fluid p-0">
+            <!-- Table -->
+            <div class=" p-3">
+                <!-- campaigns-contents -->
+                <div class="col-lg-12 task campaigns-contents">
+                    <div class="campaigns-title">
+                        <h3>USER MANAGEMENT</h3>
+                    </div>
+                    @if ($store)
+                        <form>
+                            {{-- <input type="text" name="search" placeholder="Search..."> --}}
+                            <a class="common-btn mb-3" id="" onclick="openModal()">Add User</a>
+                        </form>
+                    @endif
                 </div>
-                <form>
-                    {{-- <input type="text" name="search" placeholder="Search..."> --}}
-                    <a class="common-btn mb-3" id="" onclick="openModal()">Add User</a>
-                </form>
-            </div>
-            <!-- campaigns-contents -->
-            <div class="table-wrapper">
-                <table id="usersTable" class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Role</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($users as $index => $user)
+                <!-- campaigns-contents -->
+                <div class="table-wrapper">
+                    <table id="datatable" class="table table-bordered">
+                        <thead>
                             <tr>
-                                <td>{{ $index + 1 }}</td> 
-                                <td>{{ $user->name }}</td>
-                                <td>{{ $user->email }}</td>
-                                <td>
-                                    @foreach($user->roles as $role)
-                                        {{ $role->name }}{{ !$loop->last ? ', ' : '' }}
-                                    @endforeach
-                                </td>
-                                <td>{{ $user->is_active ? 'Active' : 'Inactive' }}</td>
-                                <td>
-                                <a href="#" class="btn search" onclick="editUser({{ json_encode($user) }})">
-                                    <i class="fa-solid fa-pencil"></i>
-                                </a>
-                                <form action="{{ route('users.destroy', $user->id) }}" method="POST" class="d-inline-block"
-                                    onsubmit="return confirm('Are you sure you want to delete this user?');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn trash">
-                                        <i class="fa-regular fa-trash-can"></i>
-                                    </button>
-                                </form>
-                                </td>
+                                <th>#</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                                @if ($edit || $delete)
+                                    <th>Actions</th>
+                                @endif
                             </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            @foreach ($users as $index => $user)
+                                <tr>
+                                    <td>{{ $index + 1 }}</td>
+                                    <td>{{ $user->name }}</td>
+                                    <td>{{ $user->email }}</td>
+                                    <td>
+                                        @foreach ($user->roles as $role)
+                                            {{ $role->name }}{{ !$loop->last ? ', ' : '' }}
+                                        @endforeach
+                                    </td>
+                                    <td>{{ $user->is_active ? 'Active' : 'Inactive' }}</td>
+                                    @if ($edit || $delete)
+                                        <td>
+                                            
+                                            @if ($edit)
+                                                <a href="#" class="btn search"
+                                                    onclick="editUser({{ json_encode($user) }})">
+                                                    <i class="fa-solid fa-pencil"></i>
+                                                </a>
+                                            @endif
+                                            @if ($delete)
+                                                <form action="{{ route('users.destroy', $user->id) }}" method="POST"
+                                                    class="d-inline-block"
+                                                    onsubmit="return confirm('Are you sure you want to delete this user?');">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn trash">
+                                                        <i class="fa-regular fa-trash-can"></i>
+                                                    </button>
+                                                </form>
+                                            @endif
+                                        </td>
+                                    @endif
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
             </div>
+            <!-- Table -->
         </div>
-        <!-- Table -->
     </div>
-</div>
-  
+
 
     <!-- user modal for create and edit -->
     <div class="modal fade modal-margin" id="userModal" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
@@ -99,8 +118,9 @@
                             <!-- Role Field -->
                             <div class="col-lg-12">
                                 <label for="role_id" class="common-label">Role</label>
-                                <select id="role_id" name="role_id"
+                                <select id="role_id" name="role_id" onchange="toggleGroupSection()"
                                     class="form-select @error('role_id') is-invalid @enderror common-select">
+                                    <option value="">-Select-</option>
                                     @foreach (get_roles() as $value => $label)
                                         <option value="{{ $value }}"
                                             {{ isset($data) && $data->role_id == $value ? 'selected' : '' }}>
@@ -112,8 +132,10 @@
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
                             </div>
+
                             <!-- Group Field -->
-                            <div class="col-lg-12" id="group-section" style="display: none;">
+                            <div class="col-lg-12" id="group-section"
+                                style="display: {{ isset($data) && $data->role_id == 6 ? 'block' : 'none' }};">
                                 <label for="group_id" class="common-label">Group</label>
                                 <select id="group_id" name="group_id"
                                     class="form-select @error('group_id') is-invalid @enderror common-select">
@@ -130,6 +152,7 @@
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
                             </div>
+
                             <!-- Active Checkbox -->
                             <div class="col-lg-12">
                                 <div class="status-radio-btn">
@@ -172,7 +195,6 @@
 @endsection
 
 @section('script')
-
     <script>
         $(document).ready(function() {
             $('#usersTable').DataTable().destroy();
@@ -210,7 +232,7 @@
             $('#userModal').modal('show');
         }
 
-        $('#userForm').on('submit', function(e) {
+        $('#userForm').off('submit').on('submit', function(e) {
             e.preventDefault();
 
             // Reset validation feedback
@@ -232,10 +254,10 @@
                 method: method,
                 data: $.param(formData),
                 success: function(response) {
+                    location.reload();
                     $('#modalLoader').hide();
                     $('#userModal').modal('hide');
                     showToast(response.success, 'success');
-                    location.reload();
                 },
                 error: function(xhr) {
                     $('#modalLoader').hide();
@@ -248,9 +270,9 @@
                         $.each(errors, function(field, messages) {
                             // Add invalid class and error message
                             $(`#${field}`).addClass(
-                            'is-invalid'); // Add invalid class to the input field
+                                'is-invalid'); // Add invalid class to the input field
                             $(`#${field}Error`).text(messages[
-                            0]); // Show the first error message under the input field
+                                0]); // Show the first error message under the input field
                         });
 
                         // Optionally, you can also display the general message in a toast or modal
@@ -262,10 +284,11 @@
             });
         });
 
+
         function showToast(message, type) {
-    // Use a simple alert or a toast library for a better UI
-    alert(type.toUpperCase() + ": " + message);
-}
+            // Use a simple alert or a toast library for a better UI
+            alert(type.toUpperCase() + ": " + message);
+        }
 
         function editUser(user) {
             $('#user_id').val(user.id);
@@ -275,7 +298,11 @@
 
             // Set the group_id and role_id for the selects
             $('#group_id').val(user.group_id);
+            const groupSection = document.getElementById('group-section');
 
+            if (user.roles[0].id == 6) {
+                groupSection.style.display = 'block'; // Show Group section
+            }
             if (user.roles && user.roles.length > 0) {
                 $('#role_id').val(user.roles[0].id);
             } else {

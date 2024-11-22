@@ -16,7 +16,7 @@ class ClientPartner extends Model
 
     protected $fillable = [
         'client_id',
-        'partner_id',
+        'partner_id'
     ];
 
     // Define the relationship for the client

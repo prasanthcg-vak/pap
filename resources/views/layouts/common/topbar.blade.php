@@ -7,17 +7,18 @@
                 </a>
                 <span>Partner Asset Portal</span>
             </div>
-            
+
             <div class="profile-image">
                 <div class="profile-name" style="display:inline-grid;">
-                    <span style="font-size:15px; font-weight:700;">Welcome {{Auth::user()->name }}</span>
-                    <span class="role" style="font-size:12px;">{{ Auth::user()->role->name ?? 'No Role Assigned' }}</span>
+                    <span style="font-size:15px; font-weight:700;">Welcome {{ Auth::user()->name }}</span>
+                    <span class="role"
+                        style="font-size:12px;">{{ Auth::user()->roles->first()->name ?? 'No Role Assigned' }}</span>
                 </div>
                 <div class="dropdown">
-                    
+
                     <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
                         aria-expanded="false">
-                        
+
                         <img src="{{ asset('/assets/images/profile-image.svg') }}" alt="profile-image"
                             class="img-fluid">
                     </button>
@@ -52,7 +53,7 @@
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('home') ? 'active' : '' }}" 
+                            <a class="nav-link {{ request()->routeIs('home') ? 'active' : '' }}"
                                 href="{{ route('home') }}">
                                 Home
                             </a>
@@ -80,7 +81,7 @@
                         </li>
                         @if (Auth::user()->hasRolePermission('users.index'))
                             <li class="nav-item">
-                                <a class="nav-link {{ request()->routeIs('users.index') ? 'active' : '' }}" 
+                                <a class="nav-link {{ request()->routeIs('users.index') ? 'active' : '' }}"
                                     href="{{ route('users.index') }}">
                                     User Management
                                 </a>
@@ -88,51 +89,54 @@
                         @endif
                         @if (Auth::user()->hasRolePermission('roles.index'))
                             <li class="nav-item">
-                                <a class="nav-link {{ request()->routeIs('roles.index') ? 'active' : '' }}" 
+                                <a class="nav-link {{ request()->routeIs('roles.index') ? 'active' : '' }}"
                                     href="{{ route('roles.index') }}">
                                     Role Management
                                 </a>
                             </li>
                         @endif
-                        <li class="nav-item dropdown  ">
-                            <a class="nav-link dropdown-toggle {{ request()->routeIs('asset-types.index') ? 'active' : '' }} {{ request()->routeIs('categories.index') ? 'active' : '' }}" href="#" role="button" data-bs-toggle="dropdown"
-                                aria-expanded="false">
-                                Task Management
-                                <i class="fas fa-chevron-down"></i>
-                            </a>
-                            <ul class="dropdown-menu">
-                                @if (Auth::user()->hasRolePermission('asset-types.index'))
-                            <li >
-                                <a class="dropdown-item {{ request()->routeIs('asset-types.index') ? 'active' : '' }}" 
-                                    href="{{ route('asset-types.index') }}">
-                                    Assets Type
+                        @if (Auth::user()->hasRolePermission('asset-types.index') || Auth::user()->hasRolePermission('categories.index'))
+                            <li class="nav-item dropdown  ">
+                                <a class="nav-link dropdown-toggle {{ request()->routeIs('asset-types.index') ? 'active' : '' }} {{ request()->routeIs('categories.index') ? 'active' : '' }}"
+                                    href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Task Management
+                                    <i class="fas fa-chevron-down"></i>
                                 </a>
+                                <ul class="dropdown-menu">
+                                    @if (Auth::user()->hasRolePermission('asset-types.index'))
+                                        <li>
+                                            <a class="dropdown-item {{ request()->routeIs('asset-types.index') ? 'active' : '' }}"
+                                                href="{{ route('asset-types.index') }}">
+                                                Assets Type
+                                            </a>
+                                        </li>
+                                    @endif
+                                    @if (Auth::user()->hasRolePermission('categories.index'))
+                                        <li>
+                                            <a class="dropdown-item  {{ request()->routeIs('categories.index') ? 'active' : '' }}"
+                                                href="{{ route('categories.index') }}">
+                                                Categories
+                                            </a>
+                                        </li>
+                                    @endif
+                                </ul>
                             </li>
                         @endif
-                        @if (Auth::user()->hasRolePermission('categories.index'))
-                            <li>
-                                <a class="dropdown-item  {{ request()->routeIs('categories.index') ? 'active' : '' }}" 
-                                    href="{{ route('categories.index') }}">
-                                    Categories
-                                </a>
-                            </li>
-                        @endif
-                            </ul>
-                        </li>
-                        
-                        
                     </ul>
                 </div>
             </div>
         </nav>
     </div>
-    
+
     <!--fixed menu-->
     <div class="fixed-box-area">
         <div class="container-fluid p-0">
             <!-- top-card-items -->
             <div class="top-card-items">
-                <a href="{{route('campaigns.index')}}" class="card-item purple  {{ request()->routeIs('campaigns.index') ? 'active' : '' }}">
+                @if (Auth::user()->hasRolePermission('campaigns.index'))
+
+                <a href="{{ route('campaigns.index') }}"
+                    class="card-item purple  {{ request()->routeIs('campaigns.index') ? 'active' : '' }}">
                     <div class="circle_text">
                         <div class="circle-icon purple">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -154,10 +158,14 @@
                         </div>
                     </div>
                     <div class="values purple">
-                        <span>{{campaigns_count()}}</span>
+                        <span>{{ campaigns_count() }}</span>
                     </div>
                 </a>
-                <a href="{{ route('tasks.index') }}" class="card-item green  {{ request()->routeIs('tasks.index') ? 'active' : '' }}">
+                @endif
+                @if (Auth::user()->hasRolePermission('tasks.index'))
+
+                <a href="{{ route('tasks.index') }}"
+                    class="card-item green  {{ request()->routeIs('tasks.index') ? 'active' : '' }}">
                     <div class="circle_text ">
                         <div class="circle-icon green">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -186,10 +194,14 @@
                         </div>
                     </div>
                     <div class="values green">
-                        <span>{{task_count()}}</span>
+                        <span>{{ task_count() }}</span>
                     </div>
                 </a>
-                <a href="{{ route('library.index') }}" class="card-item orange {{ request()->routeIs('library.index') ? 'active' : '' }}">
+                @endif
+                @if (Auth::user()->hasRolePermission('library.index'))
+
+                <a href="{{ route('library.index') }}"
+                    class="card-item orange {{ request()->routeIs('library.index') ? 'active' : '' }}">
                     <div class="circle_text ">
                         <div class="circle-icon orange">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -212,6 +224,7 @@
                         </div>
                     </div>
                 </a>
+                @endif
             </div>
             <!-- top-card-items  -->
         </div>

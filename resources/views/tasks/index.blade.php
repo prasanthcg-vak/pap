@@ -20,6 +20,13 @@
         }
     </style>
 
+@php
+$showButton = Auth::user()->hasRolePermission('tasks.show');
+$createButton = Auth::user()->hasRolePermission('tasks.create');
+$deleteButton = Auth::user()->hasRolePermission('tasks.destroy');
+$hasActionPermission = $showButton || $editButton || $deleteButton; // Check if any permission is granted
+
+@endphp
     <div class="CM-main-content">
         <div class="container-fluid p-0">
             <div class="task campaingn-table pb-3 common-table task-table-info">
@@ -30,9 +37,12 @@
                         <h3>TASKS</h3>
                     </div>
                     <form>
-                        {{-- <input type="text" name="search" placeholder="Search..."> --}}
+                        @if ($createButton)
                         <a href="#" class="create-task-btn" data-toggle="modal" data-target="#createTask">Create
                             Task</a>
+                        @endif
+                        {{-- <input type="text" name="search" placeholder="Search..."> --}}
+                        
                     </form>
                 </div>
                 <!-- campaigns-contents -->
@@ -64,7 +74,9 @@
                                 <th class="active">
                                     <span>Status</span>
                                 </th>
-                                <th class="action">Actions</th>
+                                @if ($hasActionPermission)
+                                    <th class="action">Actions</th>
+                                @endif
                             </tr>
                         </thead>
                         <tbody>
@@ -85,23 +97,34 @@
                                     <td class="active">
                                         <span>{{ $task->status ? $task->status->name : 'N/A' }}</span>
                                     </td>
-                                    <td class="action library-action task"><span>
-                                            <div class="action-btn-icons ">
-                                                {{-- <button class="btn search"><i class='bx bx-search-alt-2'></i></button> --}}
-                                                <a href="{{ route('tasks.show', $task->id) }}" class="btn search"><i
+                                    @if ($hasActionPermission)
+                                        <td class="action library-action task">
+                                            <span>
+                                                <div class="action-btn-icons ">
+                                                    {{-- <button class="btn search"><i class='bx bx-search-alt-2'></i></button> --}}
+                                                    @if ($showButton)
+                                                    <a href="{{ route('tasks.show', $task->id) }}" class="btn search"><i
                                                         class="fa fa-eye" title="show"></i></a>
 
-                                                {{-- <button class="btn edit"><i class='bx bx-edit'></i></button> --}}
+                                                    @endif
+                                                   
+                                                    {{-- <button class="btn edit"><i class='bx bx-edit'></i></button> --}}
+                                                    @if ($deleteButton)
 
-                                                <form action="{{ route('tasks.destroy', $task->id) }}" method="POST"
-                                                    style="display:inline;" onsubmit="return confirmDelete();">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn delete"><i
-                                                            class="bx bx-trash"></i></button>
-                                                </form>
-                                            </div>
-                                        </span></td>
+                                                    <form action="{{ route('tasks.destroy', $task->id) }}" method="POST"
+                                                        style="display:inline;" onsubmit="return confirmDelete();">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn delete"><i
+                                                                class="bx bx-trash"></i></button>
+                                                    </form>
+                                                    @endif
+
+                                                </div>
+                                            </span>
+                                        </td>
+                                    @endif
+
                                 </tr>
                             @endforeach
                         </tbody>
@@ -109,7 +132,7 @@
                     </table>
                 </div>
 
-                
+
             </div>
         </div>
     </div>
@@ -313,37 +336,37 @@
             });
         });
 
- document.getElementById('campaign-select').addEventListener('change', function () {
-  const campaignId = this.value;
-  const partnerSelect = document.getElementById('partner-select');
+        document.getElementById('campaign-select').addEventListener('change', function() {
+            const campaignId = this.value;
+            const partnerSelect = document.getElementById('partner-select');
 
-  // Clear existing options
-  partnerSelect.innerHTML = '<option value="" selected>Select Partner</option>';
-  partnerSelect.disabled = true;
+            // Clear existing options
+            partnerSelect.innerHTML = '<option value="" selected>Select Partner</option>';
+            partnerSelect.disabled = true;
 
-  if (campaignId) {
-    // Fetch partners based on the selected campaign
-    fetch(`/partner/${campaignId}`)
-      .then(response => response.json())
-      .then(data => {
-        console.log(data); // Log data to inspect the structure
-        if (data.length > 0) {
-          data.forEach(partner => {
-            const option = document.createElement('option');
-            option.value = partner.id; // Assuming 'id' is the primary key
-            option.textContent = partner.partner ? partner.partner.name :
-              'Unnamed Partner'; // Fallback for null partner
-            partnerSelect.appendChild(option);
-          });
-          partnerSelect.disabled = false;
-        }
-      })
+            if (campaignId) {
+                // Fetch partners based on the selected campaign
+                fetch(`/partner/${campaignId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data); // Log data to inspect the structure
+                        if (data.length > 0) {
+                            data.forEach(partner => {
+                                const option = document.createElement('option');
+                                option.value = partner.id; // Assuming 'id' is the primary key
+                                option.textContent = partner.partner ? partner.partner.name :
+                                    'Unnamed Partner'; // Fallback for null partner
+                                partnerSelect.appendChild(option);
+                            });
+                            partnerSelect.disabled = false;
+                        }
+                    })
 
-      .catch(error => console.error('Error fetching partners:', error));
-  }
-});
+                    .catch(error => console.error('Error fetching partners:', error));
+            }
+        });
     </script>
-   
+
 
     <!-- Include Bootstrap JS and dependencies -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>

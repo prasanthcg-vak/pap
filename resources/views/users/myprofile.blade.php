@@ -56,18 +56,17 @@
                                 </div>
                                 <div class="col-sm-8">
                                     <a href="#" class="profile-data profile-email">{{ Auth::user()->email }}</a>
+                                   
                                 </div>
                             </div>
                         </div>
                         <div class="profile-con">
                             <div class="row">
                                 <div class="col-sm-4">
-                                    <p class="profile-label">Username:</p>
                                 </div>
                                 <div class="col-sm-8 change-pwd">
-                                    <p class="profile-data">{{ ucwords(Auth::user()->username) }}</p>
                                     <a href="#" class="myprofile Change-password-CP" data-bs-toggle="modal"
-                                        data-bs-target="#CP-client-profile">Change Password</a>
+                                    data-bs-target="#CP-client-profile">Change Password</a>
                                 </div>
                             </div>
                         </div>
@@ -234,6 +233,19 @@
                                         alt="Default Profile Picture" class="img-thumbnail mt-2" width="100">
                                 @endif
                             </div>
+                             <div class="col-lg-12 mb-3">
+                                <label for="profile_picture">Profile Picture</label>
+                                <input type="file" id="profile_picture" name="profile_picture" class="form-control">
+
+                                @if (Auth::user()->profile_picture)
+                                    <img src="{{ asset(Auth::user()->profile_picture) }}" alt="Profile Picture"
+                                        class="img-thumbnail mt-2" width="100">
+                                @else
+                                    <img src="{{ asset('assets/profile_picture/default.png') }}"
+                                        alt="Default Profile Picture" class="img-thumbnail mt-2" width="100">
+                                @endif
+                            </div>
+
 
                         </div>
 
