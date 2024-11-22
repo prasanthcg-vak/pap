@@ -7,11 +7,15 @@ use App\Models\User;
 
 class ClientGroup extends Model
 {
-    protected $fillable = ['name', 'description'];
+    protected $fillable = ['name', 'client_id'];
 
-    
+    public function client()
+    {
+        return $this->belongsTo(Client::class);
+    }
+
     public function users()
     {
-        return $this->belongsToMany(User::class, 'client_group_user');
+        return $this->hasMany(ClientUser::class, 'group_id');
     }
 }
