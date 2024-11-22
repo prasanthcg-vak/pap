@@ -16,6 +16,10 @@ use App\Http\Controllers\ImageController;
 use App\Http\Controllers\LibraryController;
 // use App\Http\Controllers\ClientGroupsController;
 
+use App\Http\Controllers\ClientController;
+// use App\Http\Controllers\ClientGroupController;
+// use App\Http\Controllers\ClientUserController;
+
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -66,10 +70,10 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
 
     // Client Groups
-    Route::get('/client-groups', [ClientGroupsController::class, 'index'])->name('client-groups.index')->middleware('permission:client-groups.index');
-    Route::post('/client-groups', [ClientGroupsController::class, 'store'])->name('client-groups.store')->middleware('permission:client-groups.store');
-    Route::put('/client-groups/{clientGroups}', [ClientGroupsController::class, 'update'])->name('client-groups.update')->middleware('permission:client-groups.update');
-    Route::delete('/client-groups/{clientGroups}', [ClientGroupsController::class, 'destroy'])->name('client-groups.destroy')->middleware('permission:client-groups.destroy');
+    // Route::get('/client-groups', [ClientGroupsController::class, 'index'])->name('client-groups.index')->middleware('permission:client-groups.index');
+    // Route::post('/client-groups', [ClientGroupsController::class, 'store'])->name('client-groups.store')->middleware('permission:client-groups.store');
+    // Route::put('/client-groups/{clientGroups}', [ClientGroupsController::class, 'update'])->name('client-groups.update')->middleware('permission:client-groups.update');
+    // Route::delete('/client-groups/{clientGroups}', [ClientGroupsController::class, 'destroy'])->name('client-groups.destroy')->middleware('permission:client-groups.destroy');
 
 
     //Tasks
@@ -127,6 +131,24 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/partner/{id}', [UserController::class, 'getPartnersByCampaign'])->name('clientpartner.fetch');
 
     Route::resource('groups', GroupController::class);
+
+    // Client Routes
+    Route::get('/clients', [ClientController::class, 'index'])->name('clients.index');
+    Route::post('/clients', [ClientController::class, 'store'])->name('clients.store');
+    Route::post('/clients/{id}', [ClientController::class, 'update'])->name('clients.update');
+    Route::post('/clients/{id}/delete', [ClientController::class, 'destroy'])->name('clients.destroy');
+
+    // Client Group Routes
+    // Route::get('/client-groups/{clientId}', [ClientGroupController::class, 'index']);
+    // Route::post('/client-groups', [ClientGroupController::class, 'store']);
+    // Route::post('/client-groups/{id}', [ClientGroupController::class, 'update']);
+    // Route::post('/client-groups/{id}/delete', [ClientGroupController::class, 'destroy']);
+
+    // Client User Routes
+    // Route::get('/client-users/{clientId}', [ClientUserController::class, 'index']);
+    // Route::post('/client-users', [ClientUserController::class, 'store']);
+    // Route::post('/client-users/{id}', [ClientUserController::class, 'update']);
+    // Route::post('/client-users/{id}/delete', [ClientUserController::class, 'destroy']);
 });
 
 // Clear application cache
