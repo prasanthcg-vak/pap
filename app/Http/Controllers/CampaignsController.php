@@ -64,8 +64,16 @@ class CampaignsController extends Controller
     public function store(Request $request)
     {
 
+        $request->validate(
+            [
+                'name' => 'required',
+                'description' => 'required',
+                'due_date' => 'required',
+                // 'status_id' => 'required',
+            ]
+        );
         // dd($request->all());
-        Log::info('Incoming request for image upload', [
+        Log::info('Incoming request for image upload here', [
             'request_data' => $request->all(),
         ]);
         $data = new Campaigns();
@@ -137,14 +145,7 @@ class CampaignsController extends Controller
 
         // dd($image->id);
         // dd("test");
-        $request->validate(
-            [
-                'name' => 'required',
-                'description' => 'required',
-                'due_date' => 'required',
-                // 'status_id' => 'required',
-            ]
-        );
+        
 
        
         $id = $data->id;

@@ -35,9 +35,15 @@ class UserController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
-            'group_id' => 'required',
             'is_active' => 'boolean',
         ]);
+        if($request->role_id > 3){
+            $request->validate([
+                'group_id' => 'required',
+            ]);
+        }else{
+            $request->group_id = null;
+        }
 
         // Generate a random password for the partner
         $randomPassword = Str::random(10);
@@ -75,9 +81,15 @@ class UserController extends Controller
                 'name' => 'required|string|max:255',
                 'email' => 'required|email|unique:users,email,' . $request->user_id,
                 'is_active' => 'boolean',
-                'group_id' => 'required',
                 'role_id' => 'required|exists:roles,id'
             ]);
+            if($request->role_id > 3){
+                $request->validate([
+                    'group_id' => 'required',
+                ]);
+            }else{
+                $request->group_id = null;
+            }
 
             // Update user details
             // $data = $request->all();

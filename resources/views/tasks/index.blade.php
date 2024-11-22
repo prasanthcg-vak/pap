@@ -30,7 +30,7 @@
                         <h3>TASKS</h3>
                     </div>
                     <form>
-                        <input type="text" name="search" placeholder="Search...">
+                        {{-- <input type="text" name="search" placeholder="Search..."> --}}
                         <a href="#" class="create-task-btn" data-toggle="modal" data-target="#createTask">Create
                             Task</a>
                     </form>

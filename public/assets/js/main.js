@@ -180,5 +180,23 @@ $(document).ready(function () {
   });
 });
 
+    // Function to toggle the visibility of the Group section
+    function toggleGroupSection() {
+        const roleSelect = document.getElementById('role_id');
+        const groupSection = document.getElementById('group-section');
 
+        if (roleSelect.value >5) {
+            groupSection.style.display = 'block'; // Show Group section
+        } else {
+            groupSection.style.display = 'none'; // Hide Group section
+        }
+    }
+
+    // Attach the event listener to the role dropdown
+    document.getElementById('role_id').addEventListener('change', toggleGroupSection);
+
+    // Initialize visibility on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        toggleGroupSection();
+    });
 // alert();
