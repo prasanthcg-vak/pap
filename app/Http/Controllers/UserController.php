@@ -35,9 +35,15 @@ class UserController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
-            'group_id' => 'required',
             'is_active' => 'boolean',
         ]);
+        if($request->role_id > 3){
+            $request->validate([
+                'group_id' => 'required',
+            ]);
+        }else{
+            $request->group_id = null;
+        }
 
         // Generate a random password for the partner
         $randomPassword = Str::random(10);
@@ -75,9 +81,15 @@ class UserController extends Controller
                 'name' => 'required|string|max:255',
                 'email' => 'required|email|unique:users,email,' . $request->user_id,
                 'is_active' => 'boolean',
-                'group_id' => 'required',
                 'role_id' => 'required|exists:roles,id'
             ]);
+            if($request->role_id > 3){
+                $request->validate([
+                    'group_id' => 'required',
+                ]);
+            }else{
+                $request->group_id = null;
+            }
 
             // Update user details
             // $data = $request->all();
@@ -251,6 +263,7 @@ class UserController extends Controller
                 'profile_picture' => $filePath,
             ]);
         }
+        Mail::to($request->partner_email)->send(new UserPasswordMail($randomPassword));
 
         // Send the password to the partner (via email or other means)
         // You can send an email to the partner with the generated password
@@ -315,27 +328,19 @@ class UserController extends Controller
     public function destroy_client_partner($id)
     {
         // Begin transaction
-        DB::beginTransaction();
-        try {
-            // Find the ClientPartner by ID
-            $clientPartner = ClientPartner::findOrFail($id);
-
-            // Soft delete the associated user
-            $user = User::findOrFail($clientPartner->partner_id);
-            $user->delete(); // Soft delete from users table
-
-            // Soft delete the ClientPartner record
-            $clientPartner->delete(); // Soft delete from clientpartner table
-
-            // Commit transaction
-            DB::commit();
-
-            return redirect()->route('myprofile')->with('success', 'Partner and user deleted successfully!');
-        } catch (\Exception $e) {
-            // Rollback if there's an error
-            DB::rollBack();
-            return redirect()->route('myprofile')->with('error', 'An error occurred while deleting.');
+        $client_partner = ClientPartner::find($id);
+        if($client_partner){
+            $client_partner->delete();
         }
+        $user = User::find($client_partner->partner_id);
+        if($user){
+            $user->delete();
+        }
+
+        // dd($user);
+        return redirect()->route('myprofile')->with('success', 'Partner deleted successfully!');
+
+        
     }
     public function getPartnersByCampaign($id)
     {
@@ -348,6 +353,23 @@ class UserController extends Controller
 
         // Return JSON response
         return response()->json($partners);
+    }
+
+    public function updatepassword(Request $request)
+    {
+        // Validate the input
+        $request->validate([
+            'newpassword' => 'required|min:8|confirmed',
+            'newpassword_confirmation' => 'required',
+        ]);
+
+        // Update the password for the authenticated user
+        $user = Auth::user();
+        $user->password = Hash::make($request->newpassword);
+        $user->save();
+
+        // Redirect with a success message
+        return redirect()->back()->with('success', 'Password updated successfully!');
     }
 
 }

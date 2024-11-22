@@ -150,35 +150,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 
-// document.getElementById('campaign-select').addEventListener('change', function () {
-//   const campaignId = this.value;
-//   const partnerSelect = document.getElementById('partner-select');
 
-//   // Clear existing options
-//   partnerSelect.innerHTML = '<option value="" selected>Select Partner</option>';
-//   partnerSelect.disabled = true;
-
-//   if (campaignId) {
-//     // Fetch partners based on the selected campaign
-//     fetch(`/partner/${campaignId}`)
-//       .then(response => response.json())
-//       .then(data => {
-//         console.log(data); // Log data to inspect the structure
-//         if (data.length > 0) {
-//           data.forEach(partner => {
-//             const option = document.createElement('option');
-//             option.value = partner.id; // Assuming 'id' is the primary key
-//             option.textContent = partner.partner ? partner.partner.name :
-//               'Unnamed Partner'; // Fallback for null partner
-//             partnerSelect.appendChild(option);
-//           });
-//           partnerSelect.disabled = false;
-//         }
-//       })
-
-//       .catch(error => console.error('Error fetching partners:', error));
-//   }
-// });
 
 // bottom-navigation navlink active
 const navLinkEls = document.querySelectorAll('.nav-link');
@@ -208,5 +180,23 @@ $(document).ready(function () {
   });
 });
 
+    // Function to toggle the visibility of the Group section
+    function toggleGroupSection() {
+        const roleSelect = document.getElementById('role_id');
+        const groupSection = document.getElementById('group-section');
 
+        if (roleSelect.value >5) {
+            groupSection.style.display = 'block'; // Show Group section
+        } else {
+            groupSection.style.display = 'none'; // Hide Group section
+        }
+    }
+
+    // Attach the event listener to the role dropdown
+    document.getElementById('role_id').addEventListener('change', toggleGroupSection);
+
+    // Initialize visibility on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        toggleGroupSection();
+    });
 // alert();

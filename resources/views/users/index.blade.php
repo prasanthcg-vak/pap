@@ -4,7 +4,7 @@
 <div class="CM-main-content">
     <div class="container-fluid p-0">
         <!-- Table -->
-        <div class="task campaingn-table pb-3 common-table">
+        <div class=" p-3">
             <!-- campaigns-contents -->
             <div class="col-lg-12 task campaigns-contents">
                 <div class="campaigns-title">
@@ -12,74 +12,51 @@
                 </div>
                 <form>
                     {{-- <input type="text" name="search" placeholder="Search..."> --}}
-                    <a class="common-btn mb-3" id="model-close" onclick="openModal()">Add User</a>
+                    <a class="common-btn mb-3" id="" onclick="openModal()">Add User</a>
                 </form>
             </div>
             <!-- campaigns-contents -->
             <div class="table-wrapper">
-                <table id="datatable" class="">
+                <table id="usersTable" class="table table-bordered">
                     <thead>
                         <tr>
-                            <th class="campaingn-title">
-                                <span>Name</span>
-                            </th>
-                            <th class="description">
-                                <span>Email</span>
-                            </th>
-                            <th>
-                                <span>Role</span>
-                            </th>
-                            <th>
-                                <span>Group</span>
-                            </th>
-                            <th class="active">
-                                <span>Status</span>
-                            </th>
-                            <th class="action">
-                                <span>Actions</span>
-                            </th>
+                            <th>#</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($users as $user)
+                        @foreach($users as $index => $user)
                             <tr>
-                                <td class="campaingn-title">
-                                    <span>{{ $user->name }}</span>
-                                </td>
-                                <td class="description">
-                                    <span>{{ $user->email }}</span>
-                                </td>
+                                <td>{{ $index + 1 }}</td> 
+                                <td>{{ $user->name }}</td>
+                                <td>{{ $user->email }}</td>
                                 <td>
-                                    @foreach ($user->roles as $role)
-                                        <span>{{ $role->name }}{{ !$loop->last ? ', ' : '' }}</span>
+                                    @foreach($user->roles as $role)
+                                        {{ $role->name }}{{ !$loop->last ? ', ' : '' }}
                                     @endforeach
                                 </td>
+                                <td>{{ $user->is_active ? 'Active' : 'Inactive' }}</td>
                                 <td>
-                                    <span>{{ @$user->group->client_group_name }}</span>
-                                </td>
-                                <td class="active">
-                                    <span>{{ $user->is_active ? 'Active' : 'Inactive' }}</span>
-                                </td>
-                                <td class="action">
-                                    <div class="action-btn-icons">
-                                        <a href="#" class="btn search" onclick="editUser({{ json_encode($user) }})">
-                                            <i class="fa-solid fa-pencil" title="Edit"></i>
-                                        </a>
-                                        <form action="{{ route('users.destroy', $user->id) }}" method="POST" class="d-inline-block" onsubmit="return confirm('Are you sure you want to delete this user?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn trash">
-                                                <i class="fa-regular fa-trash-can" title="Delete"></i>
-                                            </button>
-                                        </form>
-                                    </div>
+                                <a href="#" class="btn search" onclick="editUser({{ json_encode($user) }})">
+                                    <i class="fa-solid fa-pencil"></i>
+                                </a>
+                                <form action="{{ route('users.destroy', $user->id) }}" method="POST" class="d-inline-block"
+                                    onsubmit="return confirm('Are you sure you want to delete this user?');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn trash">
+                                        <i class="fa-regular fa-trash-can"></i>
+                                    </button>
+                                </form>
                                 </td>
                             </tr>
                         @endforeach
                     </tbody>
                 </table>
-                
-                
             </div>
         </div>
         <!-- Table -->
@@ -120,8 +97,23 @@
                                 @enderror
                             </div>
                             <!-- Role Field -->
-                            <!-- Group Field -->
                             <div class="col-lg-12">
+                                <label for="role_id" class="common-label">Role</label>
+                                <select id="role_id" name="role_id"
+                                    class="form-select @error('role_id') is-invalid @enderror common-select">
+                                    @foreach (get_roles() as $value => $label)
+                                        <option value="{{ $value }}"
+                                            {{ isset($data) && $data->role_id == $value ? 'selected' : '' }}>
+                                            {{ $label }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('role_id')
+                                    <span class="text-danger">{{ $message }}</span>
+                                @enderror
+                            </div>
+                            <!-- Group Field -->
+                            <div class="col-lg-12" id="group-section" style="display: none;">
                                 <label for="group_id" class="common-label">Group</label>
                                 <select id="group_id" name="group_id"
                                     class="form-select @error('group_id') is-invalid @enderror common-select">
@@ -135,22 +127,6 @@
                                 </select>
                                 <div class="invalid-feedback" id="group_idError"></div>
                                 @error('group_id')
-                                    <span class="text-danger">{{ $message }}</span>
-                                @enderror
-                            </div>
-
-                            <div class="col-lg-12">
-                                <label for="role_id" class="common-label">Role</label>
-                                <select id="role_id" name="role_id"
-                                    class="form-select @error('role_id') is-invalid @enderror common-select">
-                                    @foreach (get_roles() as $value => $label)
-                                        <option value="{{ $value }}"
-                                            {{ isset($data) && $data->role_id == $value ? 'selected' : '' }}>
-                                            {{ $label }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                @error('role_id')
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
                             </div>
@@ -196,6 +172,7 @@
 @endsection
 
 @section('script')
+
     <script>
         $(document).ready(function() {
             $('#usersTable').DataTable({

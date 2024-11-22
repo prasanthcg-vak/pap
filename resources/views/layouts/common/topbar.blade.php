@@ -2,13 +2,17 @@
     <nav class="navbar">
         <div class="container-fluid">
             <div class="logo_title">
-                <a class="navbar-brand">
+                <a class="navbar-brand" href="/home">
                     <img src="{{ asset('/assets/images/New-CMLogo.svg') }}" alt="logo" href="#" class="img-fluid">
                 </a>
                 <span>Partner Asset Portal</span>
             </div>
             
             <div class="profile-image">
+                <div class="profile-name" style="display:inline-grid;">
+                    <span style="font-size:15px; font-weight:700;">Welcome {{Auth::user()->name }}</span>
+                    <span class="role" style="font-size:12px;">{{ Auth::user()->role->name ?? 'No Role Assigned' }}</span>
+                </div>
                 <div class="dropdown">
                     
                     <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
@@ -47,6 +51,20 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('home') ? 'active' : '' }}" 
+                                href="{{ route('home') }}">
+                                Home
+                            </a>
+                        </li>
+                        @if (Auth::user()->hasRolePermission('categories.index'))
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->is('groups') ? 'active' : '' }}" 
+                                href="/groups">
+                                Client Groups
+                            </a>
+                        </li>
+                        @endif
                         @if (Auth::user()->hasRolePermission('users.index'))
                             <li class="nav-item">
                                 <a class="nav-link {{ request()->routeIs('users.index') ? 'active' : '' }}" 
@@ -63,28 +81,33 @@
                                 </a>
                             </li>
                         @endif
-                        @if (Auth::user()->hasRolePermission('asset-types.index'))
-                            <li class="nav-item">
-                                <a class="nav-link {{ request()->routeIs('asset-types.index') ? 'active' : '' }}" 
+                        <li class="nav-item dropdown  ">
+                            <a class="nav-link dropdown-toggle {{ request()->routeIs('asset-types.index') ? 'active' : '' }} {{ request()->routeIs('categories.index') ? 'active' : '' }}" href="#" role="button" data-bs-toggle="dropdown"
+                                aria-expanded="false">
+                                Task Management
+                                <i class="fas fa-chevron-down"></i>
+                            </a>
+                            <ul class="dropdown-menu">
+                                @if (Auth::user()->hasRolePermission('asset-types.index'))
+                            <li >
+                                <a class="dropdown-item {{ request()->routeIs('asset-types.index') ? 'active' : '' }}" 
                                     href="{{ route('asset-types.index') }}">
-                                    Manage Assets Type
+                                    Assets Type
                                 </a>
                             </li>
                         @endif
                         @if (Auth::user()->hasRolePermission('categories.index'))
-                            <li class="nav-item">
-                                <a class="nav-link {{ request()->routeIs('categories.index') ? 'active' : '' }}" 
+                            <li>
+                                <a class="dropdown-item  {{ request()->routeIs('categories.index') ? 'active' : '' }}" 
                                     href="{{ route('categories.index') }}">
-                                    Manage Categories
+                                    Categories
                                 </a>
                             </li>
                         @endif
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->is('groups') ? 'active' : '' }}" 
-                                href="/groups">
-                                Client Groups
-                            </a>
+                            </ul>
                         </li>
+                        
+                        
                     </ul>
                 </div>
             </div>
@@ -96,7 +119,7 @@
         <div class="container-fluid p-0">
             <!-- top-card-items -->
             <div class="top-card-items">
-                <a href="{{route('campaigns.index')}}" class="card-item purple active">
+                <a href="{{route('campaigns.index')}}" class="card-item purple  {{ request()->routeIs('campaigns.index') ? 'active' : '' }}">
                     <div class="circle_text">
                         <div class="circle-icon purple">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -121,7 +144,7 @@
                         <span>{{campaigns_count()}}</span>
                     </div>
                 </a>
-                <a href="{{ route('tasks.index') }}" class="card-item green">
+                <a href="{{ route('tasks.index') }}" class="card-item green  {{ request()->routeIs('tasks.index') ? 'active' : '' }}">
                     <div class="circle_text ">
                         <div class="circle-icon green">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -153,7 +176,7 @@
                         <span>{{task_count()}}</span>
                     </div>
                 </a>
-                <a href="{{ route('library.index') }}" class="card-item orange">
+                <a href="{{ route('library.index') }}" class="card-item orange {{ request()->routeIs('library.index') ? 'active' : '' }}">
                     <div class="circle_text ">
                         <div class="circle-icon orange">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none"

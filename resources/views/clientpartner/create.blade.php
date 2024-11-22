@@ -29,7 +29,7 @@
                                     <p class="profile-label">Partner Name:</p>
                                 </div>
                                 <div class="col-sm-8">
-                                    <input type="text" name="partner_name" id="partner_name" placeholder="Partner Name" value="{{ old('partner_name') }}">
+                                    <input type="text" name="partner_name" id="partner_name" placeholder="Partner Name" required value="{{ old('partner_name') }}">
                                     @error('partner_name')
                                         <div class="text-danger">{{ $message }}</div>
                                     @enderror
@@ -44,7 +44,7 @@
                                     <p class="profile-label">Partner Contact:</p>
                                 </div>
                                 <div class="col-sm-8">
-                                    <input type="text" name="partner_contact" id="partner_contact" placeholder="Partner Contact" value="{{ old('partner_contact') }}">
+                                    <input type="text" name="partner_contact" id="partner_contact" placeholder="Partner Contact" required value="{{ old('partner_contact') }}">
                                     @error('partner_contact')
                                         <div class="text-danger">{{ $message }}</div>
                                     @enderror
@@ -59,7 +59,7 @@
                                     <p class="profile-label">Email:</p>
                                 </div>
                                 <div class="col-sm-8">
-                                    <input type="email" name="partner_email" id="partner_email" placeholder="Partner Email" value="{{ old('partner_email') }}">
+                                    <input type="email" name="partner_email" id="partner_email" placeholder="Partner Email" required value="{{ old('partner_email') }}">
                                     @error('partner_email')
                                         <div class="text-danger">{{ $message }}</div>
                                     @enderror
@@ -75,7 +75,7 @@
                                 </div>
                                 <div class="col-sm-8">
                                     <div>
-                                        <input type="radio" id="active" name="status" value="active" {{ old('status') == 'active' ? 'checked' : '' }}>
+                                        <input type="radio" id="active" name="status"  value="active" {{ old('status') == 'active' ? 'checked' : '' }}>
                                         <label for="active">Active</label><br>
                                         <input type="radio" id="inactive" name="status" value="inactive" {{ old('status') == 'inactive' ? 'checked' : '' }}>
                                         <label for="inactive">Inactive</label><br>
@@ -105,7 +105,7 @@
                                                         <span><img src="{{asset('assets/images/fi_upload-cloud.svg')}}" alt=""> Upload Image</span>
                                                     </div>
                                                 </div>
-                                                <input type="file" name="logo" class="drop-zone__input">
+                                                <input type="file" name="logo"  class="drop-zone__input">
                                             </div>
                                         </div>
 
