@@ -17,17 +17,17 @@ class ImageController extends Controller
     public function index()
     {
         // Fetch file names and paths from the database
-        $images = Image::all(['file_name', 'path']);
+        $images = Image::all(['file_name', 'path','file_type']);
 
         // Retrieve the URLs for each image
         $imageUrls = $images->map(function ($image) {
             return [
                 'name' => $image->file_name,
                 'path' => $image->path,
+                'type' => $image->file_type,
                 'url' => Storage::disk('backblaze')->url($image->path) // Generate the public URL
             ];
         });
-
         return view('images.index', compact('imageUrls'));
     }
 
@@ -38,9 +38,73 @@ class ImageController extends Controller
 
     public function store(Request $request)
     {
+        $request->validate([
+            'image' => 'required|mimes:jpeg,png,jpg,mp4,pdf|max:51200', // 50 MB limit
+        ]);
+
+        $file = $request->file('image');
+        $extension = $file->getClientOriginalExtension();
+        $randomName = uniqid() . '.' . $extension;
+        $filePath = 'images/' . $randomName;
+        $file_type = '';
+
+        if (in_array($extension, ['jpg', 'jpeg', 'png'])) {
+            $file_type = 'image';
+        } elseif ($extension === 'pdf') {
+            $file_type = 'document';
+        } elseif ($extension === 'mp4') {
+            $file_type = 'video';
+        } else {
+            $file_type = '';
+        }
+    
+        try {
+            $s3Client = new S3Client([
+                'version' => 'latest',
+                'region' => 'us-east-005',
+                'endpoint' => 'https://s3.us-east-005.backblazeb2.com',
+                'credentials' => [
+                    'key' => env('BACKBLAZE_KEY_ID'),
+                    'secret' => env('BACKBLAZE_APPLICATION_KEY'),
+                ],
+            ]);
+    
+            $result = $s3Client->putObject([
+                'Bucket' => 'cm-pap01', 
+                'Key' => $filePath,
+                'Body' => file_get_contents($file),
+                'ACL' => 'public-read',
+            ]);
+    
+            $upload = new Image(); 
+            $upload->path = $filePath;
+            $upload->file_name = $randomName;
+            $upload->file_type = $file_type;
+            $upload->save();
+    
+            Log::info('File uploaded successfully', [
+                'database_file_id' => $upload->id,
+            ]);
+
+            Log::info('Uploaded File Path : ', ['file_path' => $result['ObjectURL']]);
+            return redirect()->route('images.index')->with('success', 'File uploaded successfully.');
+    
+        } catch (Aws\Exception\AwsException $e) {
+            Log::error('Backblaze upload failed', [
+                'error_message' => $e->getAwsErrorMessage(),
+            ]);
+    
+            return response()->json([
+                'error' => 'Backblaze upload failed: ' . $e->getAwsErrorMessage(),
+            ], 500);
+        }
+    }
+
+    public function storeOld(Request $request)
+    {
         // Validate the incoming request
         $request->validate([
-            'file' => 'required|mimes:jpeg,png,jpg,gif,mp4,avi,mov,pdf|max:20480',
+            'image' => 'required|mimes:jpeg,png,jpg,gif,mp4,avi,mov,pdf|max:20480',
         ]);
 
         // Log the incoming request
@@ -52,6 +116,9 @@ class ImageController extends Controller
         if ($request->hasFile('image')) {
             try {
                 $file = $request->file('image');
+                $extension = $file->getClientOriginalExtension();
+                $randomName = uniqid() . '.' . $extension; // Generate a unique file name
+                $filePath = 'images/' . $randomName; // Define storage path
 
                 // Log the file details
                 Log::info('File details', [
@@ -60,8 +127,8 @@ class ImageController extends Controller
                     'size' => $file->getSize(),
                 ]);
 
-                $randomName = Str::random(10) . '.' . $file->getClientOriginalExtension();
-                $filePath = 'images/' . $randomName;
+                // $randomName = Str::random(10) . '.' . $file->getClientOriginalExtension();
+                // $filePath = 'images/' . $randomName;
 
                 // Log the file path and attempt storage
                 Log::info('Attempting to upload file to Backblaze', ['file_path' => $filePath]);

@@ -273,7 +273,6 @@ Route::middleware(['auth'])->group(function () {
         ->middleware('permission:myprofile.update');
         Route::put('/password/update', [UserController::class, 'updatepassword'])->name('password.update');
 
-
 });
 
 // Clear application cache
