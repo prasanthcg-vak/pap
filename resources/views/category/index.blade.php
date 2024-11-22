@@ -147,6 +147,7 @@
 @section('script')
     <script>
         $(document).ready(function() {
+            $('#categoriesTable').DataTable().destroy();
             $('#categoriesTable').DataTable({
                 responsive: true,
                 pageLength: 10,

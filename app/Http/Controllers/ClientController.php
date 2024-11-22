@@ -14,11 +14,6 @@ class ClientController extends Controller
         return view('clients.index', compact('clients'));
     }
 
-    public function create()
-    {
-        return view('clients.create');
-    }
-
     public function store(Request $request)
     {
         try {
@@ -48,30 +43,48 @@ class ClientController extends Controller
         }
     }
 
-    public function edit($id)
-    {
-        $client = Client::findOrFail($id);
-        return view('clients.edit', compact('client'));
-    }
-
     public function update(Request $request, $id)
     {
-        $client = Client::findOrFail($id);
+        try {
+            $request->validate([
+                'name' => 'required|string|max:255',
+                'description' => 'nullable|string',
+                'is_active' => 'boolean',
+            ]);
 
-        $request->validate([
-            'name' => 'required',
-            'description' => 'nullable',
-        ]);
+            $client = Client::findOrFail($id);
 
-        $client->update($request->all());
-        return redirect('/clients')->with('success', 'Client updated successfully!');
+            $data = $request->all();
+            $data['is_active'] = $request->has('is_active') ? $request->input('is_active') : 0;
+
+            $client->update($data);
+
+            return response()->json(['success' => 'Client updated successfully']);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json(['error' => 'Validation Error', 'messages' => $e->errors()], 422);
+        } catch (\ModelNotFoundException $e) {
+            return response()->json(['error' => 'Client not found'], 404);
+        } catch (\Exception $e) {
+            \Log::error('Error updating client: ' . $e->getMessage());
+            return response()->json(['error' => 'An error occurred while updating the client'], 500);
+        }
     }
 
     public function destroy($id)
     {
-        $client = Client::findOrFail($id);
-        $client->delete();
-        return redirect('/clients')->with('success', 'Client deleted successfully!');
+        try {
+            $client = Client::findOrFail($id);
+            $client->delete();
+
+            return redirect()->route('clients.index')->with('success', 'Client Group deleted successfully');
+        } catch (\ModelNotFoundException $e) {
+            return response()->json(['error' => 'Client not found'], 404);
+        } catch (\Exception $e) {
+            \Log::error('Error deleting client: ' . $e->getMessage());
+            return response()->json(['error' => 'An error occurred while deleting the client'], 500);
+        }
     }
+
+
 }
 

@@ -175,6 +175,7 @@
 
     <script>
         $(document).ready(function() {
+            $('#usersTable').DataTable().destroy();
             $('#usersTable').DataTable({
                 responsive: true,
                 pageLength: 10,

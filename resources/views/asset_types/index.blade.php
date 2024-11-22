@@ -127,6 +127,7 @@
 @section('script')
 <script>
     $(document).ready(function() {
+        $('#assetTypesTable').DataTable().destroy();
         $('#assetTypesTable').DataTable({
             responsive: true,
             pageLength: 10,

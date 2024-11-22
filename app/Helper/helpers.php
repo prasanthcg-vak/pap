@@ -84,7 +84,7 @@ function _select_option($option = [], $name = null, $check = null, $class = null
 
 function get_roles()
 {
-    return Role::pluck('name', 'id');
+    return Role::pluck('name', 'id', 'role_level');
 }
 
 function get_groups()

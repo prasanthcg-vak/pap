@@ -31,7 +31,7 @@
                                 <td>{{ $index + 1 }}</td> 
                                 <td>{{ $client->name }}</td>
                                 <td>{{ $client->description }}</td>
-                                <td{{ $client->is_active ? 'Active' : 'Inactive' }}</td>
+                                <td>{{ $client->is_active ? 'Active' : 'Inactive' }}</td>
                                 <td>
                                     <a href="#" class="btn search" onclick="editClient({{ json_encode($client) }})">
                                         <i class="fa-solid fa-pencil" title="Edit"></i>
@@ -126,119 +126,123 @@
 @endsection
 
 @section('script')
-    <script>
-        $(document).ready(function() {
-            $('#clientsTable').DataTable({
-                responsive: true,
-                pageLength: 10,
-                columnDefs: [{
-                    searchable: false,
-                    orderable: false,
-                    targets: 0
-                }],
-                order: [
-                    [1, 'asc']
-                ], // Initial sort by name
-                drawCallback: function(settings) {
-                    var api = this.api();
-                    api.column(0, {
-                        order: 'applied'
-                    }).nodes().each(function(cell, i) {
-                        cell.innerHTML = i + 1; // Number rows dynamically
-                    });
-                }
-            });
-
-            $('#clientModal').modal({
-                backdrop: 'static',
-                keyboard: false
-            });
-        });
-
-        function openModal() {
-            $('#clientForm')[0].reset();
-            $('#client_id').val('');
-            $('#is_active').prop('checked', false); // Reset checkbox
-            $('#clientModal').modal('show');
-        }
-
-        $('#clientForm').on('submit', function(e) {
-            e.preventDefault();
-
-            // Reset validation feedback
-            $('.is-invalid').removeClass('is-invalid');
-            $('.invalid-feedback').text('');
-
-            // Collect form data
-            let formData = $(this).serializeArray();
-            let clientId = $('#client_id').val();
-            let url = clientId ? `/clients/${clientId}` : '{{ route('clients.store') }}';
-            let method = clientId ? 'PUT' : 'POST';
-
-            // Show loader
-            $('#modalLoader').show();
-
-            // Perform AJAX request
-            $.ajax({
-                url: url,
-                method: method,
-                data: $.param(formData),
-                success: function(response) {
-                    $('#modalLoader').hide();
-                    $('#clientModal').modal('hide');
-                    showToast(response.success, 'success');
-                    location.reload();
-                },
-                error: function(xhr) {
-                    $('#modalLoader').hide();
-
-                    if (xhr.status === 422) {
-                        // Handle validation errors
-                        let errors = xhr.responseJSON.errors;
-
-                        // Loop through the errors and show them in the modal
-                        $.each(errors, function(field, messages) {
-                            // Add invalid class and error message
-                            $(`#${field}`).addClass(
-                            'is-invalid'); // Add invalid class to the input field
-                            $(`#${field}Error`).text(messages[
-                            0]); // Show the first error message under the input field
-                        });
-
-                        // Optionally, you can also display the general message in a toast or modal
-                        showToast(xhr.responseJSON.message, 'error');
-                    } else {
-                        showToast('An error occurred.', 'error');
-                    }
-                }
-            });
-        });
-
-        function showToast(message, type) {
-            // Use a simple alert or a toast library for a better UI
-            alert(type.toUpperCase() + ": " + message);
-        }
-
-        function editClient(client) {
-            $('#client_id').val(client.id);
-            $('#name').val(client.name);
-            $('#description').val(client.description);
-            $('#is_active').prop('checked', client.is_active);
-            $('#clientModal').modal('show');
-        }
-
-        function showToast(message, type = 'success') {
-            $('#toast-message').text(message);
-            const toastEl = document.getElementById('toast');
-            const toast = new bootstrap.Toast(toastEl);
-
-            if (type === 'success') {
-                $('#toast').removeClass('bg-danger').addClass('bg-success');
-            } else {
-                $('#toast').removeClass('bg-success').addClass('bg-danger');
+<script>
+    $(document).ready(function() {
+        $('#clientsTable').DataTable().destroy();
+        $('#clientsTable').DataTable({
+            responsive: true,
+            pageLength: 10,
+            columnDefs: [{
+                searchable: false,
+                orderable: false,
+                targets: 0
+            }],
+            order: [
+                [1, 'asc']
+            ], // Initial sort by name
+            drawCallback: function(settings) {
+                var api = this.api();
+                api.column(0, {
+                    order: 'applied'
+                }).nodes().each(function(cell, i) {
+                    cell.innerHTML = i + 1; // Number rows dynamically
+                });
             }
+        });
 
-            toast.show();
+        $('#clientModal').modal({
+            backdrop: 'static',
+            keyboard: false
+        });
+    });
+
+    function openModal() {
+        $('#clientForm')[0].reset();
+        $('#client_id').val('');
+        $('#description').val('');
+        $('#is_active').prop('checked', false); // Reset checkbox
+        $('#clientModal').modal('show');
+    }
+
+    $(document).off('submit', '#clientForm').on('submit', '#clientForm', function(e) {
+        e.preventDefault();
+
+        // Reset validation feedback
+        $('.is-invalid').removeClass('is-invalid');
+        $('.invalid-feedback').text('');
+
+        // Collect form data
+        let formData = $(this).serializeArray();
+        let clientId = $('#client_id').val();
+        let url = clientId ? `/clients/${clientId}` : '{{ route('clients.store') }}';
+        let method = clientId ? 'PUT' : 'POST';
+
+        // Show loader
+        $('#modalLoader').show();
+
+        // Perform AJAX request
+        $.ajax({
+            url: url,
+            method: method,
+            data: $.param(formData),
+            success: function(response) {
+                $('#modalLoader').hide();
+                $('#clientModal').modal('hide');
+                console.log('AJAX call succeeded. Reloading page...');
+                location.reload();
+                console.log('Reload triggered.');
+                showToast(response.success, 'success');
+            },
+            error: function(xhr) {
+                $('#modalLoader').hide();
+
+                if (xhr.status === 422) {
+                    // Handle validation errors
+                    let errors = xhr.responseJSON.errors;
+
+                    // Loop through the errors and show them in the modal
+                    $.each(errors, function(field, messages) {
+                        // Add invalid class and error message
+                        $(`#${field}`).addClass(
+                        'is-invalid'); // Add invalid class to the input field
+                        $(`#${field}Error`).text(messages[
+                        0]); // Show the first error message under the input field
+                    });
+
+                    // Optionally, you can also display the general message in a toast or modal
+                    showToast(xhr.responseJSON.message, 'error');
+                } else {
+                    showToast('An error occurred.', 'error');
+                }
+            }
+        });
+    });
+
+    // function showToast(message, type) {
+    //     // Use a simple alert or a toast library for a better UI
+    //     alert(type.toUpperCase() + ": " + message);
+    // }
+
+    function editClient(client) {
+        $('#client_id').val(client.id);
+        $('#name').val(client.name);
+        $('#description').val(client.description);
+        $('#is_active').prop('checked', client.is_active);
+        $('#clientModal').modal('show');
+    }
+
+    function showToast(message, type = 'success') {
+        $('#toast-message').text(message);
+        const toastEl = document.getElementById('toast');
+        const toast = new bootstrap.Toast(toastEl);
+
+        if (type === 'success') {
+            $('#toast').removeClass('bg-danger').addClass('bg-success');
+        } else {
+            $('#toast').removeClass('bg-success').addClass('bg-danger');
         }
-    </script>
+
+        toast.show();
+    }
+</script>
 @endsection
