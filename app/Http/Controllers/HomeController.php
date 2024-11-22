@@ -31,21 +31,19 @@ class HomeController extends Controller
      */
     public function index()
     {
-        // Fetch campaigns along with their related images
-        $assets = Image::with('campaign') // Eager load the campaign relationship
+        $assets = Image::with('campaign') 
             ->get()
             ->map(function ($image) {
                 return [
                     'id' => $image->id,
                     'file_name' => $image->file_name,
-                    'image_type' => pathinfo($image->file_name, PATHINFO_EXTENSION), // Image type (extension)
-                    'image' => Storage::disk('backblaze')->url($image->path) ?? null, // Assuming the image is stored on Backblaze
-                    'campaign_name' => $image->campaign ? $image->campaign->name : 'No Campaign', // Access the campaign name
-                    'campaign_id' => $image->campaign_id, // Access the campaign_id directly
+                    // 'image_type' => pathinfo($image->file_name, PATHINFO_EXTENSION), 
+                    'image_type' => $image->file_type,
+                    'image' => Storage::disk('backblaze')->url($image->path) ?? null, 
+                    'campaign_name' => $image->campaign ? $image->campaign->name : 'No Campaign', 
+                    'campaign_id' => $image->campaign_id, 
                 ];
             });
-    
-        // Return the view with the assets (campaign images)
         return view('images.list', compact('assets'));
     }
 }

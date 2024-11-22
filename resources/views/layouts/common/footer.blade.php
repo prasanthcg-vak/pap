@@ -12,17 +12,16 @@
 <script src="https://cdn.datatables.net/responsive/3.0.3/js/responsive.bootstrap5.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
 
-<script>
-    // Document ready handler
-    $(document).ready(function () {
-        // Initialize DataTable
-        if ($('#datatable').length) {
-            new DataTable('#datatable');
-        }
 
-        // Handle asset upload visibility toggle
-        $('#uploadAsset').on('click', function () {
-            $('.img-upload-con').toggleClass('d-none');
+    @yield('script')
+    
+    <script>
+        new DataTable('#datatable');
+    </script>
+    <script>
+        document.getElementById('uploadAsset').addEventListener('click', function() {
+            // Toggle the 'img-upload-con' visibility
+            document.querySelector('.img-upload-con').classList.toggle('d-none');
         });
 
         // Handle modal cancel button
