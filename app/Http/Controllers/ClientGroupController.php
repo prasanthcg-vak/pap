@@ -3,47 +3,75 @@
 namespace App\Http\Controllers;
 
 use App\Models\ClientGroup;
-use App\Models\User;
+use App\Models\Client;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class ClientGroupController extends Controller
 {
     public function index()
     {
-        $clientGroups = ClientGroup::with('users')->get();
-        return view('client_groups.index', compact('clientGroups'));
-    }
-
-    public function create()
-    {
-        return view('client_groups.create');
+        $clientGroups = ClientGroup::with('client:id,name')->get();
+        $clients = Client::all(['id', 'name']);
+        return view('client-groups.index', compact('clientGroups', 'clients'));
     }
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string|max:255',
-        ]);
+        try {
+            // Validate the request
+            $request->validate([
+                'name' => 'required|string|max:255',
+                'client_id' => 'required|exists:clients,id',
+            ]);
 
-        ClientGroup::create($validated);
-        return redirect()->route('client_groups.index')->with('success', 'Client group created successfully.');
+            // Create the client group
+            ClientGroup::create([
+                'name' => $request->name,
+                'client_id' => $request->client_id,
+            ]);
+
+            return response()->json(['success' => 'Client group created successfully']);
+        } catch (\Throwable $e) {
+            Log::error('Error creating client group: ' . $e->getMessage(), ['request' => $request->all()]);
+            return response()->json(['error' => 'An error occurred while creating the client group'], 500);
+        }
     }
 
-    public function addUser($id)
+    public function update(Request $request, $id)
     {
-        $clientGroup = ClientGroup::findOrFail($id);
-        $users = User::whereHas('roles', function ($query) {
-            $query->where('name', 'Client Admin');
-        })->get();
+        try {
+            $request->validate([
+                'name' => 'required|string|max:255',
+                'client_id' => 'required|exists:clients,id',
+            ]);
 
-        return view('client_groups.add_user', compact('clientGroup', 'users'));
+            $clientGroup = ClientGroup::findOrFail($id);
+            $data = $request->all();
+            $clientGroup->update($data);
+
+            return response()->json(['success' => 'Client Group updated successfully']);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json(['error' => 'Validation Error', 'messages' => $e->errors()], 422);
+        } catch (\ModelNotFoundException $e) {
+            return response()->json(['error' => 'Client Group not found'], 404);
+        } catch (\Exception $e) {
+            \Log::error('Error updating client group: ' . $e->getMessage());
+            return response()->json(['error' => 'An error occurred while updating the client group'], 500);
+        }
     }
 
-    public function storeUser(Request $request, $id)
+    public function destroy($id)
     {
-        $clientGroup = ClientGroup::findOrFail($id);
-        $clientGroup->users()->attach($request->user_id);
-        return redirect()->route('client_groups.index')->with('success', 'User added to group successfully.');
+        try {
+            $client = ClientGroup::findOrFail($id);
+            $client->delete();
+            return redirect()->route('client-groups.index')->with('success', 'Client Group deleted successfully');
+        } catch (\ModelNotFoundException $e) {
+            return response()->json(['error' => 'Client Group not found'], 404);
+        } catch (\Exception $e) {
+            \Log::error('Error deleting client group: ' . $e->getMessage());
+            return response()->json(['error' => 'An error occurred while deleting the client group'], 500);
+        }
     }
 }

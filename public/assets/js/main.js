@@ -189,7 +189,7 @@ function toggleGroupSection() {
   const groupSection = document.getElementById('group-section');
 
   // Show/Hide group section based on the selected role
-  if (roleSelect.value == 6) {
+  if (roleSelect.value == 4 || roleSelect.value == 5) {
     groupSection.style.display = 'block'; // Show Group section
   } else {
     groupSection.style.display = 'none'; // Hide Group section

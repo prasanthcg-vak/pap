@@ -122,10 +122,12 @@
                                     class="form-select @error('role_id') is-invalid @enderror common-select">
                                     <option value="">-Select-</option>
                                     @foreach (get_roles() as $value => $label)
-                                        <option value="{{ $value }}"
-                                            {{ isset($data) && $data->role_id == $value ? 'selected' : '' }}>
-                                            {{ $label }}
-                                        </option>
+                                        @if (!in_array($value, [1, 6]))
+                                            <option value="{{ $value }}"
+                                                {{ isset($data) && $data->role_id == $value ? 'selected' : '' }}>
+                                                {{ $label }}
+                                            </option>
+                                        @endif
                                     @endforeach
                                 </select>
                                 @error('role_id')
@@ -136,19 +138,19 @@
                             <!-- Group Field -->
                             <div class="col-lg-12" id="group-section"
                                 style="display: {{ isset($data) && $data->role_id == 6 ? 'block' : 'none' }};">
-                                <label for="group_id" class="common-label">Group</label>
-                                <select id="group_id" name="group_id"
-                                    class="form-select @error('group_id') is-invalid @enderror common-select">
+                                <label for="client_id" class="common-label">Client</label>
+                                <select id="client_id" name="client_id"
+                                    class="form-select @error('client_id') is-invalid @enderror common-select">
                                     <option value="">-Select-</option>
-                                    @foreach (get_groups() as $value => $label)
+                                    @foreach (get_clients() as $value => $label)
                                         <option value="{{ $value }}"
-                                            {{ isset($data) && $data->group_id == $value ? 'selected' : '' }}>
+                                            {{ isset($data) && $data->grouclient_idp_id == $value ? 'selected' : '' }}>
                                             {{ $label }}
                                         </option>
                                     @endforeach
                                 </select>
-                                <div class="invalid-feedback" id="group_idError"></div>
-                                @error('group_id')
+                                <div class="invalid-feedback" id="client_idError"></div>
+                                @error('client_id')
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
                             </div>
@@ -197,6 +199,7 @@
 @section('script')
     <script>
         $(document).ready(function() {
+            $('#usersTable').DataTable().destroy();
             $('#usersTable').DataTable({
                 responsive: true,
                 pageLength: 10,

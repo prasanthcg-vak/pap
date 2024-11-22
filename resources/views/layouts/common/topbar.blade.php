@@ -58,13 +58,27 @@
                                 Home
                             </a>
                         </li>
-                        @if (Auth::user()->hasRolePermission('client-groups.index'))
-                            <li class="nav-item">
-                                <a class="nav-link {{ request()->is('groups') ? 'active' : '' }}" href="/groups">
-                                    Client Groups
-                                </a>
-                            </li>
-                        @endif
+                        <li class="nav-item dropdown  ">
+                            <a class="nav-link dropdown-toggle {{ request()->routeIs('clients.index') ? 'active' : '' }} {{ request()->routeIs('client-groups.index') ? 'active' : '' }}" href="#" role="button" data-bs-toggle="dropdown"
+                                aria-expanded="false">
+                                Client Management
+                                <i class="fas fa-chevron-down"></i>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item  {{ request()->routeIs('clients.index') ? 'active' : '' }}" 
+                                        href="{{ route('clients.index') }}">
+                                        Clients
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item  {{ request()->routeIs('client-groups.index') ? 'active' : '' }}" 
+                                        href="{{ route('client-groups.index') }}">
+                                        Client Groups
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
                         @if (Auth::user()->hasRolePermission('users.index'))
                             <li class="nav-item">
                                 <a class="nav-link {{ request()->routeIs('users.index') ? 'active' : '' }}"

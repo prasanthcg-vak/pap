@@ -12,6 +12,8 @@ use App\Models\Status;
 use App\Models\Tasks;
 use App\Models\Group;
 use App\Models\CampaignPartner;
+use App\Models\Client;
+
 
 function _table_actions($id, $table, $form_id)
 {
@@ -84,7 +86,12 @@ function _select_option($option = [], $name = null, $check = null, $class = null
 
 function get_roles()
 {
-    return Role::pluck('name', 'id');
+    return Role::pluck('name', 'id', 'role_level');
+}
+
+function get_clients()
+{
+    return Client::pluck('name', 'id');
 }
 
 function get_groups()
