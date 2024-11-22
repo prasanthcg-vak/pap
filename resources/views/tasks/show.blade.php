@@ -538,12 +538,16 @@
                                 <select class="form-select" id="partner-select" name="partner_id" required>
                                     <option value="">Select Partner</option>
                                     @foreach ($partners as $partner)
-                                        <option value="{{ $partner->partner->id }}" {{ $task->partner_id == $partner->partner->id ? 'selected' : '' }}>
-                                            {{ $partner->partner->name ?? 'Unnamed Partner' }}
-                                        </option>
+                                        @if ($partner->partner) <!-- Check if partner relationship exists -->
+                                            <option value="{{ $partner->partner->id }}" 
+                                                    {{ $task->partner_id == $partner->partner->id ? 'selected' : '' }}>
+                                                {{ $partner->partner->name ?? 'Unnamed Partner' }}
+                                            </option>
+                                        @endif
                                     @endforeach
                                 </select>
                             </div>
+                            
                         </div>
                     
                         <!-- Task Name -->

@@ -120,7 +120,7 @@
             // Update modal title and form action for editing
             document.getElementById('modalTitle').innerText = 'Edit Group';
             document.getElementById('groupForm').action = `/groups/${group.id}`;
-            document.getElementById('groupFormMethod').value = 'PATCH';
+            document.getElementById('groupFormMethod').value = 'PUT';
 
             // Populate the form with existing group data
             document.getElementById('group_id').value = group.id;

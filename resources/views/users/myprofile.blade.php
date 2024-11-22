@@ -21,6 +21,12 @@
                         </ul>
                     </div>
                 @endif
+                @if (session('success'))
+                    <div class="alert alert-success">
+                        {{ session('success') }}
+                    </div>
+                @endif
+
                 <div class="row">
                     <div class="col-md-6">
                         <div class="profile-con">
@@ -67,7 +73,7 @@
                         </div>
                         <div class="profile-con">
                             <div class="row">
-                                
+
                                 {{-- <div class="col-sm-8">
                                 <p class="profile-data">{{ Auth::user()->active ? 'Active' : 'Inactive' }}</p>
                             </div> --}}
@@ -98,7 +104,7 @@
                                 <div class="col-sm-8">
                                     <div class="profile-data client-logo-image">
                                         @if (Auth::user()->profile_picture)
-                                        <img src="{{ asset(Auth::user()->profile_picture) }}" alt="logo">
+                                            <img src="{{ asset(Auth::user()->profile_picture) }}" alt="logo">
                                         @else
                                         @endif
                                     </div>
@@ -112,24 +118,27 @@
                                 </div>
                                 <div class="col-sm-8">
                                     <div class="grp-mem">
-                                        @foreach($clientPartners as $clientPartner)
-                                        <div class="d-flex align-items-center justify-content-between mb-2">
-                                            <a href="#">{{ $clientPartner->partner->name ?? 'N/A' }}</a>
-                                            <div class="add-member-icon me-2">
-                                            </div>
-                                            <div class="edit-member-icon">
-                                                <a href="{{ route('clientpartner.edit', $clientPartner->partner_id) }}" class="add-member-icon me-2">
-                                                    <i class="fa-regular fa-pen-to-square"></i>
-                                                </a>
-                                                
-                                                <form action="{{ route('clientpartner.destroy', $clientPartner->id) }}" method="POST" style="display:inline;">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <a href="#" onclick="this.closest('form').submit();">
-                                                        <i class="fa fa-trash"></i>
+                                        @foreach ($clientPartners as $clientPartner)
+                                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                                <a href="#">{{ $clientPartner->partner->name ?? 'N/A' }}</a>
+                                                <div class="add-member-icon me-2">
+                                                </div>
+                                                <div class="">
+                                                    <a href="{{ route('clientpartner.edit', $clientPartner->partner_id) }}"
+                                                        class="btn search ">
+                                                        <i class="bx bx-edit"></i>
                                                     </a>
-                                                </form>                                            </div>
-                                        </div>
+
+                                                    <form action="{{ route('clientpartner.destroy', $clientPartner->id) }}"
+                                                        method="POST" style="display:inline;">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <a href="#" onclick="this.closest('form').submit();" class="btn trash">
+                                                            <i class="bx bx-trash"></i>
+                                                        </a>
+                                                    </form>
+                                                </div>
+                                            </div>
                                         @endforeach
                                         {{-- <div class="d-flex align-items-center justify-content-between mb-2">
                                             <a href="#">Partner Name 02</a>
@@ -151,16 +160,17 @@
                                         </div>
                                          --}}
                                     </div>
-                                    
+
                                 </div>
-                                
+
                             </div>
-                            <a href="{{route('clientpartner.create')}}" class="Edit-My-Profile-btn" > <i class="fa-solid fa-plus"></i> Add Partner</a>
+                            <a href="{{ route('clientpartner.create') }}" class="Edit-My-Profile-btn"> <i
+                                    class="fa-solid fa-plus"></i> Add Partner</a>
                         </div>
                     </div>
                 </div>
             </div>
-            
+
             <!-- profile-content -->
         </div>
     </div>
@@ -173,7 +183,8 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h1 class="modal-title fs-5" id="exampleModalLabel">EDIT CLIENT PROFILE</h1>
-                    <button type="button" class="btn-close" id="model-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" id="model-close" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data">
@@ -252,7 +263,8 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h1 class="modal-title fs-5" id="exampleModalLabel">CHANGE PASSWORD</h1>
-                    <button type="button" class="btn-close" id="model-close" data-bs-dismiss="modal" aria-label="Close"
+                    <button type="button" class="btn-close" id="model-close" data-bs-dismiss="modal"
+                        aria-label="Close">
                 </div>
                 <div class="modal-body">
                     <form action="{{ route('password.update') }}" method="POST">
@@ -262,12 +274,12 @@
                             <div class="col-lg-12">
                                 <label for="newpassword">New Password</label>
                                 <input type="password" id="newpassword" name="newpassword" class="form-control"
-                                    placeholder="New Password">
+                                    placeholder="New Password" required>
                             </div>
                             <div class="col-lg-12">
-                                <label for="confirmpassword">Confirm Password</label>
-                                <input type="password" id="confirmpassword" name="confirmpassword" class="form-control"
-                                    placeholder="Confirm Password">
+                                <label for="newpassword_confirmation">Confirm Password</label>
+                                <input type="password" id="newpassword_confirmation" name="newpassword_confirmation"
+                                    class="form-control" placeholder="Confirm Password" required>
                             </div>
                         </div>
                         <div class="sic-action-btns d-flex justify-content-md-end justify-content-center flex-wrap">
@@ -276,6 +288,7 @@
                             </div>
                         </div>
                     </form>
+
                 </div>
             </div>
         </div>
