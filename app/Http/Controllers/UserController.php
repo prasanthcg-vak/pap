@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\CampaignPartner;
 use App\Models\ClientPartner;
+use App\Models\Group;
 use App\Models\User;
 use App\Models\Role;
 use App\Models\RoleUser;
@@ -37,7 +38,7 @@ class UserController extends Controller
             'email' => 'required|email|unique:users,email',
             'is_active' => 'boolean',
         ]);
-        if($request->role_id > 3){
+        if($request->role_id > 5){
             $request->validate([
                 'group_id' => 'required',
             ]);
@@ -83,7 +84,7 @@ class UserController extends Controller
                 'is_active' => 'boolean',
                 'role_id' => 'required|exists:roles,id'
             ]);
-            if($request->role_id > 3){
+            if($request->role_id > 5){
                 $request->validate([
                     'group_id' => 'required',
                 ]);
@@ -203,13 +204,15 @@ class UserController extends Controller
     public function create_client_partner()
     {
         // dd(Auth::user()->group_id);
-        return view('clientpartner.create');
+        $groups = Group::get();
+        return view('clientpartner.create', compact('groups'));
     }
 
     // Store the user and create client-partner relation
     public function store_client_partner(Request $request)
     {
         // Validate the incoming data
+        // dd($request->all());
         $request->validate([
             'partner_name' => 'required|string|max:255',
             'partner_email' => 'required|email|unique:users,email',  // Ensure unique email for the user
@@ -227,9 +230,8 @@ class UserController extends Controller
             'email' => $request->partner_email,
             'password' => Hash::make($randomPassword),
             'contact' => $request->partner_contact, // Hash the random password
-            'role_id' => 2,  // Assign a role (adjust as per your roles logic)
             'pcode' => $randomPassword,
-            'group_id' => Auth::user()->group_id,  
+            'group_id' => (int) $request->group,  
             'is_active' => $request->status == 'active' ? 1 : 0,  // Set status
         ]);
 

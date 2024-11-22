@@ -138,16 +138,19 @@ $('.owl-carousel').owlCarousel({
 })
 
 
-$(document).ready(function(){
+$(document).ready(function () {
 
 
 })
 
-document.addEventListener('DOMContentLoaded', function () {
-  const datePicker = document.getElementById('datepicker');
-  const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
-  datePicker.setAttribute('min', today); // Set the min attribute to today's date
-});
+var datePicker = document.getElementById('datepicker');
+if (datePicker) {
+  document.addEventListener('DOMContentLoaded', function () {
+    const datePicker = document.getElementById('datepicker');
+    const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
+    datePicker.setAttribute('min', today); // Set the min attribute to today's date
+  });
+}
 
 
 
@@ -180,23 +183,67 @@ $(document).ready(function () {
   });
 });
 
-    // Function to toggle the visibility of the Group section
-    function toggleGroupSection() {
-        const roleSelect = document.getElementById('role_id');
-        const groupSection = document.getElementById('group-section');
+// Function to toggle the visibility of the Group section
+function toggleGroupSection() {
+  const roleSelect = document.getElementById('role_id');
+  const groupSection = document.getElementById('group-section');
 
-        if (roleSelect.value >5) {
-            groupSection.style.display = 'block'; // Show Group section
-        } else {
-            groupSection.style.display = 'none'; // Hide Group section
-        }
-    }
+  // Show/Hide group section based on the selected role
+  if (roleSelect.value == 6) {
+    groupSection.style.display = 'block'; // Show Group section
+  } else {
+    groupSection.style.display = 'none'; // Hide Group section
+  }
+}
+var roleSelect = document.getElementById('role_id');
 
-    // Attach the event listener to the role dropdown
-    document.getElementById('role_id').addEventListener('change', toggleGroupSection);
+// Attach the event listener to the role dropdown
+if(roleSelect){
+document.getElementById('role_id').addEventListener('change', toggleGroupSection);
+}
+// Initialize visibility on page load
+document.addEventListener('DOMContentLoaded', function () {
+  toggleGroupSection();
+});
 
-    // Initialize visibility on page load
-    document.addEventListener('DOMContentLoaded', function() {
-        toggleGroupSection();
-    });
-// alert();
+$('#assetTypesTable').DataTable({
+  responsive: true,
+  pageLength: 10,
+  columnDefs: [{
+      searchable: false,
+      orderable: false,
+      targets: 0
+  }],
+  order: [
+      [1, 'asc']
+  ], // Initial sort
+  drawCallback: function(settings) {
+      var api = this.api();
+      api.column(0, {
+          order: 'applied'
+      }).nodes().each(function(cell, i) {
+          cell.innerHTML = i + 1; // Number rows dynamically
+      });
+  }
+});
+
+$('#categoriesTable').DataTable({
+  responsive: true,
+  pageLength: 10,
+  columnDefs: [{
+      searchable: false,
+      orderable: false,
+      targets: 0
+  }],
+  order: [
+      [1, 'asc']
+  ], // Initial sort
+  drawCallback: function(settings) {
+      var api = this.api();
+      api.column(0, {
+          order: 'applied'
+      }).nodes().each(function(cell, i) {
+          cell.innerHTML = i + 1; // Number rows dynamically
+      });
+  }
+});

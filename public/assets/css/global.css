@@ -191,17 +191,23 @@ ul {
     margin-right: 0;
 }
 
+#datatable {
+    border: 1px solid var(--bs-border-color);
+}
+
 .topbar .profile-image {
     display: flex;
     height: 50px;
     /* width: 50px; */
     /* box-shadow: 2px 7px 4.170000076293945px 0px rgba(54, 62, 147, 11%); */
 }
-.profile-name{
+
+.profile-name {
     padding: 10px;
-    margin-right:10px ;
+    margin-right: 10px;
 }
-.profile-name .role{
+
+.profile-name .role {
     color: var(--Gold-Drop);
 }
 
@@ -1902,6 +1908,12 @@ td.campaingn-title span {
     color: var(--Gold-Drop) !important;
 }
 
+td.name, th.name {
+    color: var(--Gold-Drop) !important;
+    min-width: 200px !important;
+
+}
+
 .common-table table tbody {
     display: block;
     height: calc(100vh - 300px);
@@ -1986,7 +1998,7 @@ th.description {
 
 td.active,
 th.active {
-    min-width: 300px !important;
+    min-width: 200px !important;
 }
 
 .common-table tr td:has(img) {

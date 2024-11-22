@@ -84,8 +84,8 @@ class CampaignsController extends Controller
         // $data->image_id = $image->id;
         $data->is_active = 1;
         $data->save();
-        if ($request->hasFile('cover_image')) {
-            foreach ($request->file('cover_image') as $file) {
+        if ($request->hasFile('additional_images')) {
+            foreach ($request->file('additional_images') as $file) {
                 try {
                     $image = new Image();
 
@@ -140,7 +140,7 @@ class CampaignsController extends Controller
             }
 
             // If all files uploaded successfully
-            return response()->json(['success' => 'Files uploaded successfully']);
+            // return response()->json(['success' => 'Files uploaded successfully']);
         }
 
         // dd($image->id);
@@ -225,7 +225,7 @@ class CampaignsController extends Controller
             'name' => 'required',
             'due_date' => 'required|date',
             'campaign_brief' => 'nullable|string',
-            'cover_image' => 'nullable|image|mimes:jpeg,png|max:2048',
+            'additional_images' => 'nullable|image|mimes:jpeg,png|max:2048',
             'additional_images.*' => 'nullable|image|mimes:jpeg,png|max:2048',
         ]);
 
@@ -234,10 +234,10 @@ class CampaignsController extends Controller
         ]);
         $image = new Image();
         // Store the uploaded file in Backblaze B2
-        if ($request->hasFile('cover_image')) {
+        if ($request->hasFile('additional_images')) {
 
             try {
-                $file = $request->file('cover_image');
+                $file = $request->file('additional_images');
 
                 // Log the file details
                 Log::info('File details', [
@@ -310,7 +310,7 @@ class CampaignsController extends Controller
         $campaign->update($request->all());
         // dd($campaign);
 
-        if ($request->hasFile('cover_image')) {
+        if ($request->hasFile('additional_images')) {
 
             $campaign->image_id = $image->id;
             $campaign->save();
