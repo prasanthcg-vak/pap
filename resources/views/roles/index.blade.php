@@ -32,7 +32,7 @@
         </div>
     </div>
     <div class="table-wrapper">
-        <table id="rolesTable" class="table table-striped table-bordered">
+        <table id="datatable" class="table table-striped table-bordered">
             <thead>
                 <tr>
                     <th>#</th>

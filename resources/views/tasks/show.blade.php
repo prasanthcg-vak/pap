@@ -52,6 +52,12 @@
             font-size: 0.8rem;
         }
     </style>
+    @php
+        $showButton = Auth::user()->hasRolePermission('comments.index');
+        $storeButton = Auth::user()->hasRolePermission('comments.store');
+        $editButton = Auth::user()->hasRolePermission('comments.edit');
+        $deleteButton = Auth::user()->hasRolePermission('comments.destroy');
+    @endphp
     <div class="CM-main-content">
         <div class="container-fluid p-0">
             <div class="campaign-card-contents task-table-info ">
@@ -95,7 +101,7 @@
                                         </clipPath>
                                     </defs>
                                 </svg>
-                                <span>Campaign 5</span>
+                                <span>{{ $task->campaign->name ?? 'N/A' }}</span>
                                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
                                     xmlns="http://www.w3.org/2000/svg">
                                     <path
@@ -126,7 +132,7 @@
                                     </clipPath>
                                 </defs>
                             </svg>
-                            <span>Task #01 - Name of Task</span>
+                            <span>Task #{{$task->id}} - {{$task->name}}</span>
                             <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">
                                 <path
@@ -382,107 +388,129 @@
                         </div>
                         <!-- Table -->
                         <!-- Comments -->
-                        <div class="comments-section">
-                            <div class="title_status mt-3">
-                                <h3>COMMENTS</h3>
-                            </div>
+                        @if ($showButton || $storeButton || $deleteButton || $editButton)
+                            @if ($showButton)
+                                <div class="comments-section">
+                                    <div class="title_status mt-3">
+                                        <h3>COMMENTS</h3>
+                                    </div>
 
-                            <!-- Comment Form -->
-                            <form id="commentForm" method="POST">
-                                @csrf
-                                <input type="hidden" name="task_id" value="{{ $task->id }}">
-                                <div class="comments-header">
-                                    <div class="profile-fields">
-                                        <img src="{{ asset('/assets/images/profile-image.svg') }}" alt="profile-image">
-                                    </div>
-                                    <div class="comment-input-fields">
-                                        <input type="text" name="contents" placeholder="Add a comment" required>
-                                    </div>
-                                    <div class="comments-button">
-                                        <button type="submit" class="comments-btn">comment</button>
-                                    </div>
-                                </div>
-                            </form>
+                                    <!-- Comment Form -->
+                                    @if ($storeButton)
+                                    <form id="commentForm" method="POST">
+                                        @csrf
+                                        <input type="hidden" name="task_id" value="{{ $task->id }}">
+                                        <div class="comments-header">
+                                            <div class="profile-fields">
+                                                <img src="{{ asset('/assets/images/profile-image.svg') }}"
+                                                    alt="profile-image">
+                                            </div>
+                                            <div class="comment-input-fields">
+                                                <input type="text" name="contents" placeholder="Add a comment"
+                                                    required>
+                                            </div>
+                                            <div class="comments-button">
+                                                <button type="submit" class="comments-btn">comment</button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                    @endif
 
-                            <!-- Comments Display Section -->
-                            <div id="comments-list" class="mt-3 mb-3 container-fluid p-0">
-                                <div class="card card-shadow p-3">
-                                    <div class="card-body">
-                                        <div class="row">
-                                            <div class="col-md-12">
-                                                @foreach ($task->comments->reverse() as $comment)
-                                                    <div class="media mb-4 border-bottom pb-3">
-                                                        <img class="mr-3 rounded-circle" alt="User Profile Image"
-                                                            src="{{ asset('/assets/images/profile-image.svg') }}"
-                                                            style="width: 50px; height: 50px;" />
-                                                        <div class="media-body">
-                                                            <div class="d-flex justify-content-between">
-                                                                <div>
-                                                                    <h5 class="mb-0">{{ $comment->user->name }}</h5>
-                                                                    <small
-                                                                        class="text-muted">{{ $comment->created_at->diffForHumans() }}</small>
+                                    <!-- Comments Display Section -->
+                                    <div id="comments-list" class="mt-3 mb-3 container-fluid p-0">
+                                        <div class="card card-shadow p-3">
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        @foreach ($task->comments->reverse() as $comment)
+                                                            <div class="media mb-4 border-bottom pb-3">
+                                                                <img class="mr-3 rounded-circle" alt="User Profile Image"
+                                                                    src="{{ asset('/assets/images/profile-image.svg') }}"
+                                                                    style="width: 50px; height: 50px;" />
+                                                                <div class="media-body">
+                                                                    <div class="d-flex justify-content-between">
+                                                                        <div>
+                                                                            <h5 class="mb-0">{{ $comment->user->name }}
+                                                                            </h5>
+                                                                            <small
+                                                                                class="text-muted">{{ $comment->created_at->diffForHumans() }}</small>
+                                                                        </div>
+                                                                        <div>
+                                                                            @if($storeButton)
+                                                                            <button
+                                                                                class="btn btn-secondary btn-sm toggle-reply">
+                                                                                <i class="fas fa-reply"></i> Reply
+                                                                            </button>
+                                                                            @endif
+                                                                            @if($editButton)
+                                                                            <button
+                                                                                class="btn btn-warning btn-sm toggle-edit">
+                                                                                <i class="fas fa-edit"></i> Edit
+                                                                            </button>
+                                                                            @endif
+                                                                            @if($deleteButton)
+                                                                            <button
+                                                                                class="btn btn-danger btn-sm delete-reply"
+                                                                                data-id="{{ $comment->id }}">
+                                                                                <i class="fas fa-trash"></i>
+                                                                            </button>
+                                                                            @endif
+                                                                        </div>
+                                                                    </div>
+                                                                    <p class="mt-2 comment-content">
+                                                                        {{ $comment->content }}</p>
+
+                                                                    <!-- Reply Form (Initially Hidden) -->
+                                                                    <div class="reply-section mt-3"
+                                                                        style="display: none;">
+                                                                        <form class="replyForm d-flex align-items-center"
+                                                                            method="POST">
+                                                                            @csrf
+                                                                            <input type="hidden" name="task_id"
+                                                                                value="{{ $task->id }}">
+                                                                            <input type="hidden" name="parent_id"
+                                                                                value="{{ $comment->id }}">
+                                                                            <input type="text"
+                                                                                class="form-control me-2" name="contents"
+                                                                                placeholder="Add a reply" required>
+                                                                            <button type="submit"
+                                                                                class="btn btn-primary">
+                                                                                <i class="fas fa-paper-plane"></i>
+                                                                            </button>
+                                                                        </form>
+                                                                    </div>
+
+                                                                    <!-- Edit Form (Initially Hidden) -->
+                                                                    <div class="edit-section mt-3" style="display: none;">
+                                                                        <form class="editForm d-flex align-items-center"
+                                                                            method="POST">
+                                                                            @csrf
+                                                                            <input type="hidden" name="comment_id"
+                                                                                value="{{ $comment->id }}">
+                                                                            <input type="text"
+                                                                                class="form-control me-2 edit-input"
+                                                                                name="updated_content"
+                                                                                value="{{ $comment->content }}" required>
+                                                                            <button type="submit"
+                                                                                class="btn btn-success">
+                                                                                <i class="fas fa-save"></i> Save
+                                                                            </button>
+                                                                        </form>
+                                                                    </div>
                                                                 </div>
-                                                                <div>
-                                                                    <button class="btn btn-secondary btn-sm toggle-reply">
-                                                                        <i class="fas fa-reply"></i> Reply
-                                                                    </button>
-                                                                    <button class="btn btn-warning btn-sm toggle-edit">
-                                                                        <i class="fas fa-edit"></i> Edit
-                                                                    </button>
-                                                                    <button class="btn btn-danger btn-sm delete-reply"
-                                                                        data-id="{{ $comment->id }}">
-                                                                        <i class="fas fa-trash"></i>
-                                                                    </button>
-                                                                </div>
                                                             </div>
-                                                            <p class="mt-2 comment-content">{{ $comment->content }}</p>
-
-                                                            <!-- Reply Form (Initially Hidden) -->
-                                                            <div class="reply-section mt-3" style="display: none;">
-                                                                <form class="replyForm d-flex align-items-center"
-                                                                    method="POST">
-                                                                    @csrf
-                                                                    <input type="hidden" name="task_id"
-                                                                        value="{{ $task->id }}">
-                                                                    <input type="hidden" name="parent_id"
-                                                                        value="{{ $comment->id }}">
-                                                                    <input type="text" class="form-control me-2"
-                                                                        name="contents" placeholder="Add a reply"
-                                                                        required>
-                                                                    <button type="submit" class="btn btn-primary">
-                                                                        <i class="fas fa-paper-plane"></i>
-                                                                    </button>
-                                                                </form>
-                                                            </div>
-
-                                                            <!-- Edit Form (Initially Hidden) -->
-                                                            <div class="edit-section mt-3" style="display: none;">
-                                                                <form class="editForm d-flex align-items-center"
-                                                                    method="POST">
-                                                                    @csrf
-                                                                    <input type="hidden" name="comment_id"
-                                                                        value="{{ $comment->id }}">
-                                                                    <input type="text"
-                                                                        class="form-control me-2 edit-input"
-                                                                        name="updated_content"
-                                                                        value="{{ $comment->content }}" required>
-                                                                    <button type="submit" class="btn btn-success">
-                                                                        <i class="fas fa-save"></i> Save
-                                                                    </button>
-                                                                </form>
-                                                            </div>
-                                                        </div>
+                                                        @endforeach
                                                     </div>
-                                                @endforeach
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
+
+
+
                                 </div>
-                            </div>
-
-
-
-                        </div>
+                            @endif
+                        @endif
 
 
 
@@ -496,10 +524,12 @@
                                 </button>
                             </div>
                             <div class="campaign-task-cost-button">
-                                <a href="#" class="btn edit-task-btn" data-toggle="modal"
-                                    data-target="#createTask">Edit
-                                    Task</a>
-                                <a href="#" class="btn complete-task-btn">Complete Task</a>
+                                @if (Auth::user()->hasRolePermission('tasks.edit'))
+                                    <a href="#" class="btn edit-task-btn" data-toggle="modal"
+                                        data-target="#createTask">Edit
+                                        Task</a>
+                                @endif
+                                {{-- <a href="#" class="btn complete-task-btn">Complete Task</a> --}}
                             </div>
                         </div>
                         <!-- campaign task cost -->
@@ -521,14 +551,15 @@
                     <form action="{{ route('tasks.update', $task->id) }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         @method('PUT') <!-- HTTP method for updating -->
-                        
+
                         <!-- Campaign and Partner -->
                         <div class="row m-0">
                             <div class="col-xl-4">
                                 <select class="form-select" id="campaign-select" name="campaign_id" required>
                                     <option value="" disabled>Select Campaign</option>
                                     @foreach ($campaigns as $campaign)
-                                        <option value="{{ $campaign->id }}" {{ $task->campaign_id == $campaign->id ? 'selected' : '' }}>
+                                        <option value="{{ $campaign->id }}"
+                                            {{ $task->campaign_id == $campaign->id ? 'selected' : '' }}>
                                             {{ $campaign->name }}
                                         </option>
                                     @endforeach
@@ -538,36 +569,40 @@
                                 <select class="form-select" id="partner-select" name="partner_id" required>
                                     <option value="">Select Partner</option>
                                     @foreach ($partners as $partner)
-                                        @if ($partner->partner) <!-- Check if partner relationship exists -->
-                                            <option value="{{ $partner->partner->id }}" 
-                                                    {{ $task->partner_id == $partner->partner->id ? 'selected' : '' }}>
+                                        @if ($partner->partner)
+                                            <!-- Check if partner relationship exists -->
+                                            <option value="{{ $partner->partner->id }}"
+                                                {{ $task->partner_id == $partner->partner->id ? 'selected' : '' }}>
                                                 {{ $partner->partner->name ?? 'Unnamed Partner' }}
                                             </option>
                                         @endif
                                     @endforeach
                                 </select>
                             </div>
-                            
+
                         </div>
-                    
+
                         <!-- Task Name -->
                         <div class="row m-0">
                             <div class="col-xl-4">
-                                <input type="text" name="name" value="{{ $task->name }}" required placeholder="Task Name">
+                                <input type="text" name="name" value="{{ $task->name }}" required
+                                    placeholder="Task Name">
                             </div>
                         </div>
-                    
+
                         <!-- Date Required -->
                         <div class="row m-0">
                             <div class="col-xl-4">
                                 <label for="">Date Required</label>
                                 <div class="input-wrap">
-                                    <input type="date" name="date_required" id="datepicker" value="{{ $task->date_required }}" required>
+                                    <input type="date" name="date_required" id="datepicker"
+                                        value="{{ $task->date_required }}" required>
                                     <div class="form-group">
                                         <div class="checkbox checbox-switch switch-success">
                                             <label>
                                                 <div> Urgent</div>
-                                                <input type="checkbox" name="task_urgent" {{ $task->task_urgent ? 'checked' : '' }} />
+                                                <input type="checkbox" name="task_urgent"
+                                                    {{ $task->task_urgent ? 'checked' : '' }} />
                                                 <span></span>
                                             </label>
                                         </div>
@@ -575,14 +610,15 @@
                                 </div>
                             </div>
                         </div>
-                    
+
                         <!-- Category and Asset -->
                         <div class="row m-0">
                             <div class="col-lg-6 col-xl-4">
                                 <select class="form-select" name="category_id" required>
                                     <option value="" disabled>Select Category</option>
                                     @foreach ($categories as $category)
-                                        <option value="{{ $category->id }}" {{ $task->category_id == $category->id ? 'selected' : '' }}>
+                                        <option value="{{ $category->id }}"
+                                            {{ $task->category_id == $category->id ? 'selected' : '' }}>
                                             {{ $category->category_name }}
                                         </option>
                                     @endforeach
@@ -592,26 +628,27 @@
                                 <select class="form-select" name="asset_id" required>
                                     <option value="" disabled>Select Asset</option>
                                     @foreach ($assets as $asset)
-                                        <option value="{{ $asset->id }}" {{ $task->asset_id == $asset->id ? 'selected' : '' }}>
+                                        <option value="{{ $asset->id }}"
+                                            {{ $task->asset_id == $asset->id ? 'selected' : '' }}>
                                             {{ $asset->type_name }}
                                         </option>
                                     @endforeach
                                 </select>
                             </div>
                         </div>
-                    
+
                         <!-- Size Dimensions -->
                         <div class="row m-0">
                             <div class="col-lg-6 col-xl-3">
                                 <div class="input-wrap">
-                                    <input type="text" name="size_width" id="size_width" value="{{ $task->size_width }}" required
-                                        placeholder="Size (Width)">
-                                    <input type="text" name="size_height" id="size_height" value="{{ $task->size_height }}" required
-                                        placeholder="Size (Height)">
+                                    <input type="text" name="size_width" id="size_width"
+                                        value="{{ $task->size_width }}" required placeholder="Size (Width)">
+                                    <input type="text" name="size_height" id="size_height"
+                                        value="{{ $task->size_height }}" required placeholder="Size (Height)">
                                 </div>
                             </div>
                         </div>
-                    
+
                         <!-- Task Brief -->
                         <div class="row m-0">
                             <div class="col-md-12">
@@ -619,15 +656,17 @@
                                 <textarea name="description" required id="description" placeholder="Add a description for your Task">{{ $task->description }}</textarea>
                             </div>
                         </div>
-                    
+
                         <!-- Image Upload -->
                         <div class="img-upload-con">
                             <div class="upload--col w-100">
                                 <div class="drop-zone">
                                     <div class="drop-zone__prompt">
                                         <div class="drop-zone_color-txt">
-                                            <span><img src="{{$imageUrl}}" alt="" class="w-50"></span> <br />
-                                            <span><img src="{{asset('assets/images/fi_upload-cloud.svg')}}" alt=""> Upload
+                                            <span><img src="{{ $imageUrl }}" alt="" class="w-50"></span>
+                                            <br />
+                                            <span><img src="{{ asset('assets/images/fi_upload-cloud.svg') }}"
+                                                    alt=""> Upload
                                                 Image</span>
                                         </div>
                                         <div class="file-format">
@@ -636,7 +675,7 @@
                                         </div>
                                     </div>
                                     <!-- Existing Image Display -->
-                                    {{-- @if($imageUrl)
+                                    {{-- @if ($imageUrl)
                                         <p>Existing Image:</p>
                                         <img src="{{ $imageUrl }}" alt="Existing Image" class="w-25">
                                     @endif --}}
@@ -644,7 +683,7 @@
                                 </div>
                             </div>
                         </div>
-                    
+
                         <!-- Submit Buttons -->
                         <div class="sic-action-btns d-flex justify-content-md-end justify-content-center flex-wrap">
                             {{-- <div class="sic-btn">
@@ -658,8 +697,8 @@
                             </div>
                         </div>
                     </form>
-                    
-                    
+
+
                 </div>
             </div>
         </div>

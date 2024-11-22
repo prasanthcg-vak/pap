@@ -25,10 +25,10 @@
                     <div class="campaigns-title">
                         <h3>CAMPAIGNS</h3>
                     </div>
-
-                    <a href="#" class="create-task-btn" data-bs-toggle="modal" data-bs-target="#createcampaign">Create
-                        Campaign</a>
-
+                    @if (Auth::user()->hasRolePermission('campaigns.create'))
+                        <a href="#" class="create-task-btn" data-bs-toggle="modal" data-bs-target="#createcampaign">Create
+                            Campaign</a>
+                    @endif
                 </div>
                 @if ($errors->any())
                     <div class="alert alert-danger">
@@ -41,83 +41,100 @@
                 @endif
                 <!-- campaigns-contents -->
                 <div class="table-wrapper">
-                    <table id="add-row">
+                    <table id="datatable">
                         <thead>
                             <tr>
 
-                                <th class="slno">
+                                <th>
                                     <span>S.No</span>
                                 </th>
-                                <th class="campaingn-title">
+                                <th class="name">
                                     <span>Name</span>
                                 </th>
-                                <th class="description">
+                                <th class="description" >
                                     <span>Description</span>
                                 </th>
-                                <th class="campaingn-title1">
+                                <th >
                                     <span>Due Date</span>
                                 </th>
-                                <th class="campaingn-title">
+                                <th >
                                     <span>Status</span>
                                 </th>
-                                <th class="active">
-                                    <span>Action</span>
-                                </th>
+                                @php
+                                    $showButton = Auth::user()->hasRolePermission('campaigns.show');
+                                    $editButton = Auth::user()->hasRolePermission('campaigns.edit');
+                                    $deleteButton = Auth::user()->hasRolePermission('campaigns.destroy');
+                                @endphp
+                                @if ($showButton || $editButton || $deleteButton)
+                                    <th class="active">
+                                        <span>Action</span>
+                                    </th>
+                                @endif
                             </tr>
                         </thead>
                         <tbody>
                             @foreach ($campaigns as $campaign)
                                 <tr>
 
-                                    <td class="slno">
+                                    <td >
                                         <span>{{ $loop->iteration }}</span>
                                     </td>
-                                    <td class="campaingn-title">
+                                    <td class="name" >
                                         <span>{{ $campaign->name }}</span>
                                     </td>
                                     <td class="description">
                                         <span>{{ $campaign->description }}</span>
                                     </td>
-                                    <td class="campaingn-title1">
+                                    <td >
                                         <span>{{ $campaign->due_date ? \Carbon\Carbon::parse($campaign->due_date)->format('Y-m-d') : '' }}</span>
                                     </td>
-                                    <td class="campaingn-title">
+                                    <td >
                                         <span>
                                             <p class="status {{ $campaign->is_active ? 'green' : 'red' }}">
                                                 {{ $campaign->is_active ? 'Active' : 'Inactive' }}</p>
                                         </span>
                                     </td>
-                                    <td class="active action-btn-icons">
-                                        <!-- Trigger modal with campaign data -->
-                                        @php
-                                            // dd($campaign->image);
-                                            if (isset($campaign->image)) {
-                                                $image_url = Storage::disk('backblaze')->url($campaign->image->path); // Add the image URL to the campaign object
-                                                // dd($image_url);
-                                            } else {
-                                                $image_url = null;
-                                            }
+                                    @if ($showButton || $editButton || $deleteButton)
+                                        <td class="active action-btn-icons">
+                                            <!-- Show <td> only if any permission is true -->
+                                            <!-- Trigger modal with campaign data -->
+                                            @php
+                                                if (isset($campaign->image)) {
+                                                    $image_url = Storage::disk('backblaze')->url(
+                                                        $campaign->image->path,
+                                                    ); // Add the image URL to the campaign object
+                                                } else {
+                                                    $image_url = null;
+                                                }
+                                            @endphp
 
-                                        @endphp
-                                        {{-- @if ($campaign->image_id != null) --}}
-                                        <a href="{{ route('campaigns.show', ['id' => $campaign->id]) }}" class="btn edit">
-                                            <i class="bx bx-show"></i>
-                                        </a>
-                                        {{-- @endif --}}
+                                            @if ($showButton)
+                                                <a href="{{ route('campaigns.show', ['id' => $campaign->id]) }}"
+                                                    class="btn edit">
+                                                    <i class="bx bx-show"></i>
+                                                </a>
+                                            @endif
 
+                                            @if ($editButton)
+                                                <button type="button" class="btn search" data-bs-toggle="modal"
+                                                    data-bs-target="#createcampaign"
+                                                    onclick="editCampaign({{ $campaign }},'{{ $image_url }}')">
+                                                    <i class="bx bx-edit"></i>
+                                                </button>
+                                            @endif
 
-                                        <button type="button" class="btn search" data-bs-toggle="modal"
-                                            data-bs-target="#createcampaign"
-                                            onclick="editCampaign({{ $campaign }},'{{ $image_url }}')"><i
-                                                class="bx bx-edit"></i></button>
-                                        <form action="{{ route('campaigns.destroy', $campaign->id) }}" method="POST"
-                                            onsubmit="return confirm('Are you sure you want to delete this campaign?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn comment"><i class="bx bx-trash"></i></button>
-                                        </form>
-
-                                    </td>
+                                            @if ($deleteButton)
+                                                <form action="{{ route('campaigns.destroy', $campaign->id) }}"
+                                                    method="POST"
+                                                    onsubmit="return confirm('Are you sure you want to delete this campaign?');">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn comment"><i
+                                                            class="bx bx-trash"></i></button>
+                                                </form>
+                                            @endif
+                                        </td>
+                                    @endif
                                 </tr>
                             @endforeach
                         </tbody>
@@ -136,8 +153,9 @@
                 <div class="modal-header">
                     <h1 class="modal-title fs-5" id="exampleModalLabel">Campaign</h1>
                     <p class="status green active_header_block" id="active_header_block" style="display: none;">Active</p>
-                    <p class="status red inactive_header_block" id="inactive_header_block" style="display: none;">Inactive</p>
-                                        <button type="button" class="btn-close" id="model-close" id="model-close" data-bs-dismiss="modal"
+                    <p class="status red inactive_header_block" id="inactive_header_block" style="display: none;">Inactive
+                    </p>
+                    <button type="button" class="btn-close" id="model-close" id="model-close" data-bs-dismiss="modal"
                         aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -155,11 +173,12 @@
                             </div>
 
                             <div class="col-xl-4 mb-3">
-                                
+
                                 <div class="multiselect_dropdown">
 
                                     <select name="related_partner[]" class="selectpicker" id="related_partner"
-                                        class="selectpicker" multiple aria-label="size 1 select example " multiple data-selected-text-format="count > 5" data-live-search="true">
+                                        class="selectpicker" multiple aria-label="size 1 select example " multiple
+                                        data-selected-text-format="count > 5" data-live-search="true">
                                         <option value="" disabled>Select Related Partners</option>
                                         @foreach ($partners as $partner)
                                             <option value="{{ $partner->id }}">{{ $partner->partner->name }}</option>
@@ -280,33 +299,32 @@
 @endsection
 
 @section('script')
+    <script>
+        $(document).ready(function() {
+            $('.select2').select2({
+                theme: 'bootstrap-5' // Optional: to make Select2 match Bootstrap 5 styles
+            });
 
-<script>
+            $('#myModal').on('shown.bs.modal', function() {
+                $('#roleSelect').select2();
+            });
+        });
 
-$(document).ready(function() {
-    $('.select2').select2({
-        theme: 'bootstrap-5'  // Optional: to make Select2 match Bootstrap 5 styles
-    });
+        function editCampaign(campaign, imgUrl) {
+            // Change form action and method for updating
+            const form = document.getElementById('campaignForm');
+            form.action = `/campaigns/${campaign.id}`;
+            document.getElementById('campaignMethod').value = 'PUT';
 
-    $('#myModal').on('shown.bs.modal', function () {
-        $('#roleSelect').select2();
-    });
-});
-function editCampaign(campaign, imgUrl) {
-    // Change form action and method for updating
-    const form = document.getElementById('campaignForm');
-    form.action = `/campaigns/${campaign.id}`;
-    document.getElementById('campaignMethod').value = 'PUT';
+            // Populate form fields with campaign data
+            document.getElementById('campaign_name').value = campaign.name;
 
-    // Populate form fields with campaign data
-    document.getElementById('campaign_name').value = campaign.name;
+            // Extract date portion from due_date (YYYY-MM-DD)
+            const formattedDate = campaign.due_date.split(' ')[0];
+            document.getElementById('date').value = formattedDate;
 
-    // Extract date portion from due_date (YYYY-MM-DD)
-    const formattedDate = campaign.due_date.split(' ')[0];
-    document.getElementById('date').value = formattedDate;
-
-    document.getElementById('related_partner').value = campaign.related_partner;
-    document.getElementById('campaign_brief').value = campaign.description;
+            document.getElementById('related_partner').value = campaign.related_partner;
+            document.getElementById('campaign_brief').value = campaign.description;
 
             const activeCheckbox = document.getElementById('active');
             activeCheckbox.checked = campaign.is_active === 1;
@@ -317,28 +335,27 @@ function editCampaign(campaign, imgUrl) {
             document.getElementById('active_header_block').style.display = 'block';
 
             if (campaign.is_active === 1) {
-        document.getElementById('active_header_block').style.display = 'block'; // Show Active
-        document.getElementById('inactive_header_block').style.display = 'none'; // Hide Inactive
-    } else {
-        document.getElementById('inactive_header_block').style.display = 'block'; // Show Inactive
-        document.getElementById('active_header_block').style.display = 'none'; // Hide Active
-    }
+                document.getElementById('active_header_block').style.display = 'block'; // Show Active
+                document.getElementById('inactive_header_block').style.display = 'none'; // Hide Inactive
+            } else {
+                document.getElementById('inactive_header_block').style.display = 'block'; // Show Inactive
+                document.getElementById('active_header_block').style.display = 'none'; // Hide Active
+            }
             // Display existing cover image if available
             const existingImage = document.getElementById('existingImage');
             if (imgUrl) {
                 existingImage.src = imgUrl; // Set the image source to the URL passed from the backend
 
-        document.getElementById('existingImageDiv').style.display = 'block';
-        // existingImage.style.display = 'block'; // Ensure the image is visible
+                document.getElementById('existingImageDiv').style.display = 'block';
+                // existingImage.style.display = 'block'; // Ensure the image is visible
 
-    } else {
-        document.getElementById('existingImageDiv').style.display = 'none';
-        // existingImage.style.display = 'none'; // Hide the image if no URL is passed
-    }
+            } else {
+                document.getElementById('existingImageDiv').style.display = 'none';
+                // existingImage.style.display = 'none'; // Hide the image if no URL is passed
+            }
 
-    // Display the modal
-    $('#createcampaign').modal('show');
-}
-</script>
-
+            // Display the modal
+            $('#createcampaign').modal('show');
+        }
+    </script>
 @endsection
