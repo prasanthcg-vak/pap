@@ -12,7 +12,7 @@
                 </div>
                 <form>
                     {{-- <input type="text" name="search" placeholder="Search..."> --}}
-                    <a class="common-btn mb-3" id="model-close" onclick="openModal()">Add User</a>
+                    <a class="common-btn mb-3" id="" onclick="openModal()">Add User</a>
                 </form>
             </div>
             <!-- campaigns-contents -->
