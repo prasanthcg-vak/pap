@@ -15,9 +15,9 @@
         }
     </style>
     <!-- Table -->
-    
-    
-    
+
+
+
     <div class="CM-main-content">
         <div class="container-fluid p-0">
             <!-- Table -->
@@ -54,13 +54,13 @@
                                 <th class="name">
                                     <span>Name</span>
                                 </th>
-                                <th class="description" >
+                                <th class="description">
                                     <span>Description</span>
                                 </th>
-                                <th >
+                                <th>
                                     <span>Due Date</span>
                                 </th>
-                                <th >
+                                <th>
                                     <span>Status</span>
                                 </th>
                                 @php
@@ -79,19 +79,19 @@
                             @foreach ($campaigns as $campaign)
                                 <tr>
 
-                                    <td >
+                                    <td>
                                         <span>{{ $loop->iteration }}</span>
                                     </td>
-                                    <td class="name" >
+                                    <td class="name">
                                         <span>{{ $campaign->name }}</span>
                                     </td>
                                     <td class="description">
                                         <span>{{ $campaign->description }}</span>
                                     </td>
-                                    <td >
+                                    <td>
                                         <span>{{ $campaign->due_date ? \Carbon\Carbon::parse($campaign->due_date)->format('Y-m-d') : '' }}</span>
                                     </td>
-                                    <td >
+                                    <td>
                                         <span>
                                             <p class="status {{ $campaign->is_active ? 'green' : 'red' }}">
                                                 {{ $campaign->is_active ? 'Active' : 'Inactive' }}</p>
@@ -161,6 +161,11 @@
                     <button type="button" class="btn-close" id="model-close" id="model-close" data-bs-dismiss="modal"
                         aria-label="Close"></button>
                 </div>
+                <div id="modalLoader" class="modal-loader" style="display: none;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>
                 <div class="modal-body">
                     <form id="campaignForm" method="POST" enctype="multipart/form-data">
                         @csrf
@@ -175,12 +180,13 @@
                                     placeholder="Date">
                             </div>
 
-                            
-                            
+
+
                         </div>
-                        
+
                         <div class="row m-0">
                             <!-- Client Dropdown -->
+                            @if ($role_level<3)
                             <div class="col-xl-4 mb-3">
                                 <label for="client">Select Client</label>
                                 <select name="client" id="client" class="form-control" required>
@@ -189,20 +195,36 @@
                                         <option value="{{ $client->id }}">{{ $client->name }}</option>
                                     @endforeach
                                 </select>
-                                <div id="clientGroupLoader" class="loader" style="display: none;"></div>
 
                             </div>
-                        
+                            @else
+                            <input type="hidden" name="client" value="{{$client_id}}">
+                            @endif
+                           
+
                             <!-- Client Group Dropdown -->
+                            @if ($role_level<3)
                             <div class="col-xl-4 mb-3">
                                 <label for="clientGroup">Select Client Group</label>
                                 <select name="clientGroup" id="clientGroup" class="form-control" disabled>
                                     <option value="" disabled selected>Select Client Group</option>
                                 </select>
-                                <div id="partnerLoader" class="loader" style="display: none;"></div>
 
                             </div>
-                        
+                            @else
+                            <div class="col-xl-4 mb-3">
+                                <label for="clientGroup">Select Client Group</label>
+                                <select name="clientGroup" id="clientGroup" class="form-control" >
+                                    <option value=""  selected>Select Client Group</option>
+                                    @foreach ($groups as $group)
+                                    <option value="{{$group->id}}" >{{$group->name}}</option>
+
+                                    @endforeach
+                                </select>
+
+                            </div>
+                            @endif
+
                             <!-- Partners Multi-Select Dropdown -->
                             <div class="col-xl-4 mb-3">
 
@@ -213,16 +235,16 @@
                                         class="selectpicker" multiple aria-label="size 1 select example " multiple
                                         data-selected-text-format="count > 5" data-live-search="true">
                                         <option value="" disabled>Select Related Partners</option>
-                                        @foreach ($partners as $partner)
-                                            <option value="{{ $partner->id }}">{{ $partner->partner->name }}</option>
-                                        @endforeach
+
                                     </select>
                                 </div>
 
                             </div>
                         </div>
-                        
-                        
+
+                        {{-- <li><a role="option" class="dropdown-item" id="bs-select-1-1" tabindex="0" aria-selected="false" aria-setsize="3" aria-posinset="1"><span class=" bs-ok-default check-mark"></span><span class="text">New Partner 1</span></a></li>
+                        <li><a role="option" class="dropdown-item" id="bs-select-1-2" tabindex="0" aria-selected="false" aria-setsize="3" aria-posinset="2"><span class=" bs-ok-default check-mark"></span><span class="text">New Partner 1</span></a></li>
+                        <li><a role="option" class="dropdown-item" id="bs-select-1-3" tabindex="0" aria-selected="false" aria-setsize="3" aria-posinset="3"><span class=" bs-ok-default check-mark"></span><span class="text">New Partner 1</span></a></li> --}}
 
                         <div class="row m-0">
                             <div class="col-md-12 mb-3">
@@ -335,10 +357,6 @@
 
 @section('script')
     <script>
-       
-
-       
-
         function editCampaign(campaign, imgUrl) {
             // Change form action and method for updating
             const form = document.getElementById('campaignForm');
@@ -362,6 +380,33 @@
 
             document.getElementById('active_block').style.display = 'block';
             document.getElementById('active_header_block').style.display = 'block';
+
+            console.log(campaign);
+            // Handle client dropdown selection
+            const clientDropdown = document.getElementById('client');
+            clientDropdown.value = campaign.client_id; // Set the selected value
+
+            // Handle group dropdown selection
+            const groupDropdown = document.getElementById('clientGroup');
+            groupDropdown.value = campaign.Client_group_id; // Set the selected value
+
+            // If the client ID or group ID is not in the dropdown list, add it dynamically
+            if (!Array.from(clientDropdown.options).some(option => option.value == campaign.client_id)) {
+                const newClientOption = document.createElement('option');
+                newClientOption.value = campaign.client_id;
+                newClientOption.textContent = `Client ${campaign.client_id}`; // Customize based on your data
+                clientDropdown.appendChild(newClientOption);
+                clientDropdown.value = campaign.client_id;
+            }
+
+            if (!Array.from(groupDropdown.options).some(option => option.value == campaign.group_id)) {
+                const newGroupOption = document.createElement('option');
+                newGroupOption.value = campaign.group_id;
+                newGroupOption.textContent = `Group ${campaign.group_id}`; // Customize based on your data
+                groupDropdown.appendChild(newGroupOption);
+                groupDropdown.value = campaign.group_id;
+            }
+
 
             if (campaign.is_active === 1) {
                 document.getElementById('active_header_block').style.display = 'block'; // Show Active

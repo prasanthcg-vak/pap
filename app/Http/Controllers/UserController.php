@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\CampaignPartner;
+use App\Models\ClientGroup;
+use App\Models\ClientGroupPartners;
 use App\Models\ClientPartner;
 use App\Models\Group;
 use App\Models\User;
@@ -221,7 +223,9 @@ class UserController extends Controller
     public function create_client_partner()
     {
         // dd(Auth::user()->group_id);
-        $groups = Group::get();
+        $client_id = Auth::user()->client_id;
+
+        $groups = ClientGroup::where("client_id",$client_id)->get();
         return view('clientpartner.create', compact('groups'));
     }
 
@@ -240,6 +244,7 @@ class UserController extends Controller
 
         // Generate a random password for the partner
         $randomPassword = Str::random(10);  // Generates a random string of 10 characters
+        $client_id = Auth::user()->client_id;
 
         // Create the user (partner) in the `users` table
         $user = User::create([
@@ -248,6 +253,7 @@ class UserController extends Controller
             'password' => Hash::make($randomPassword),
             'contact' => $request->partner_contact, // Hash the random password
             'pcode' => $randomPassword,
+            'client_id' =>  $client_id,
             'group_id' => (int) $request->group,  
             'is_active' => $request->status == 'active' ? 1 : 0,  // Set status
         ]);
@@ -256,6 +262,11 @@ class UserController extends Controller
         ClientPartner::create([
             'client_id' => Auth::id(), // Using the authenticated client's ID
             'partner_id' => $user->id,  // Newly created partner's ID
+        ]);
+        
+        ClientGroupPartners::create([  
+            'user_id' => $user->id,
+            'group_id' => $request->group,
         ]);
         
         DB::table('role_user')->insert([
@@ -294,9 +305,13 @@ class UserController extends Controller
     // Edit existing partner information
     public function edit_client_partner($id)
     {
+        $client_id = Auth::user()->client_id;
+        $group_id = Auth::user()->group_id;
         $clientPartner = User::findOrFail($id);
+        $groups = ClientGroup::where("client_id",$client_id)->get();
+
         // dd($clientPartner);
-        return view('clientpartner.edit', compact('clientPartner'));
+        return view('clientpartner.edit', compact('clientPartner','groups','group_id'));
     }
 
     // Update the partner's details

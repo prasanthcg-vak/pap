@@ -189,17 +189,19 @@ function toggleGroupSection() {
   const groupSection = document.getElementById('group-section');
 
   // Show/Hide group section based on the selected role
-  if (roleSelect.value == 4 || roleSelect.value == 5) {
-    groupSection.style.display = 'block'; // Show Group section
-  } else {
-    groupSection.style.display = 'none'; // Hide Group section
+  if (roleSelect) {
+    if (roleSelect.value == 4 || roleSelect.value == 5) {
+      groupSection.style.display = 'block'; // Show Group section
+    } else {
+      groupSection.style.display = 'none'; // Hide Group section
+    }
   }
 }
 var roleSelect = document.getElementById('role_id');
 
 // Attach the event listener to the role dropdown
-if(roleSelect){
-document.getElementById('role_id').addEventListener('change', toggleGroupSection);
+if (roleSelect) {
+  document.getElementById('role_id').addEventListener('change', toggleGroupSection);
 }
 // Initialize visibility on page load
 document.addEventListener('DOMContentLoaded', function () {
@@ -210,20 +212,20 @@ $('#assetTypesTable').DataTable({
   responsive: true,
   pageLength: 10,
   columnDefs: [{
-      searchable: false,
-      orderable: false,
-      targets: 0
+    searchable: false,
+    orderable: false,
+    targets: 0
   }],
   order: [
-      [1, 'asc']
+    [1, 'asc']
   ], // Initial sort
-  drawCallback: function(settings) {
-      var api = this.api();
-      api.column(0, {
-          order: 'applied'
-      }).nodes().each(function(cell, i) {
-          cell.innerHTML = i + 1; // Number rows dynamically
-      });
+  drawCallback: function (settings) {
+    var api = this.api();
+    api.column(0, {
+      order: 'applied'
+    }).nodes().each(function (cell, i) {
+      cell.innerHTML = i + 1; // Number rows dynamically
+    });
   }
 });
 
@@ -231,87 +233,99 @@ $('#categoriesTable').DataTable({
   responsive: true,
   pageLength: 10,
   columnDefs: [{
-      searchable: false,
-      orderable: false,
-      targets: 0
+    searchable: false,
+    orderable: false,
+    targets: 0
   }],
   order: [
-      [1, 'asc']
+    [1, 'asc']
   ], // Initial sort
-  drawCallback: function(settings) {
-      var api = this.api();
-      api.column(0, {
-          order: 'applied'
-      }).nodes().each(function(cell, i) {
-          cell.innerHTML = i + 1; // Number rows dynamically
-      });
+  drawCallback: function (settings) {
+    var api = this.api();
+    api.column(0, {
+      order: 'applied'
+    }).nodes().each(function (cell, i) {
+      cell.innerHTML = i + 1; // Number rows dynamically
+    });
   }
 });
 
 
+$(document).ready(function () {
+  $('.selectpicker').selectpicker();
+});
+
+$(document).ready(function () {
+  // When client dropdown changes
+  $('#client').on('change', function () {
+    let clientId = $(this).val();
+    let clientGroupDropdown = $('#clientGroup');
+    let partnerDropdown = $('#related_partner');
+    $('#modalLoader').show();
+
+    // Reset subsequent dropdowns
+    clientGroupDropdown.empty().append('<option value="">-- Select Client Group --</option>').prop('disabled', true);
+    partnerDropdown.empty().append('<option value="">-- Select Partner --</option>').prop('disabled', true);
+
+    if (clientId) {
+      $.ajax({
+        url: `/get-client-groups/${clientId}`, // Laravel route for client groups
+        type: 'GET',
+        success: function (data) {
+          clientGroupDropdown.prop('disabled', false);
+          data.forEach(function (group) {
+            clientGroupDropdown.append(`<option value="${group.id}">${group.name}</option>`);
+          });
+          // $('#clientGroupLoader').hide();
+          $('#modalLoader').hide();
 
 
- $(document).ready(function() {
-    // When client dropdown changes
-    $('#client').on('change', function() {
-        let clientId = $(this).val();
-        let clientGroupDropdown = $('#clientGroup');
-        let partnerDropdown = $('#related_partner');
-        $('#clientGroupLoader').show();
+        },
+        error: function () {
+          alert('Failed to fetch client groups. Please try again.');
+          // $('#clientGroupLoader').hide();
+          $('#modalLoader').hide();
 
-        // Reset subsequent dropdowns
-        clientGroupDropdown.empty().append('<option value="">-- Select Client Group --</option>').prop('disabled', true);
-        partnerDropdown.empty().append('<option value="">-- Select Partner --</option>').prop('disabled', true);
 
-        if (clientId) {
-            $.ajax({
-                url: `/get-client-groups/${clientId}`, // Laravel route for client groups
-                type: 'GET',
-                success: function(data) {
-                    clientGroupDropdown.prop('disabled', false);
-                    data.forEach(function(group) {
-                        clientGroupDropdown.append(`<option value="${group.id}">${group.name}</option>`);
-                    });
-                    $('#clientGroupLoader').hide();
-
-                },
-                error: function() {
-                    alert('Failed to fetch client groups. Please try again.');
-                    $('#clientGroupLoader').hide();
-
-                }
-            });
         }
-    });
+      });
+    }
+  });
 
-    // When client group dropdown changes
-    $('#clientGroup').on('change', function() {
-        let groupId = $(this).val();
-        let partnerDropdown = $('#related_partner');
-        $('#partnerLoader').show();
+  // When client group dropdown changes
+  $('#clientGroup').on('change', function () {
+    let groupId = $(this).val();
+    let partnerDropdown = $('#related_partner');
+    $('#modalLoader').show();
 
-        // Reset the partner dropdown
-        // partnerDropdown.empty().append('<option value="">-- Select Partner --</option>').prop('disabled', true);
+    // Reset the partner dropdown
+    // partnerDropdown.empty().append('<option value="">-- Select Partner --</option>').prop('disabled', true);
 
-        if (groupId) {
-            $.ajax({
-                url: `/get-partners/${groupId}`, // Laravel route for partners
-                type: 'GET',
-                success: function(data) {
+    if (groupId) {
+      $.ajax({
+        url: `/get-partners/${groupId}`, // Laravel route for partners
+        type: 'GET',
+        success: function (data) {
 
-                    partnerDropdown.prop('disabled', false);
-                    data.forEach(function(partner) {
-                        partnerDropdown.append(`<option value="${partner.id}">${partner.name}</option>`);
-                    });
-                    $('#partnerLoader').hide();
+          partnerDropdown.prop('disabled', false);
+          if (Array.isArray(data) && data.length > 0) {
+            data.forEach(function (partner) {
+              partnerDropdown.append(`<option value="${partner.id}">${partner.user.name}</option>`);
+              $('.selectpicker').selectpicker('refresh');
 
-                },
-                error: function() {
-                    alert('Failed to fetch partners. Please try again.');
-                    $('#partnerLoader').hide();
-
-                }
             });
+          } else {
+            alert('No partners found for the selected group.');
+          }
+          $('#modalLoader').hide();
+
+        },
+        error: function () {
+          alert('Failed to fetch partners. Please try again.');
+          $('#modalLoader').hide();
+
         }
-    });
+      });
+    }
+  });
 });
