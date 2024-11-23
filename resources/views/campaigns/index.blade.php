@@ -357,7 +357,6 @@
 
 @section('script')
     <script>
-
         function editCampaign(campaign, imgUrl) {
             // Change form action and method for updating
             const form = document.getElementById('campaignForm');
