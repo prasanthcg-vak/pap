@@ -140,14 +140,14 @@
 
                             <!-- Group Field -->
                             <div class="col-lg-12" id="group-section"
-                                style="display: {{ isset($data) && $data->role_id == 6 ? 'block' : 'none' }};">
+                                style="display: {{ isset($data) && ($data->role_id == 4 || $data->role_id == 5) ? 'block' : 'none' }};">
                                 <label for="client_id" class="common-label">Client</label>
                                 <select id="client_id" name="client_id"
                                     class="form-select @error('client_id') is-invalid @enderror common-select">
                                     <option value="">-Select-</option>
                                     @foreach (get_clients() as $value => $label)
                                         <option value="{{ $value }}"
-                                            {{ isset($data) && $data->grouclient_idp_id == $value ? 'selected' : '' }}>
+                                            {{ isset($data) && $data->client_id == $value ? 'selected' : '' }}>
                                             {{ $label }}
                                         </option>
                                     @endforeach
@@ -301,11 +301,11 @@
             $('#email').val(user.email);
             $('#is_active').prop('checked', user.is_active);
 
-            // Set the group_id and role_id for the selects
-            $('#group_id').val(user.group_id);
+            // Set the client_id and role_id for the selects
+            $('#client_id').val(user.client_id);
             const groupSection = document.getElementById('group-section');
 
-            if (user.roles[0].id == 6) {
+            if (user.roles[0].id == 4 || user.roles[0].id == 5) {
                 groupSection.style.display = 'block'; // Show Group section
             }
             if (user.roles && user.roles.length > 0) {

@@ -27,7 +27,7 @@ class UserController extends Controller
     {
         $users = User::with('roles', 'group')->get();
         // $data = User::with('roles')->get();
-        // dd($users[0]->group);
+        // dd($users);
         return view('users.index', compact('users'));
     }
 
