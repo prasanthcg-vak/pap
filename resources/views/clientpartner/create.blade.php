@@ -79,7 +79,7 @@
                                             <select name="group" class="form-select  common-select" id="group_id">
                                                 <option value="">Select Group</option>
                                                 @foreach ($groups as $group)
-                                                    <option value="{{$group->id}}">{{$group->client_group_name}}</option>
+                                                    <option value="{{$group->id}}">{{$group->name}}</option>
                                                 @endforeach
                                             </select>
                                             @error('partner_email')

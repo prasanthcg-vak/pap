@@ -30,7 +30,14 @@ class CampaignsController extends Controller
     {
         $authId = Auth::id();
 
-
+        $role_level = Auth::user()->roles->first()->role_level;
+        $client_id = Auth::user()->client_id;
+        // dd($client_id);
+        $groups = [];
+        if ($role_level > 3) {
+            $groups = ClientGroup::where("client_id",$client_id)->get();
+            // dd($groups);
+        }
         // $campaigns = Campaigns::with('image')->where('is_active', 1)->get();
         $campaigns = Campaigns::with('image')->get();
 
@@ -38,11 +45,12 @@ class CampaignsController extends Controller
             ->where('client_id', $authId)
             ->get();
 
-            $clients = Client::get();
+
+        $clients = Client::get();
         // dd($partners);
         $sideBar = 'dashboard';
         $title = 'dashboard';
-        return view('campaigns.index', compact('campaigns', 'partners','clients'));
+        return view('campaigns.index', compact('campaigns', 'partners', 'clients','role_level','groups','client_id'));
     }
 
     /**
@@ -68,6 +76,7 @@ class CampaignsController extends Controller
     public function store(Request $request)
     {
 
+
         $request->validate(
             [
                 'name' => 'required',
@@ -85,6 +94,8 @@ class CampaignsController extends Controller
         $data->description = $request->description;
         $data->due_date = $request->due_date;
         $data->status_id = null;
+        $data->client_id = (int) $request->client;
+        $data->client_group_id = (int) $request->clientGroup;
         // $data->image_id = $image->id;
         $data->is_active = 1;
         $data->save();
@@ -169,8 +180,6 @@ class CampaignsController extends Controller
 
 
         $id = $data->id;
-
-
 
         if (isset($request->related_partner)) {
             foreach ($request->related_partner as $partner) {
@@ -394,7 +403,7 @@ class CampaignsController extends Controller
 
     public function getPartners($groupId)
     {
-        $partners = ClientGroupPartners::where('group_id', $groupId)->get();
+        $partners = ClientGroupPartners::with('user')->where('group_id', $groupId)->get();
         return response()->json($partners);
     }
 

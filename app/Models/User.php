@@ -19,7 +19,8 @@ class User extends Authenticatable
         'profile_picture',
         'contact',
         'pcode',
-        'client_id'
+        'client_id',
+        'group_id'
     ];
 
     protected $hidden = [

@@ -13,6 +13,10 @@ class ClientGroup extends Model
     {
         return $this->belongsTo(Client::class);
     }
+    public function group()
+    {
+        return $this->belongsTo(Group::class);
+    }
 
     public function users()
     {

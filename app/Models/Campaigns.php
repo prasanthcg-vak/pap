@@ -9,7 +9,7 @@ class Campaigns extends Model
 {
     use HasFactory;
     protected $table = 'campaigns';
-    protected $fillable = ['name', 'description', 'is_active','due_date','status_id'];
+    protected $fillable = ['name', 'description', 'is_active','due_date','status_id','client_id','client_group_id'];
 
     public function tasks()
     {

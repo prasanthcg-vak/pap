@@ -56,7 +56,7 @@
                                 </div>
                                 <div class="col-sm-8">
                                     <a href="#" class="profile-data profile-email">{{ Auth::user()->email }}</a>
-                                   
+
                                 </div>
                             </div>
                         </div>
@@ -66,7 +66,7 @@
                                 </div>
                                 <div class="col-sm-8 change-pwd">
                                     <a href="#" class="myprofile Change-password-CP" data-bs-toggle="modal"
-                                    data-bs-target="#CP-client-profile">Change Password</a>
+                                        data-bs-target="#CP-client-profile">Change Password</a>
                                 </div>
                             </div>
                         </div>
@@ -110,7 +110,7 @@
                                 </div>
                             </div>
                         </div>
-                        @if (Auth::user()->roles()->first()->role_level == 4 || Auth::user()->roles()->first()->role_level == 5)
+                        @if (Auth::user()->hasRolePermission('clientpartner.index'))
                             <div class="profile-con">
                                 <div class="row">
                                     <div class="col-sm-4">
@@ -124,50 +124,59 @@
                                                     <div class="add-member-icon me-2">
                                                     </div>
                                                     <div class="">
-                                                        <a href="{{ route('clientpartner.edit', $clientPartner->partner_id) }}"
-                                                            class="btn search ">
-                                                            <i class="bx bx-edit"></i>
-                                                        </a>
-
-                                                        <form action="{{ route('clientpartner.destroy', $clientPartner->id) }}"
-                                                            method="POST" style="display:inline;">
-                                                            @csrf
-                                                            @method('DELETE')
-                                                            <a href="#" onclick="this.closest('form').submit();" class="btn trash">
-                                                                <i class="bx bx-trash"></i>
+                                                        @if (Auth::user()->hasRolePermission('clientpartner.edit'))
+                                                            <a href="{{ route('clientpartner.edit', $clientPartner->partner_id) }}"
+                                                                class="btn search ">
+                                                                <i class="bx bx-edit"></i>
                                                             </a>
-                                                        </form>
+                                                        @endif
+                                                        @if (Auth::user()->hasRolePermission('clientpartner.edit'))
+                                                            <form
+                                                                action="{{ route('clientpartner.destroy', $clientPartner->id) }}"
+                                                                method="POST" style="display:inline;">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <a href="#" onclick="this.closest('form').submit();"
+                                                                    class="btn trash">
+                                                                    <i class="bx bx-trash"></i>
+                                                                </a>
+                                                            </form>
+                                                        @endif
+
                                                     </div>
                                                 </div>
                                             @endforeach
                                             {{-- <div class="d-flex align-items-center justify-content-between mb-2">
-                                                <a href="#">Partner Name 02</a>
-                                                <div class="add-member-icon me-2">
-                                                    <a href="#"><i class="fa-regular fa-pen-to-square"></i></a>
-                                                </div>
-                                                <div class="edit-member-icon">
-                                                    <a href="#"><i class="fa fa-trash"></i></a>
-                                                </div>
+                                            <a href="#">Partner Name 02</a>
+                                            <div class="add-member-icon me-2">
+                                                <a href="#"><i class="fa-regular fa-pen-to-square"></i></a>
                                             </div>
-                                            <div class="d-flex align-items-center justify-content-between mb-2">
-                                                <a href="#">Partner Name 03</a>
-                                                <div class="add-member-icon me-2">
-                                                    <a href="#"><i class="fa-regular fa-pen-to-square"></i></a>
-                                                </div>
-                                                <div class="edit-member-icon">
-                                                    <a href="#"><i class="fa fa-trash"></i></a>
-                                                </div>
+                                            <div class="edit-member-icon">
+                                                <a href="#"><i class="fa fa-trash"></i></a>
                                             </div>
-                                            --}}
+                                        </div>
+                                        <div class="d-flex align-items-center justify-content-between mb-2">
+                                            <a href="#">Partner Name 03</a>
+                                            <div class="add-member-icon me-2">
+                                                <a href="#"><i class="fa-regular fa-pen-to-square"></i></a>
+                                            </div>
+                                            <div class="edit-member-icon">
+                                                <a href="#"><i class="fa fa-trash"></i></a>
+                                            </div>
+                                        </div>
+                                         --}}
                                         </div>
 
                                     </div>
 
                                 </div>
-                                <a href="{{ route('clientpartner.create') }}" class="Edit-My-Profile-btn"> <i
-                                        class="fa-solid fa-plus"></i> Add Partner</a>
+                                @if (Auth::user()->hasRolePermission('clientpartner.create'))
+                                    <a href="{{ route('clientpartner.create') }}" class="Edit-My-Profile-btn"> <i
+                                            class="fa-solid fa-plus"></i> Add Partner</a>
+                                @endif
                             </div>
                         @endif
+
                     </div>
                 </div>
             </div>
@@ -235,7 +244,7 @@
                                         alt="Default Profile Picture" class="img-thumbnail mt-2" width="100">
                                 @endif
                             </div>
-                             <div class="col-lg-12 mb-3">
+                            <div class="col-lg-12 mb-3">
                                 <label for="profile_picture">Profile Picture</label>
                                 <input type="file" id="profile_picture" name="profile_picture" class="form-control">
 
