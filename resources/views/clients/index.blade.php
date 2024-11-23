@@ -126,7 +126,7 @@
                                 <!-- Role Field -->
                                 <div class="col-lg-12">
                                     <label for="role_id" class="common-label">Role</label>
-                                    <select id="role_id" name="role_id" onchange="toggleGroupSection()"
+                                    <select id="role_id" name="role_id"
                                         class="form-select @error('role_id') is-invalid @enderror common-select">
                                         @foreach (get_roles() as $value => $label)
                                             @if (in_array($value, [4]))
