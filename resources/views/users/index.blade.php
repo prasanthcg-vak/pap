@@ -49,7 +49,10 @@
                                             {{ $role->name }}{{ !$loop->last ? ', ' : '' }}
                                         @endforeach
                                     </td>
-                                    <td>{{ $user->is_active ? 'Active' : 'Inactive' }}</td>
+                                    <td>
+                                        <span><p class="status {{ $user->is_active ? 'green' : 'red' }}">
+                                    {{ $user->is_active ? 'Active' : 'Inactive' }}</p></span>
+                                    </td>  
                                     @if ($edit || $delete)
                                         <td>
                                             
