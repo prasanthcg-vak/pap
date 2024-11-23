@@ -136,8 +136,6 @@ class CampaignsController extends Controller
                     ]);
 
                     $extension = $file->getClientOriginalExtension();
-                    $randomName = uniqid() . '.' . $extension;
-                    $filePath = 'images/' . $randomName;
                     $file_type = '';
 
                     if (in_array($extension, ['jpg', 'jpeg', 'png'])) {
