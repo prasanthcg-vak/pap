@@ -15,6 +15,9 @@
         }
     </style>
     <!-- Table -->
+    
+    
+    
     <div class="CM-main-content">
         <div class="container-fluid p-0">
             <!-- Table -->
@@ -172,9 +175,39 @@
                                     placeholder="Date">
                             </div>
 
+                            
+                            
+                        </div>
+                        
+                        <div class="row m-0">
+                            <!-- Client Dropdown -->
+                            <div class="col-xl-4 mb-3">
+                                <label for="client">Select Client</label>
+                                <select name="client" id="client" class="form-control" required>
+                                    <option value="" disabled selected>Select Client</option>
+                                    @foreach ($clients as $client)
+                                        <option value="{{ $client->id }}">{{ $client->name }}</option>
+                                    @endforeach
+                                </select>
+                                <div id="clientGroupLoader" class="loader" style="display: none;"></div>
+
+                            </div>
+                        
+                            <!-- Client Group Dropdown -->
+                            <div class="col-xl-4 mb-3">
+                                <label for="clientGroup">Select Client Group</label>
+                                <select name="clientGroup" id="clientGroup" class="form-control" disabled>
+                                    <option value="" disabled selected>Select Client Group</option>
+                                </select>
+                                <div id="partnerLoader" class="loader" style="display: none;"></div>
+
+                            </div>
+                        
+                            <!-- Partners Multi-Select Dropdown -->
                             <div class="col-xl-4 mb-3">
 
                                 <div class="multiselect_dropdown">
+                                    <label for="clientGroup">Select Partner</label>
 
                                     <select name="related_partner[]" class="selectpicker" id="related_partner"
                                         class="selectpicker" multiple aria-label="size 1 select example " multiple
@@ -188,6 +221,8 @@
 
                             </div>
                         </div>
+                        
+                        
 
                         <div class="row m-0">
                             <div class="col-md-12 mb-3">
@@ -300,7 +335,6 @@
 
 @section('script')
     <script>
-
         function editCampaign(campaign, imgUrl) {
             // Change form action and method for updating
             const form = document.getElementById('campaignForm');

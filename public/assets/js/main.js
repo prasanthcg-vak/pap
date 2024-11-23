@@ -260,3 +260,71 @@ $('#categoriesTable').DataTable({
       });
   }
 });
+
+
+
+
+ $(document).ready(function() {
+    // When client dropdown changes
+    $('#client').on('change', function() {
+        let clientId = $(this).val();
+        let clientGroupDropdown = $('#clientGroup');
+        let partnerDropdown = $('#related_partner');
+        $('#clientGroupLoader').show();
+
+        // Reset subsequent dropdowns
+        clientGroupDropdown.empty().append('<option value="">-- Select Client Group --</option>').prop('disabled', true);
+        partnerDropdown.empty().append('<option value="">-- Select Partner --</option>').prop('disabled', true);
+
+        if (clientId) {
+            $.ajax({
+                url: `/get-client-groups/${clientId}`, // Laravel route for client groups
+                type: 'GET',
+                success: function(data) {
+                    clientGroupDropdown.prop('disabled', false);
+                    data.forEach(function(group) {
+                        clientGroupDropdown.append(`<option value="${group.id}">${group.name}</option>`);
+                    });
+                    $('#clientGroupLoader').hide();
+
+                },
+                error: function() {
+                    alert('Failed to fetch client groups. Please try again.');
+                    $('#clientGroupLoader').hide();
+
+                }
+            });
+        }
+    });
+
+    // When client group dropdown changes
+    $('#clientGroup').on('change', function() {
+        let groupId = $(this).val();
+        let partnerDropdown = $('#related_partner');
+        $('#partnerLoader').show();
+
+        // Reset the partner dropdown
+        // partnerDropdown.empty().append('<option value="">-- Select Partner --</option>').prop('disabled', true);
+
+        if (groupId) {
+            $.ajax({
+                url: `/get-partners/${groupId}`, // Laravel route for partners
+                type: 'GET',
+                success: function(data) {
+
+                    partnerDropdown.prop('disabled', false);
+                    data.forEach(function(partner) {
+                        partnerDropdown.append(`<option value="${partner.id}">${partner.name}</option>`);
+                    });
+                    $('#partnerLoader').hide();
+
+                },
+                error: function() {
+                    alert('Failed to fetch partners. Please try again.');
+                    $('#partnerLoader').hide();
+
+                }
+            });
+        }
+    });
+});
