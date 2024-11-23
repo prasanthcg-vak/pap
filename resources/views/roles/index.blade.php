@@ -63,10 +63,12 @@
                                     <i class="fa-regular fa-trash-can"></i>
                                 </button>
                             </form> --}}
-                            <a class="btn edit" data-bs-toggle="tooltip" href="{{ route('roles.permissions.edit', ['role' => $role->id]) }}"
-                                title="Assign Permission">
-                                <i class="fa-solid fa-user-shield"></i>
-                            </a>
+                            @if (Auth::user()->hasRolePermission('roles.permissions.edit'))
+                                <a class="btn edit" data-bs-toggle="tooltip" href="{{ route('roles.permissions.edit', ['role' => $role->id]) }}"
+                                    title="Assign Permission">
+                                    <i class="fa-solid fa-user-shield"></i>
+                                </a>
+                            @endif
                         </td>
                     </tr>
                 @endforeach
