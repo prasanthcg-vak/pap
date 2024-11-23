@@ -110,62 +110,64 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="profile-con">
-                            <div class="row">
-                                <div class="col-sm-4">
-                                    <p class="profile-label">Members:</p>
-                                </div>
-                                <div class="col-sm-8">
-                                    <div class="grp-mem">
-                                        @foreach ($clientPartners as $clientPartner)
-                                            <div class="d-flex align-items-center justify-content-between mb-2">
-                                                <a href="#">{{ $clientPartner->partner->name ?? 'N/A' }}</a>
-                                                <div class="add-member-icon me-2">
-                                                </div>
-                                                <div class="">
-                                                    <a href="{{ route('clientpartner.edit', $clientPartner->partner_id) }}"
-                                                        class="btn search ">
-                                                        <i class="bx bx-edit"></i>
-                                                    </a>
-
-                                                    <form action="{{ route('clientpartner.destroy', $clientPartner->id) }}"
-                                                        method="POST" style="display:inline;">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <a href="#" onclick="this.closest('form').submit();" class="btn trash">
-                                                            <i class="bx bx-trash"></i>
+                        @if (Auth::user()->roles()->first()->role_level == 4 || Auth::user()->roles()->first()->role_level == 5)
+                            <div class="profile-con">
+                                <div class="row">
+                                    <div class="col-sm-4">
+                                        <p class="profile-label">Members:</p>
+                                    </div>
+                                    <div class="col-sm-8">
+                                        <div class="grp-mem">
+                                            @foreach ($clientPartners as $clientPartner)
+                                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                                    <a href="#">{{ $clientPartner->partner->name ?? 'N/A' }}</a>
+                                                    <div class="add-member-icon me-2">
+                                                    </div>
+                                                    <div class="">
+                                                        <a href="{{ route('clientpartner.edit', $clientPartner->partner_id) }}"
+                                                            class="btn search ">
+                                                            <i class="bx bx-edit"></i>
                                                         </a>
-                                                    </form>
+
+                                                        <form action="{{ route('clientpartner.destroy', $clientPartner->id) }}"
+                                                            method="POST" style="display:inline;">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <a href="#" onclick="this.closest('form').submit();" class="btn trash">
+                                                                <i class="bx bx-trash"></i>
+                                                            </a>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                            {{-- <div class="d-flex align-items-center justify-content-between mb-2">
+                                                <a href="#">Partner Name 02</a>
+                                                <div class="add-member-icon me-2">
+                                                    <a href="#"><i class="fa-regular fa-pen-to-square"></i></a>
+                                                </div>
+                                                <div class="edit-member-icon">
+                                                    <a href="#"><i class="fa fa-trash"></i></a>
                                                 </div>
                                             </div>
-                                        @endforeach
-                                        {{-- <div class="d-flex align-items-center justify-content-between mb-2">
-                                            <a href="#">Partner Name 02</a>
-                                            <div class="add-member-icon me-2">
-                                                <a href="#"><i class="fa-regular fa-pen-to-square"></i></a>
+                                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                                <a href="#">Partner Name 03</a>
+                                                <div class="add-member-icon me-2">
+                                                    <a href="#"><i class="fa-regular fa-pen-to-square"></i></a>
+                                                </div>
+                                                <div class="edit-member-icon">
+                                                    <a href="#"><i class="fa fa-trash"></i></a>
+                                                </div>
                                             </div>
-                                            <div class="edit-member-icon">
-                                                <a href="#"><i class="fa fa-trash"></i></a>
-                                            </div>
+                                            --}}
                                         </div>
-                                        <div class="d-flex align-items-center justify-content-between mb-2">
-                                            <a href="#">Partner Name 03</a>
-                                            <div class="add-member-icon me-2">
-                                                <a href="#"><i class="fa-regular fa-pen-to-square"></i></a>
-                                            </div>
-                                            <div class="edit-member-icon">
-                                                <a href="#"><i class="fa fa-trash"></i></a>
-                                            </div>
-                                        </div>
-                                         --}}
+
                                     </div>
 
                                 </div>
-
+                                <a href="{{ route('clientpartner.create') }}" class="Edit-My-Profile-btn"> <i
+                                        class="fa-solid fa-plus"></i> Add Partner</a>
                             </div>
-                            <a href="{{ route('clientpartner.create') }}" class="Edit-My-Profile-btn"> <i
-                                    class="fa-solid fa-plus"></i> Add Partner</a>
-                        </div>
+                        @endif
                     </div>
                 </div>
             </div>
