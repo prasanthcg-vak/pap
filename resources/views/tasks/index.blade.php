@@ -150,27 +150,25 @@ $hasActionPermission = $showButton || $editButton || $deleteButton; // Check if 
                 <div class="modal-body">
                     <form action="{{ route('tasks.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
-
                         <div class="row m-0">
+                            <!-- Campaign Dropdown -->
                             <div class="col-xl-4">
-                                <select class="form-select" id="campaign-select" name="campaign_id" required
-                                    aria-label="Default select example">
+                                <select class="form-select" id="campaign-select" name="campaign_id" required aria-label="Default select example">
                                     <option value="" selected>Select Campaign</option>
                                     @foreach ($campaigns as $campaign)
                                         <option value="{{ $campaign->id }}">{{ $campaign->name }}</option>
                                     @endforeach
                                 </select>
                             </div>
+                        
+                            <!-- Partner Dropdown -->
                             <div class="col-xl-4">
-                                <select class="form-select" id="partner-select" name="partner_id" required
-                                    aria-label="Default select example">
+                                <select class="form-select" id="partner-select" name="partner_id" required aria-label="Default select example">
                                     <option value="" selected>Select Partner</option>
-                                    {{-- @foreach ($partners as $partner)
-                                        <option value="{{$partner->id}}">{{$partner->partner->name}} </option>
-                                    @endforeach --}}
                                 </select>
                             </div>
                         </div>
+                        
                         <div class="row m-0">
                             <div class="col-xl-4">
                                 <input type="text" name="name" id="" required placeholder="Task Name">
@@ -316,6 +314,31 @@ $hasActionPermission = $showButton || $editButton || $deleteButton; // Check if 
 
 
     <script>
+        document.addEventListener('DOMContentLoaded', function () {
+    const campaignDropdown = document.getElementById('campaign-select');
+    const partnerDropdown = document.getElementById('partner-select');
+
+    // Handle Campaign Selection
+    campaignDropdown.addEventListener('change', function () {
+        const campaignId = this.value;
+
+        if (campaignId) {
+            partnerDropdown.disabled = true; // Disable while fetching
+            fetch(`/get-partners-by-campaign/${campaignId}`)
+                .then(response => response.json())
+                .then(data => {
+                    // Populate Partner Dropdown
+                    partnerDropdown.innerHTML = `<option value="" selected>Select Partner</option>`;
+                    data.forEach(partner => {
+                        partnerDropdown.innerHTML += `<option value="${partner.id}">${partner.partner.name}</option>`;
+                    });
+                    partnerDropdown.disabled = false; // Enable after loading
+                })
+                .catch(() => alert('Failed to fetch partners. Please try again.'));
+        }
+    });
+});
+
         $(document).ready(function() {
             var scrollTop = $(".scrollTop");
 
