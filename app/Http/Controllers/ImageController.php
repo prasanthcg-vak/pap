@@ -237,7 +237,7 @@ class ImageController extends Controller
             ];
         }, $imageUrls);
 
-        return view('images.index', compact('imageUrls'));
+        return view('images.list-all-images', compact('imageUrls'));
     }
 
     public function listCampaignImages(Request $request)
