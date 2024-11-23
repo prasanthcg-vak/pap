@@ -110,9 +110,23 @@ class TasksController extends Controller
                         'ACL' => 'public-read',
                     ]);
 
+                    $extension = $file->getClientOriginalExtension();       
+                    $file_type = '';
+
+                    if (in_array($extension, ['jpg', 'jpeg', 'png'])) {
+                        $file_type = 'image';
+                    } elseif ($extension === 'pdf') {
+                        $file_type = 'document';
+                    } elseif ($extension === 'mp4') {
+                        $file_type = 'video';
+                    } else {
+                        $file_type = '';
+                    }
+
                     // Store the image details in the database
                     $image->path = $filePath; // Assuming you have a 'path' column in your 'images' table
                     $image->file_name = $randomName; // Store the random name if needed
+                    $image->file_type = $file_type;
                     $image->save();
 
                     // Log successful storage
@@ -286,16 +300,31 @@ class TasksController extends Controller
                     'ACL' => 'public-read',
                 ]);
 
+                $extension = $file->getClientOriginalExtension();       
+                $file_type = '';
+
+                if (in_array($extension, ['jpg', 'jpeg', 'png'])) {
+                    $file_type = 'image';
+                } elseif ($extension === 'pdf') {
+                    $file_type = 'document';
+                } elseif ($extension === 'mp4') {
+                    $file_type = 'video';
+                } else {
+                    $file_type = '';
+                }
+                
                 // Update the image in the database
                 if ($task->image_id) {
                     $image = Image::findOrFail($task->image_id);
                     $image->path = $filePath;
                     $image->file_name = $randomName;
+                    $image->file_type = $file_type;
                     $image->save();
                 } else {
                     $image = new Image();
                     $image->path = $filePath;
                     $image->file_name = $randomName;
+                    $image->file_type = $file_type;
                     $image->save();
                     $task->image_id = $image->id;
                 }
