@@ -296,6 +296,9 @@ Route::middleware(['auth'])->group(function () {
     // Route::post('/client-users/{id}', [ClientUserController::class, 'update']);
     // Route::post('/client-users/{id}/delete', [ClientUserController::class, 'destroy']);
 
+    Route::get('/get-client-groups/{clientId}', [CampaignsController::class, 'getClientGroups']);
+Route::get('/get-partners/{groupId}', [CampaignsController::class, 'getPartners']);
+
 });
 
 // Clear application cache

@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Campaigns;
 use App\Models\Category;
+use App\Models\Client;
+use App\Models\ClientGroup;
+use App\Models\ClientGroupPartners;
 use App\Models\ClientPartner;
 use App\Models\Status;
 use App\Models\Tasks;
@@ -35,10 +38,11 @@ class CampaignsController extends Controller
             ->where('client_id', $authId)
             ->get();
 
+            $clients = Client::get();
         // dd($partners);
         $sideBar = 'dashboard';
         $title = 'dashboard';
-        return view('campaigns.index', compact('campaigns', 'partners'));
+        return view('campaigns.index', compact('campaigns', 'partners','clients'));
     }
 
     /**
@@ -380,6 +384,18 @@ class CampaignsController extends Controller
         }
 
         return view('campaigns.asset_view', compact('campaigns', 'image_path', 'categories', 'fileExtension', 'fileSizeKB'));
+    }
+
+    public function getClientGroups($clientId)
+    {
+        $clientGroups = ClientGroup::where('client_id', $clientId)->get();
+        return response()->json($clientGroups);
+    }
+
+    public function getPartners($groupId)
+    {
+        $partners = ClientGroupPartners::where('group_id', $groupId)->get();
+        return response()->json($partners);
     }
 
 

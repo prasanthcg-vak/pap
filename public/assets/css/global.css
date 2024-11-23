@@ -191,7 +191,10 @@ ul {
     margin-right: 0;
 }
 
-#datatable {
+#datatable,
+#clientGroupTable,
+#assetTypesTable,
+#categoriesTable {
     border: 1px solid var(--bs-border-color);
 }
 
@@ -1908,7 +1911,8 @@ td.campaingn-title span {
     color: var(--Gold-Drop) !important;
 }
 
-td.name, th.name {
+td.name,
+th.name {
     color: var(--Gold-Drop) !important;
     min-width: 200px !important;
 
@@ -3114,4 +3118,27 @@ input#dt-search-0 {
 
 .top-card-items .card-item.orange.active {
     background-color: #fef4e4;
+}
+
+.loader {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    border: 2px solid #ddd;
+    border-top: 2px solid #007bff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: translateY(-50%) rotate(0deg);
+    }
+
+    100% {
+        transform: translateY(-50%) rotate(360deg);
+    }
 }
