@@ -126,6 +126,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/images', [ImageController::class, 'store'])->name('images.store');
     Route::delete('/images', [ImageController::class, 'destroy'])->name('images.delete');
 
+    Route::get('/get-client-groups/{clientId}', [CampaignsController::class, 'getClientGroups']);
+Route::get('/get-partners/{groupId}', [CampaignsController::class, 'getPartners']);
+
 });
 
 // Clear application cache
