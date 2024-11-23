@@ -139,18 +139,24 @@ $('.owl-carousel').owlCarousel({
 
 
 $(document).ready(function () {
-
-
-})
-
-var datePicker = document.getElementById('datepicker');
-if (datePicker) {
-  document.addEventListener('DOMContentLoaded', function () {
-    const datePicker = document.getElementById('datepicker');
+  const $datePicker = $('#datepicker');
+  if ($datePicker.length) {
     const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
-    datePicker.setAttribute('min', today); // Set the min attribute to today's date
-  });
-}
+    // Set the min attribute to today's date
+    $datePicker.attr('min', today);
+  }
+});
+
+
+// var datePicker = document.getElementById('datepicker');
+// if (datePicker) {
+//   document.addEventListener('DOMContentLoaded', function () {
+//     const datePicker = document.getElementById('datepicker');
+//     const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
+//     datePicker.setAttribute('min', today); // Set the min attribute to today's date
+//     datePicker.setAttribute('placeholder', 'Due Date');
+//   });
+// }
 
 
 
@@ -163,6 +169,7 @@ navLinkEls.forEach(navLinkEL => {
     navLinkEL.classList.add('active');
   });
 });
+
 $(document).ready(function () {
   // On click of any .card-item
   $('.card-item').on('click', function () {
@@ -185,28 +192,32 @@ $(document).ready(function () {
 
 // Function to toggle the visibility of the Group section
 function toggleGroupSection() {
-  const roleSelect = document.getElementById('role_id');
-  const groupSection = document.getElementById('group-section');
+  const roleSelect = $('#role_id'); // Select role dropdown using jQuery
+  const groupSection = $('#group-section'); // Select group section using jQuery
 
-  // Show/Hide group section based on the selected role
-  if (roleSelect) {
-    if (roleSelect.value == 4 || roleSelect.value == 5) {
-      groupSection.style.display = 'block'; // Show Group section
+  if (roleSelect.length) { // Check if roleSelect exists
+    // Show/Hide group section based on the selected role
+    if (roleSelect.val() == 4 || roleSelect.val() == 5) {
+      groupSection.show(); // Show Group section
     } else {
-      groupSection.style.display = 'none'; // Hide Group section
+      groupSection.hide(); // Hide Group section
     }
   }
 }
-var roleSelect = document.getElementById('role_id');
 
 // Attach the event listener to the role dropdown
-if (roleSelect) {
-  document.getElementById('role_id').addEventListener('change', toggleGroupSection);
-}
-// Initialize visibility on page load
-document.addEventListener('DOMContentLoaded', function () {
-  toggleGroupSection();
+$(document).ready(function () {
+  const roleSelect = $('#role_id');
+
+  if (roleSelect.length) {
+    // Initialize visibility on page load
+    toggleGroupSection();
+
+    // Attach change event to role dropdown
+    roleSelect.on('change', toggleGroupSection);
+  }
 });
+
 
 $('#assetTypesTable').DataTable({
   responsive: true,

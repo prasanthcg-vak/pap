@@ -176,7 +176,7 @@
                                     placeholder="Campaign Name" required>
                             </div>
                             <div class="col-xl-4 mb-3">
-                                <input type="date" name="due_date" id="date" class="form-control"
+                                <input type="date" name="due_date" id="datepicker" class="form-control"
                                     placeholder="Date">
                             </div>
 
@@ -357,6 +357,7 @@
 
 @section('script')
     <script>
+
         function editCampaign(campaign, imgUrl) {
             // Change form action and method for updating
             const form = document.getElementById('campaignForm');
@@ -368,7 +369,7 @@
 
             // Extract date portion from due_date (YYYY-MM-DD)
             const formattedDate = campaign.due_date.split(' ')[0];
-            document.getElementById('date').value = formattedDate;
+            document.getElementById('datepicker').value = formattedDate;
 
             document.getElementById('related_partner').value = campaign.related_partner;
             document.getElementById('campaign_brief').value = campaign.description;
