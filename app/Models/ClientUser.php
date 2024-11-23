@@ -15,6 +15,6 @@ class ClientUser extends Model
 
     public function user()
     {
-        return $this->belongsTo(PapUser::class);
+        return $this->belongsTo(User::class);
     }
 }
