@@ -129,6 +129,8 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/get-client-groups/{clientId}', [CampaignsController::class, 'getClientGroups']);
 Route::get('/get-partners/{groupId}', [CampaignsController::class, 'getPartners']);
+Route::get('/get-partners-by-campaign/{campaignId}', [TasksController::class, 'getPartnersByCampaign']);
+
 
 });
 
