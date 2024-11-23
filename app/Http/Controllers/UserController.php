@@ -8,6 +8,7 @@ use App\Models\Group;
 use App\Models\User;
 use App\Models\Role;
 use App\Models\RoleUser;
+use App\Models\ClientUser;
 use Illuminate\Http\Request;
 // use Yajra\DataTables\Facades\DataTables;
 use App\Mail\UserPasswordMail;
@@ -38,12 +39,13 @@ class UserController extends Controller
             'email' => 'required|email|unique:users,email',
             'is_active' => 'boolean',
         ]);
-        if($request->role_id > 5){
+
+        if($request->role_id = 4 || $request->role_id = 5){
             $request->validate([
-                'group_id' => 'required',
+                'client_id' => 'required',
             ]);
         }else{
-            $request->group_id = null;
+            $request->client_id = null;
         }
 
         // Generate a random password for the partner
@@ -53,7 +55,7 @@ class UserController extends Controller
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'group_id' => (int) $request->group_id,
+            'client_id' => (int) $request->client_id,
             'password' => Hash::make($randomPassword),
             'is_active' => $status,
         ]);
@@ -66,6 +68,10 @@ class UserController extends Controller
             'updated_at' => now()
         ]);
 
+        // $clientUser = ClientUser::create([
+        //     'user_id' => $user->id,
+        //     'client_id' => $request->client_id
+        // ]);
 
         // Attempt to send email
         Mail::to($request->email)->send(new UserPasswordMail($randomPassword));
@@ -74,42 +80,53 @@ class UserController extends Controller
 
     }
 
-
     public function update(Request $request, User $user)
     {
-        try {
-            $request->validate([
-                'name' => 'required|string|max:255',
-                'email' => 'required|email|unique:users,email,' . $request->user_id,
-                'is_active' => 'boolean',
-                'role_id' => 'required|exists:roles,id'
-            ]);
-            if($request->role_id > 5){
+            try {
                 $request->validate([
-                    'group_id' => 'required',
+                    'name' => 'required|string|max:255',
+                    'email' => 'required|email|unique:users,email,' . $request->user_id,
+                    'is_active' => 'boolean',
+                    'role_id' => 'required|exists:roles,id'
                 ]);
-            }else{
-                $request->group_id = null;
-            }
+                if($request->role_id = 4 || $request->role_id = 5){
+                    $request->validate([
+                        'client_id' => 'required',
+                    ]);
+                }else{
+                    $request->client_id = null;
+                }
 
-            // Update user details
-            // $data = $request->all();
-            $data['name'] = $request->name;
-            $data['email'] = $request->email;
-            $data['group_id'] = (int) $request->group_id;
-            $data['is_active'] = $request->has('is_active') ? 1 : 0;
-            // dd($data);
-            $user->update($data);
+                // Update user details
+                // $data = $request->all();
+                $data['name'] = $request->name;
+                $data['email'] = $request->email;
+                $data['client_id'] = (int) $request->client_id;
+                $data['is_active'] = $request->has('is_active') ? 1 : 0;
+                $user->update($data);
 
-            if ($request->has('role_id')) {
-                $user->roles()->sync([$request->input('role_id')]);
-            }
+                if ($request->has('role_id')) {
+                    $user->roles()->sync([$request->input('role_id')]);
+                }
 
             return response()->json(['success' => 'User updated successfully']);
         } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json(['error' => 'Validation Error', 'messages' => $e->errors()], 422);
+            // Handle validation errors
+            return response()->json([
+                'error' => 'Validation failed.',
+                'details' => $e->errors(),
+            ], 422);
         } catch (\Exception $e) {
-            return response()->json(['error' => 'An error occurred while updating the user'], 500);
+            // Handle general errors
+            Log::error('Error while updating user', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'input' => $request->all(),
+            ]);
+
+            return response()->json([
+                'error' => 'An error occurred while updating the user. Please try again later.',
+            ], 500);
         }
     }
 

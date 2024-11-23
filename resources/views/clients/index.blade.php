@@ -11,7 +11,7 @@
                     <h3>CLIENT MANAGEMENT</h3>
                 </div>
                 <form>
-                    <a class="common-btn mb-3" id="model-close" onclick="openModal()">Add Client</a>
+                    <a class="common-btn mb-3" id="addClient" onclick="openModal()">Add Client</a>
                 </form>
             </div>
             <div class="table-wrapper">
@@ -97,6 +97,46 @@
                                         @enderror
                                         <label for="html">Active</label><br>
                                     </div>
+                                </div>
+                            </div>
+                            <div id="client_details">
+                                <h5 class="modal-title" id="">Client Admin Details</h5>
+                                <!-- client user details -->
+                                <!-- Name Field -->
+                                <div class="col-lg-12">
+                                    <label for="client_admin_name" class="common-label">Admin Name</label>
+                                    <input type="text" class="form-control @error('client_admin_name') is-invalid @enderror common-input"
+                                        id="client_admin_name" name="client_admin_name" value="{{ old('client_admin_name', @$data->name) }}" required>
+                                    @error('client_admin_name')
+                                        <span class="text-danger">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                                <!-- Email Field -->
+                                <div class="col-lg-12">
+                                    <label for="email" class="common-label">Email</label>
+                                    <input type="email" class="form-control @error('email') is-invalid @enderror common-input"
+                                        id="email" name="email" value="{{ old('email', @$data->email) }}" required>
+                                    @error('email')
+                                        <span class="text-danger">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                                <!-- Role Field -->
+                                <div class="col-lg-12">
+                                    <label for="role_id" class="common-label">Role</label>
+                                    <select id="role_id" name="role_id" onchange="toggleGroupSection()"
+                                        class="form-select @error('role_id') is-invalid @enderror common-select">
+                                        @foreach (get_roles() as $value => $label)
+                                            @if (in_array($value, [4]))
+                                                <option value="{{ $value }}"
+                                                    {{ isset($data) && $data->role_id == $value ? 'selected' : '' }}>
+                                                    {{ $label }}
+                                                </option>
+                                            @endif
+                                        @endforeach
+                                    </select>
+                                    @error('role_id')
+                                        <span class="text-danger">{{ $message }}</span>
+                                    @enderror
                                 </div>
                             </div>
                         </div>
@@ -228,6 +268,7 @@
         $('#name').val(client.name);
         $('#description').val(client.description);
         $('#is_active').prop('checked', client.is_active);
+        $("#client_details").css('display', 'none');
         $('#clientModal').modal('show');
     }
 

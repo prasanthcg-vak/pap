@@ -9,7 +9,7 @@
                     <h3>CLIENT GROUPS</h3>
                 </div>
                 <form>
-                    <a class="common-btn mb-3" id="model-close" onclick="openCreateModal()">Add Client</a>
+                    <a class="common-btn mb-3" id="addClientGroup" onclick="openCreateModal()">Add Client Group</a>
                 </form>
             </div>
             <div class="table-wrapper">
