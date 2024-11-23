@@ -31,7 +31,10 @@
                                 <td>{{ $index + 1 }}</td> 
                                 <td>{{ $client->name }}</td>
                                 <td>{{ $client->description }}</td>
-                                <td>{{ $client->is_active ? 'Active' : 'Inactive' }}</td>
+                                <td>
+                                    <span><p class="status {{ $client->is_active ? 'green' : 'red' }}">
+                                    {{ $client->is_active ? 'Active' : 'Inactive' }}</p></span>
+                                </td>
                                 <td>
                                     <a href="#" class="btn search" onclick="editClient({{ json_encode($client) }})">
                                         <i class="fa-solid fa-pencil" title="Edit"></i>
