@@ -23,6 +23,7 @@
 @php
 $showButton = Auth::user()->hasRolePermission('tasks.show');
 $createButton = Auth::user()->hasRolePermission('tasks.create');
+$editButton = Auth::user()->hasRolePermission('tasks.edit');
 $deleteButton = Auth::user()->hasRolePermission('tasks.destroy');
 $hasActionPermission = $showButton || $editButton || $deleteButton; // Check if any permission is granted
 

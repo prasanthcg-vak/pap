@@ -42,8 +42,10 @@ class HomeController extends Controller
                     'image' => Storage::disk('backblaze')->url($image->path) ?? null, 
                     'campaign_name' => $image->campaign ? $image->campaign->name : 'No Campaign', 
                     'campaign_id' => $image->campaign_id, 
+                    'campaign_status' => $image->campaign ? $image->campaign->is_active : null,
                 ];
             });
+
         return view('images.list', compact('assets'));
     }
 }
