@@ -120,11 +120,27 @@ class CampaignsController extends Controller
                         'ACL' => 'public-read',
                     ]);
 
+                    $extension = $file->getClientOriginalExtension();
+                    $randomName = uniqid() . '.' . $extension;
+                    $filePath = 'images/' . $randomName;
+                    $file_type = '';
+
+                    if (in_array($extension, ['jpg', 'jpeg', 'png'])) {
+                        $file_type = 'image';
+                    } elseif ($extension === 'pdf') {
+                        $file_type = 'document';
+                    } elseif ($extension === 'mp4') {
+                        $file_type = 'video';
+                    } else {
+                        $file_type = '';
+                    }
                     // Save file details in the database
                     $image->path = $filePath;
                     $image->campaign_id = $data->id;
                     $image->file_name = $randomName;
+                    $image->file_type = $file_type;
                     $image->save();
+
 
                     Log::info('File uploaded successfully', [
                         'file_id' => $image->id,
@@ -145,9 +161,9 @@ class CampaignsController extends Controller
 
         // dd($image->id);
         // dd("test");
-        
 
-       
+
+
         $id = $data->id;
 
 

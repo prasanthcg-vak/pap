@@ -48,14 +48,15 @@ class ClientController extends Controller
                 'is_active' => $validatedData['is_active'] ?? 0,
             ]);
 
+
             $clientId = $client->id;
 
             // Create the client admin user
             $user = User::create([
                 'name' => $validatedData['client_admin_name'],
                 'email' => $validatedData['email'],
-                'role_id' => $validatedData['role_id'],
-                'client_id' => $client_id,
+                // 'role_id' => $validatedData['role_id'],
+                'client_id' => $clientId,
                 'is_active' => $validatedData['is_active'] ?? 0,
                 'password' => Hash::make($randomPassword),
             ]);
@@ -66,6 +67,13 @@ class ClientController extends Controller
             //     'user_id' => $userId,
             //     'client_id' => $clientId,
             // ]);
+            DB::table('role_user')->insert([
+                'user_id' => $user->id,
+                'role_id' => $validatedData['role_id'],
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
+    
 
             // Commit the transaction
             DB::commit();

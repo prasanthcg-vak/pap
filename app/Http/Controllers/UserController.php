@@ -40,7 +40,7 @@ class UserController extends Controller
             'is_active' => 'boolean',
         ]);
 
-        if($request->role_id = 4 || $request->role_id = 5){
+        if($request->role_id == 4 || $request->role_id == 5){
             $request->validate([
                 'client_id' => 'required',
             ]);
@@ -89,7 +89,7 @@ class UserController extends Controller
                     'is_active' => 'boolean',
                     'role_id' => 'required|exists:roles,id'
                 ]);
-                if($request->role_id = 4 || $request->role_id = 5){
+                if($request->role_id == 4 || $request->role_id == 5){
                     $request->validate([
                         'client_id' => 'required',
                     ]);
