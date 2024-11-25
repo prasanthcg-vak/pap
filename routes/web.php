@@ -86,6 +86,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('campaigns/create', [CampaignsController::class, 'create'])->name('campaigns.create')->middleware('permission:campaigns.create');
     Route::post('campaigns', [CampaignsController::class, 'store'])->name('campaigns.store')->middleware('permission:campaigns.store');
     Route::get('campaigns/{id}', [CampaignsController::class, 'show'])->name('campaigns.show')->middleware('permission:campaigns.show');
+    Route::get('campaigns/{id}/assets', [CampaignsController::class, 'assetsView'])->name('campaigns.assetsview');
+
     Route::put('campaigns/{id}', [CampaignsController::class, 'update'])->name('campaigns.update')->middleware('permission:campaigns.update');
     Route::delete('campaigns/{id}', [CampaignsController::class, 'destroy'])->name('campaigns.destroy')->middleware('permission:campaigns.destroy');
 
