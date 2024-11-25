@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\URL;
 use App\Models\Campaigns;
 use App\Models\Category;
 use App\Models\Client;
@@ -198,30 +199,13 @@ class CampaignsController extends Controller
     {
         $campaign = Campaigns::findOrFail($id);
         $tasks = Tasks::with('status')->where('campaign_id', $id)->get();
-        // dd($tasks);
-        // if ($campaign && $campaign->image) {
-        //     $image_path = Storage::disk('backblaze')->url($campaign->image->path);
 
-        //     // Get file type and size
-        //     $fileType = Storage::disk('backblaze')->mimeType($campaign->image->path);
-        //     $fileSize = Storage::disk('backblaze')->size($campaign->image->path); // Size in bytes
-        //     $fileExtension = pathinfo($campaign->image->path, PATHINFO_EXTENSION); // Get the file extension
-
-
-        //     // Convert file size to KB for readability
-        //     $fileSizeKB = round($fileSize / 1024, 2);
-        // } else {
-        //     $image_path = null;
-        //     $fileExtension  = null;
-        //     $fileType = null;
-        //     $fileSizeKB = null;
-        // }
-
-        $images = Image::all(['file_name', 'path']);
+        $images = Image::where('campaign_id', $id)->get(['id','file_name', 'path']);
 
         // Retrieve the URLs for each image
         $imageUrls = $images->map(function ($image) {
             return [
+                'image_id' => $image->id,
                 'name' => $image->file_name,
                 'path' => $image->path,
                 'url' => Storage::disk('backblaze')->url($image->path) // Generate the public URL
@@ -240,8 +224,6 @@ class CampaignsController extends Controller
         $partners = ClientPartner::all(); // Assuming you have a Partner model
         return view('campaigns.edit', compact('campaign', 'partners'));
     }
-
-
 
     /**
      * Update the specified resource in storage.
@@ -367,30 +349,42 @@ class CampaignsController extends Controller
 
         // return view('campaigns.index', compact('title', 'sideBar'));
     }
-    public function assets_view(string $id)
+    
+    public function assetsView(string $id)
     {
+
+        $previousUrl = URL::previous();
         $categories = Category::where('is_active', 1)->get();
+        $image = Image::findOrFail($id);
+        $campaigns = Campaigns::with('image')->where('id', $image->campaign_id)->get();
 
-        $campaigns = Campaigns::with('image')->where('is_active', 1)->where('id', $id)->first();
-        if ($campaigns && $campaigns->image) {
-            $image_path = Storage::disk('backblaze')->url($campaigns->image->path);
-
-            // Get file type and size
-            $fileType = Storage::disk('backblaze')->mimeType($campaigns->image->path);
-            $fileSize = Storage::disk('backblaze')->size($campaigns->image->path); // Size in bytes
-            $fileExtension = pathinfo($campaigns->image->path, PATHINFO_EXTENSION); // Get the file extension
-
-
-            // Convert file size to KB for readability
-            $fileSizeKB = round($fileSize / 1024, 2);
-        } else {
-            $image_path = null;
-            $fileExtension = null;
-            $fileType = null;
-            $fileSizeKB = null;
+        $returnUrl = 'campaigns';
+        if (str_contains(parse_url($previousUrl, PHP_URL_PATH), 'home')) {
+            $returnUrl = 'home';
         }
 
-        return view('campaigns.asset_view', compact('campaigns', 'image_path', 'categories', 'fileExtension', 'fileSizeKB'));
+        // $campaigns = Campaigns::with('image')->where('is_active', 1)->where('id', $id)->first();
+        if ($image && $campaigns->isNotEmpty()) {
+            $image_path = Storage::disk('backblaze')->url($image->path);
+            // Get file type and size
+            $fileType = Storage::disk('backblaze')->mimeType($image->path);
+            $fileSize = Storage::disk('backblaze')->size($image->path); // Size in bytes
+            $fileExtension = pathinfo($image->path, PATHINFO_EXTENSION); // Get the file extension
+            $fileSizeKB = round($fileSize / 1024, 2);
+            $campDescription = $campaigns[0]['description'];
+            $campStatus =  $campaigns[0]['is_active'];
+            $campId = $campaigns[0]['id'];
+        } else {
+            $image_path = null;
+            $fileType = null;
+            $fileExtension = null;
+            $fileSizeKB = null;
+            $campDescription = "";
+            $campStatus = null;
+            $campId = "";
+        }
+
+        return view('campaigns.asset_view', compact('returnUrl','campaigns', 'image_path', 'categories', 'fileExtension', 'fileSizeKB', 'campDescription','campStatus','campId'));
     }
 
     public function getClientGroups($clientId)

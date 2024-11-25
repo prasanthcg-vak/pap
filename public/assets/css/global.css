@@ -1838,15 +1838,15 @@ a {
 }
 
 .sic-action-btns .btn.link-asset {
-    border: 1px solid #716E6B;
-    background-color: #716E6B;
+    border: 1px solid #9B51E0;
+    background-color: var(--bg-purple);
     color: #fff;
 }
 
 .sic-action-btns .btn.link-asset:hover {
-    border: 1px solid #716E6B;
+    border: 1px solid #9B51E0;
     background-color: transparent;
-    color: #716E6B;
+    color: #9B51E0;
 }
 
 .sic-action-btns .btn.download {

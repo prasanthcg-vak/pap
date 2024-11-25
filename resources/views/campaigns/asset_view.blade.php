@@ -29,17 +29,30 @@
 
                 <div class="sic-action-btns d-flex justify-content-md-end justify-content-center flex-wrap">
                     <div class="sic-btn">
+                        @if($returnUrl == 'home')
+                            <button class="btn cancel-btn" onclick="window.location.href='{{ route('home') }}'">
+                                Cancel
+                            </button>
+                        @else
+                            <button class="btn cancel-btn" onclick="window.location.href='{{ route('campaigns.show', ['id' => $campId]) }}'">
+                                Cancel
+                            </button>
+                        @endif
+                    </div>
+                    <div class="sic-btn">
                         <button class="btn create-task" data-bs-toggle="modal" data-bs-target="#createTask">
                             create task
                         </button>
                     </div>
+                    @if($campStatus === 1)                        
+                        <div class="sic-btn">
+                            <button class="btn link-asset"  onclick="openLinkModal('{{ $image_path }}','{{ $campDescription }}')">
+                                link asset
+                            </button>
+                        </div>
+                    @endif
                     <div class="sic-btn">
-                        <button class="btn link-asset" data-bs-toggle="modal" data-bs-target="#linkAsset">
-                            link asset
-                        </button>
-                    </div>
-                    <div class="sic-btn">
-                        <button class="btn download">
+                        <button class="btn download" data-url="{{ $image_path }}">
                             download
                         </button>
                     </div>
@@ -49,7 +62,87 @@
         <!--End Single Image Container-->
     </div>
 </div>
-<div class="modal fade createTask-modal" id="createTask" tabindex="-1" aria-labelledby="ModalLabel"
+
+<!-- Link Asset Modal -->
+<div class="modal fade linkAsset-modal" id="linkAssetModal" tabindex="-1" aria-labelledby="linkAssetModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered  modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="linkAssetModalLabel">Link Asset</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row m-0">
+                    <div class="col-md-12 mb-4">
+                        <h4 class="bold-labels" for="">public access</h4>
+                        {{--<input type="text" value="" id="myInput">
+                        <button onclick="copyToClipboard()">Copy text</button>--}}
+
+                        <div class="web-link-col">
+                            <div class="row m-0 align-items-center">
+                                <div class="col-9">
+                                    <div class="check-list">
+                                        <span>
+                                            Web Link : <span id="assetLink" style="color:#EB8205"></span>
+                                        </span>
+                                    </div>
+                                </div>
+                                {{--<div class="col-3 text-end">
+                                    <button class=" btn copy-web-link p-0" onclick="copyToClipboard()">
+                                        <svg width="39" height="39" viewBox="0 0 39 39" fill="none"
+                                            xmlns="http://www.w3.org/2000/svg">
+                                            <path fill-rule="evenodd" clip-rule="evenodd"
+                                                d="M31.6247 8.62496V23.9583C31.6247 28.1925 28.1922 31.625 23.958 31.625H8.62467C4.39049 31.625 0.958008 28.1925 0.958008 23.9583V8.62496C0.958008 4.39077 4.39049 0.95829 8.62467 0.95829H23.958C28.1922 0.95829 31.6247 4.39077 31.6247 8.62496ZM3.83301 8.62496V23.9583C3.83301 25.2291 4.33784 26.4479 5.23645 27.3465C6.13507 28.2451 7.35385 28.75 8.62467 28.75H23.958C26.6044 28.75 28.7497 26.6047 28.7497 23.9583V8.62496C28.7497 5.97859 26.6044 3.83329 23.958 3.83329H8.62467C5.97831 3.83329 3.83301 5.97859 3.83301 8.62496Z"
+                                                fill="#EB8205" />
+                                            <path
+                                                d="M37.3747 12.9375C36.5851 12.9478 35.9475 13.5854 35.9372 14.375V29.7083C35.9267 33.1442 33.1439 35.9269 29.708 35.9375H14.3747C13.5808 35.9375 12.9372 36.5811 12.9372 37.375C12.9372 38.1689 13.5808 38.8125 14.3747 38.8125H29.708C34.7361 38.8125 38.8122 34.7364 38.8122 29.7083V14.375C38.8019 13.5854 38.1643 12.9478 37.3747 12.9375Z"
+                                                fill="#EB8205" />
+                                        </svg>
+                                    </button>
+                                </div>--}}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-10 col-xl-6 mb-4">
+                        <h4 class="bold-labels">social media access</h4>
+                        <div class="parah">
+                            <p>Click on the icon below and follow the instructions to post your banner
+                                to your social media account.</p>
+                        </div>
+                        <div class="social-links">
+                            <ul>
+                                <li>
+                                    <a id="linkedinShare" href="#" target="_blank">
+                                        <i class="fa-brands fa-linkedin"></i>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a id="facebookShare" href="#" target="_blank">
+                                        <i class="fa-brands fa-facebook"></i>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a id="twitterShare" href="#" target="_blank">
+                                        <i class="fa-brands fa-x-twitter"></i>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a id="redditShare" href="#" target="_blank">
+                                        <i class="fa-brands fa-reddit-alien"></i>
+                                    </a>
+                                </li>
+
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade createTask-modal" id="createTask" tabindex="-1" aria-labelledby="exampleModalLabel"
         aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
             <div class="modal-content">
@@ -65,13 +158,11 @@
 
                         <div class="row m-0">
                             <div class="col-xl-4">
-                                <select class="form-select" name="campaign_id" required  aria-label="Default select example">
-                                    {{-- <option selected>Select Campaign</option> --}}
-                                    {{-- @foreach ($campaigns as $campaign) --}}
-                                        <option value="{{ $campaigns->id }}">{{ $campaigns->name }}</option>
-                                    {{-- @endforeach --}}
-                                </select>
-
+                            <select class="form-select" name="campaign_id" required aria-label="Default select example">
+                                @foreach ($campaigns as $campaign)
+                                    <option value="{{ $campaign->id }}" selected>{{ $campaign->name }}</option>
+                                @endforeach
+                            </select>
                             </div>
                         </div>
                         <div class="row m-0">
@@ -154,8 +245,8 @@
                                     <div class="drop-zone__prompt">
 
                                         <div class="drop-zone_color-txt">
-                                            <span><img src="assets/images/Image.png" alt=""></span> <br />
-                                            <span><img src="assets/images/fi_upload-cloud.svg" alt=""> Upload
+                                            <span><img src="{{ asset('assets/images/Image.png') }}" alt=""></span> <br />
+                                            <span><img src="{{ asset('assets/images/fi_upload-cloud.svg') }}" alt="Upload Image"> Upload
                                                 Image</span>
                                         </div>
 
@@ -177,8 +268,8 @@
                                         <div class="drop-zone__prompt">
 
                                             <div class="drop-zone_color-txt">
-                                                <span><img src="assets/images/Image.png" alt=""></span> <br />
-                                                <span><img src="assets/images/fi_upload-cloud.svg" alt=""> Upload
+                                                <span><img src="{{ asset('assets/images/Image.png') }}" alt=""></span> <br />
+                                                <span><img src="{{ asset('assets/images/fi_upload-cloud.svg') }}" alt="Upload Image"> Upload
                                                     Image</span>
                                             </div>
                                         </div>
@@ -198,3 +289,50 @@
    
 
 @endsection
+@section('script')
+<script>
+    
+document.addEventListener('DOMContentLoaded', () => {
+    const buttons = document.querySelectorAll('.download');
+
+    buttons.forEach(button => {
+        button.addEventListener('click', () => {
+            const imageUrl = button.getAttribute('data-url');
+            
+            // Create a temporary <a> element
+            const link = document.createElement('a');
+            link.href = imageUrl;
+            link.setAttribute('download', '');
+            
+            // Append to the document and trigger the download
+            document.body.appendChild(link);
+            link.click();
+            
+            // Cleanup the temporary <a> element
+            document.body.removeChild(link);
+        });
+    });
+});
+
+function openLinkModal(publicUrl,description) {
+    console.log(publicUrl);
+    console.log(description);
+    
+    $('#assetLink').text(publicUrl);
+    
+    var encodedDescription = encodeURIComponent(description || "Check out this image!");
+    var encodedUrl = encodeURIComponent(publicUrl);
+
+    console.log("Public URL: ", publicUrl); // Check if URL is valid
+    console.log("Encoded URL: ", encodedUrl); // Check the encoded URL
+    
+    $('#linkedinShare').attr('href', `https://www.linkedin.com/shareArticle?mini=true&url=${encodedUrl}&summary=${encodedDescription}&title=${encodedDescription}`);
+    $('#facebookShare').attr('href', `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}&quote=${encodedDescription}`);
+    $('#twitterShare').attr('href', `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedDescription}`);
+    $('#redditShare').attr('href',`https://www.reddit.com/submit?url=${encodeURIComponent(publicUrl)}`);
+
+    $('#linkAssetModal').modal('show');
+}
+</script>
+@endsection
+

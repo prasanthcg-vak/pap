@@ -16,8 +16,9 @@
                                 default => asset('assets/images/document.png'),
                             };
                         @endphp
-
-                        <img src="{{ $thumbnail }}" class="img-fluid" style="max-height: 200px;" alt="{{ $asset['file_name'] }}">
+                            <a href="{{ route('campaigns.assetsview', ['id' => $asset['id']]) }}" >
+                                <img src="{{ $thumbnail }}" class="img-fluid" style="max-height: 200px;" alt="{{ $asset['file_name'] }}">
+                            </a>
                         </div>
                         @if($asset['campaign_status'] == 1)
                             <div class="crew-mark tick">

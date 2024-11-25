@@ -31,7 +31,8 @@ class HomeController extends Controller
      */
     public function index()
     {
-        $assets = Image::with('campaign') 
+        $assets = Image::with('campaign')
+            ->whereNotNull('campaign_id')
             ->get()
             ->map(function ($image) {
                 return [
