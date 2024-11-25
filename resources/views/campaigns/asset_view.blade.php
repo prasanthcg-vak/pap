@@ -29,9 +29,15 @@
 
                 <div class="sic-action-btns d-flex justify-content-md-end justify-content-center flex-wrap">
                     <div class="sic-btn">
-                        <button class="btn cancel-btn" onclick="window.location.href='{{ route('campaigns.show', ['id' => $campId]) }}'">
-                            Cancel
-                        </button>
+                        @if($returnUrl == 'home')
+                            <button class="btn cancel-btn" onclick="window.location.href='{{ route('home') }}'">
+                                Cancel
+                            </button>
+                        @else
+                            <button class="btn cancel-btn" onclick="window.location.href='{{ route('campaigns.show', ['id' => $campId]) }}'">
+                                Cancel
+                            </button>
+                        @endif
                     </div>
                     <div class="sic-btn">
                         <button class="btn create-task" data-bs-toggle="modal" data-bs-target="#createTask">
