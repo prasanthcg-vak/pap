@@ -144,7 +144,7 @@ $hasActionPermission = $showButton || $editButton || $deleteButton; // Check if 
                 <div class="modal-header">
                     <h1 class="modal-title fs-5" id="exampleModalLabel">Create Task
                     </h1>
-                    <p class="status green">Active</p>
+                    {{-- <p class="status green">Active</p> --}}
                     <span class="btn-close" data-dismiss="modal" aria-label="Close"></span>
                 </div>
                 <div class="modal-body">
@@ -191,6 +191,7 @@ $hasActionPermission = $showButton || $editButton || $deleteButton; // Check if 
                                             </label>
                                         </div>
                                     </div>
+                                    
                                 </div>
 
                             </div>
@@ -232,7 +233,28 @@ $hasActionPermission = $showButton || $editButton || $deleteButton; // Check if 
                                 <label for="">Task Brief</label>
                                 <textarea name="description" placeholder="Add a description for your Task" required id="description"></textarea>
                             </div>
+                           
                             {{-- <span class="info-text">Add a description for your Task</span> --}}
+                        </div>
+                        <div class="row m-0">
+                            <div class="col-xl-4">
+                                <div class="input-wrap">
+                                    
+
+                                    <div class="form-group">
+                                        <div class="checkbox checbox-switch switch-success">
+                                            <label>
+                                                <div> Active</div>
+                                                <input type="checkbox" name="is_active" />
+                                                <span></span>
+
+                                            </label>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+
+                            </div>
                         </div>
                         <div class="sic-action-btns d-flex justify-content-md-end justify-content-center flex-wrap">
                             <div class="sic-btn">
