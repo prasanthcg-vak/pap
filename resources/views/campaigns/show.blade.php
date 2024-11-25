@@ -3,7 +3,7 @@
 @section('content')
 
 <style>
-    .img-container .image-wrapper {
+.img-container .image-wrapper {
     height: 150px; /* Set a fixed height for consistent display */
     overflow: hidden;
 }
@@ -83,102 +83,42 @@
                         </div>
                     </div> --}}
                     <!-- campaign-cost-task -->
+
                     <!-- Owl carousel -->
-                    {{-- <div class="row d-flex justify-content-center">
-                        <div class="col-lg-9 col-md-10 col-sm-10 p-0">
-                            <div class="owl-carousel owl-theme">
-                                @foreach ($imageUrls as $img)
-                                <div class="item py-3">
-                                    <a href="#">
-                                        <div class="card-img_text">
-                                            <div class="Detail-card-image">
-                                               
-                                                <img src="{{$img['url']}}"
-                                                    alt="automated-prompt-generation" class="w-100">
+                   
+                        <div class="row d-flex justify-content-center">
+                            <div class="col-lg-9 col-md-10 col-sm-10 p-0">
+                                @if (!empty($imageUrls) && count($imageUrls) > 0)
+                                    <div class="owl-carousel owl-theme">
+                                        @foreach ($imageUrls as $img)
+                                            <div class="item py-3">
+                                            <a href="{{ route('campaigns.assetsview', ['id' => $img['image_id']]) }}" >
+                                                    <div class="card-img_text">
+                                                        <div class="Detail-card-image">
+                                                            <img src="{{$img['url']}}"
+                                                                alt="automated-prompt-generation" class="w-100">
+                                                        </div>
+                                                        {{-- <div class="crew-mark cross">
+                                                            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"
+                                                                xmlns="http://www.w3.org/2000/svg">
+                                                                <path
+                                                                    d="M1.369 0.234884C1.05582 -0.0782947 0.548061 -0.0782947 0.234883 0.234884C-0.0782944 0.548063 -0.0782944 1.05583 0.234883 1.36901L4.86588 6.00002L0.234931 10.631C-0.0782463 10.9442 -0.0782466 11.4519 0.234931 11.7651C0.548109 12.0783 1.05587 12.0783 1.36905 11.7651L6 7.13415L10.631 11.7651C10.9441 12.0783 11.4519 12.0783 11.7651 11.7651C12.0782 11.4519 12.0782 10.9442 11.7651 10.631L7.13412 6.00002L11.7651 1.36901C12.0783 1.05583 12.0783 0.548063 11.7651 0.234884C11.4519 -0.0782947 10.9442 -0.0782947 10.631 0.234884L6 4.8659L1.369 0.234884Z"
+                                                                    fill="black" />
+                                                            </svg>
+                                                        </div> --}}
+                                                    </div>
+                                                </a>
                                             </div>
-                                            <div class="crew-mark cross">
-                                                <svg width="12" height="12" viewBox="0 0 12 12" fill="none"
-                                                    xmlns="http://www.w3.org/2000/svg">
-                                                    <path
-                                                        d="M1.369 0.234884C1.05582 -0.0782947 0.548061 -0.0782947 0.234883 0.234884C-0.0782944 0.548063 -0.0782944 1.05583 0.234883 1.36901L4.86588 6.00002L0.234931 10.631C-0.0782463 10.9442 -0.0782466 11.4519 0.234931 11.7651C0.548109 12.0783 1.05587 12.0783 1.36905 11.7651L6 7.13415L10.631 11.7651C10.9441 12.0783 11.4519 12.0783 11.7651 11.7651C12.0782 11.4519 12.0782 10.9442 11.7651 10.631L7.13412 6.00002L11.7651 1.36901C12.0783 1.05583 12.0783 0.548063 11.7651 0.234884C11.4519 -0.0782947 10.9442 -0.0782947 10.631 0.234884L6 4.8659L1.369 0.234884Z"
-                                                        fill="black" />
-                                                </svg>
-
-                                            </div>
-                                        </div>
-                                    </a>
-                                </div>
-                                @endforeach
-                               
-                               
+                                        @endforeach
+                                    </div>
+                                @else
+                                    <div class="sic-img-info">
+                                        <span>No Images</span>
+                                    </div>
+                                @endif
                             </div>
                         </div>
-                    </div> --}}
-
-                    <div class="row d-flex justify-content-center">
-                        <div class="col-lg-9 col-md-10 col-sm-10 p-0">
-                            <div class="owl-carousel owl-theme">
-                                <div class="item py-3">
-                                    <a href="#">
-                                        <div class="card-img_text">
-                                            <div class="Detail-card-image">
-                                                <img src="{{asset('assets/images/automated-prompt-generation-with-generative-ai 1.png')}}"
-                                                    alt="automated-prompt-generation">
-                                            </div>
-                                            <div class="crew-mark cross">
-                                                <svg width="12" height="12" viewBox="0 0 12 12" fill="none"
-                                                    xmlns="http://www.w3.org/2000/svg">
-                                                    <path
-                                                        d="M1.369 0.234884C1.05582 -0.0782947 0.548061 -0.0782947 0.234883 0.234884C-0.0782944 0.548063 -0.0782944 1.05583 0.234883 1.36901L4.86588 6.00002L0.234931 10.631C-0.0782463 10.9442 -0.0782466 11.4519 0.234931 11.7651C0.548109 12.0783 1.05587 12.0783 1.36905 11.7651L6 7.13415L10.631 11.7651C10.9441 12.0783 11.4519 12.0783 11.7651 11.7651C12.0782 11.4519 12.0782 10.9442 11.7651 10.631L7.13412 6.00002L11.7651 1.36901C12.0783 1.05583 12.0783 0.548063 11.7651 0.234884C11.4519 -0.0782947 10.9442 -0.0782947 10.631 0.234884L6 4.8659L1.369 0.234884Z"
-                                                        fill="black" />
-                                                </svg>
-
-                                            </div>
-                                        </div>
-                                    </a>
-                                </div>
-                                <div class="item py-3">
-                                    <a href="#">
-                                        <div class="card-img_text">
-                                            <div class="Detail-card-image">
-                                                <img src="{{asset('assets/images/autumn-forest-lake-landscape 1.png')}}"
-                                                    alt="assets/images/autumn-forest">
-                                            </div>
-                                            <div class="crew-mark cross">
-                                                <svg width="12" height="12" viewBox="0 0 12 12" fill="none"
-                                                    xmlns="http://www.w3.org/2000/svg">
-                                                    <path
-                                                        d="M1.369 0.234884C1.05582 -0.0782947 0.548061 -0.0782947 0.234883 0.234884C-0.0782944 0.548063 -0.0782944 1.05583 0.234883 1.36901L4.86588 6.00002L0.234931 10.631C-0.0782463 10.9442 -0.0782466 11.4519 0.234931 11.7651C0.548109 12.0783 1.05587 12.0783 1.36905 11.7651L6 7.13415L10.631 11.7651C10.9441 12.0783 11.4519 12.0783 11.7651 11.7651C12.0782 11.4519 12.0782 10.9442 11.7651 10.631L7.13412 6.00002L11.7651 1.36901C12.0783 1.05583 12.0783 0.548063 11.7651 0.234884C11.4519 -0.0782947 10.9442 -0.0782947 10.631 0.234884L6 4.8659L1.369 0.234884Z"
-                                                        fill="black" />
-                                                </svg>
-
-                                            </div>
-                                        </div>
-                                    </a>
-                                </div>
-                                <div class="item py-3">
-                                    <a href="#">
-                                        <div class="card-img_text">
-                                            <div class="Detail-card-image">
-                                                <img src="{{asset('assets/images/cascade-boat-clean-china-natural-rural 1.png')}}"
-                                                    alt="cascade-boat-clean">
-                                            </div>
-                                            <div class="crew-mark cross">
-                                                <svg width="12" height="12" viewBox="0 0 12 12" fill="none"
-                                                    xmlns="http://www.w3.org/2000/svg">
-                                                    <path
-                                                        d="M1.369 0.234884C1.05582 -0.0782947 0.548061 -0.0782947 0.234883 0.234884C-0.0782944 0.548063 -0.0782944 1.05583 0.234883 1.36901L4.86588 6.00002L0.234931 10.631C-0.0782463 10.9442 -0.0782466 11.4519 0.234931 11.7651C0.548109 12.0783 1.05587 12.0783 1.36905 11.7651L6 7.13415L10.631 11.7651C10.9441 12.0783 11.4519 12.0783 11.7651 11.7651C12.0782 11.4519 12.0782 10.9442 11.7651 10.631L7.13412 6.00002L11.7651 1.36901C12.0783 1.05583 12.0783 0.548063 11.7651 0.234884C11.4519 -0.0782947 10.9442 -0.0782947 10.631 0.234884L6 4.8659L1.369 0.234884Z"
-                                                        fill="black" />
-                                                </svg>
-
-                                            </div>
-                                        </div>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- owl carousel -->
+                  
                     <!-- Table -->
                     <div class="campaigns-title">
                         <h3>{{$campaign->name}} - TASKS</h3>
