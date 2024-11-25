@@ -49,12 +49,12 @@
         <!--End Single Image Container-->
     </div>
 </div>
-<div class="modal fade createTask-modal" id="createTask" tabindex="-1" aria-labelledby="exampleModalLabel"
+<div class="modal fade createTask-modal" id="createTask" tabindex="-1" aria-labelledby="ModalLabel"
         aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel">Create Task
+                    <h1 class="modal-title fs-5" >Create Task
                     </h1>
                     <p class="status green">Active</p>
                     <span class="btn-close" data-dismiss="modal" id="cancel" aria-label="Close"></span>

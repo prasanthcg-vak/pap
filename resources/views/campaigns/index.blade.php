@@ -149,12 +149,12 @@
     </div>
 
     <!-- Modal Structure -->
-    <div class="modal fade createTask-modal" id="createcampaign" tabindex="-1" aria-labelledby="exampleModalLabel"
+    <div class="modal fade createTask-modal" id="createcampaign" tabindex="-1" aria-labelledby="ModalLabel"
         aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel">Campaign</h1>
+                    <h1 class="modal-title fs-5" >Campaign</h1>
                     <p class="status green active_header_block" id="active_header_block" style="display: none;">Active</p>
                     <p class="status red inactive_header_block" id="inactive_header_block" style="display: none;">Inactive
                     </p>
@@ -186,43 +186,42 @@
 
                         <div class="row m-0">
                             <!-- Client Dropdown -->
-                            @if ($role_level<3)
-                            <div class="col-xl-4 mb-3">
-                                <label for="client">Select Client</label>
-                                <select name="client" id="client" class="form-control" required>
-                                    <option value="" disabled selected>Select Client</option>
-                                    @foreach ($clients as $client)
-                                        <option value="{{ $client->id }}">{{ $client->name }}</option>
-                                    @endforeach
-                                </select>
+                            @if ($role_level < 3)
+                                <div class="col-xl-4 mb-3">
+                                    <label for="client">Select Client</label>
+                                    <select name="client" id="client" class="form-control" required>
+                                        <option value="" disabled selected>Select Client</option>
+                                        @foreach ($clients as $client)
+                                            <option value="{{ $client->id }}">{{ $client->name }}</option>
+                                        @endforeach
+                                    </select>
 
-                            </div>
+                                </div>
                             @else
-                            <input type="hidden" name="client" value="{{$client_id}}">
+                                <input type="hidden" name="client" value="{{ $client_id }}">
                             @endif
-                           
+
 
                             <!-- Client Group Dropdown -->
-                            @if ($role_level<3)
-                            <div class="col-xl-4 mb-3">
-                                <label for="clientGroup">Select Client Group</label>
-                                <select name="clientGroup" id="clientGroup" class="form-control" disabled>
-                                    <option value="" disabled selected>Select Client Group</option>
-                                </select>
+                            @if ($role_level < 3)
+                                <div class="col-xl-4 mb-3">
+                                    <label for="clientGroup">Select Client Group</label>
+                                    <select name="clientGroup" id="clientGroup" class="form-control" disabled>
+                                        <option value="" disabled selected>Select Client Group</option>
+                                    </select>
 
-                            </div>
+                                </div>
                             @else
-                            <div class="col-xl-4 mb-3">
-                                <label for="clientGroup">Select Client Group</label>
-                                <select name="clientGroup" id="clientGroup" class="form-control" >
-                                    <option value=""  selected>Select Client Group</option>
-                                    @foreach ($groups as $group)
-                                    <option value="{{$group->id}}" >{{$group->name}}</option>
+                                <div class="col-xl-4 mb-3">
+                                    <label for="clientGroup">Select Client Group</label>
+                                    <select name="clientGroup" id="clientGroup" class="form-control">
+                                        <option value="" selected>Select Client Group</option>
+                                        @foreach ($groups as $group)
+                                            <option value="{{ $group->id }}">{{ $group->name }}</option>
+                                        @endforeach
+                                    </select>
 
-                                    @endforeach
-                                </select>
-
-                            </div>
+                                </div>
                             @endif
 
                             <!-- Partners Multi-Select Dropdown -->
@@ -293,11 +292,14 @@
 
 
 
-                            <div class="sic-action-btns d-flex justify-content-md-end justify-content-center flex-wrap">
-                                <button type="button" class="btn download" id="uploadAsset">Upload Assets</button>
-                                <button type="submit" class="btn create-task">Save</button>
-                                <button type="button" class="btn link-asset" id="cancel"
-                                    data-bs-dismiss="modal">Cancel</button>
+                            <div class="sic-action-btns d-flex justify-content-lg-end  flex-wrap">
+                                <div class="sic-btn">
+
+                                    <button type="button" class="btn download" id="uploadAsset">Upload Assets</button>
+                                    <button type="submit" class="btn create-task">Save</button>
+                                    <button type="button" class="btn link-asset" id="cancel"
+                                        data-bs-dismiss="modal">Cancel</button>
+                                </div>
                             </div>
 
                             <div class="img-upload-con d-none">
@@ -323,7 +325,8 @@
                                     <ul id="file-list"></ul>
                                 </div> --}}
                                 <div class="sic-action-btns justify-content-center flex-wrap">
-                                    <div><button type="button" id="add-more-btn" class="btn download">Add More</button>
+                                    <div class="addmore"><button type="button" id="add-more-btn"
+                                            class="btn download">Add More</button>
                                     </div>
                                 </div>
 

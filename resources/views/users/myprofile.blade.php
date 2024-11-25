@@ -187,12 +187,12 @@
     <!-- ========== End CM-main-content ========== -->
 
     <!-- Edit My Profile Modal -->
-    <div class="modal fade Edit-My-Profile-modal" id="Edit-My-Profile" tabindex="-1" aria-labelledby="exampleModalLabel"
+    <div class="modal fade Edit-My-Profile-modal" id="Edit-My-Profile" tabindex="-1" aria-labelledby="ModalLabel"
         aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-md modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel">EDIT CLIENT PROFILE</h1>
+                    <h1 class="modal-title fs-5" >EDIT CLIENT PROFILE</h1>
                     <button type="button" class="btn-close" id="model-close" data-bs-dismiss="modal"
                         aria-label="Close"></button>
                 </div>
@@ -281,11 +281,11 @@
 
     <!-- Change Password Modal -->
     <div class="modal fade Change-password-MP-modal" id="CP-client-profile" tabindex="-1"
-        aria-labelledby="exampleModalLabel" aria-hidden="true">
+        aria-labelledby="ModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-md modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel">CHANGE PASSWORD</h1>
+                    <h1 class="modal-title fs-5" >CHANGE PASSWORD</h1>
                     <button type="button" class="btn-close" id="model-close" data-bs-dismiss="modal"
                         aria-label="Close">
                 </div>

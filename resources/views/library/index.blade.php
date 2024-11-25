@@ -23,7 +23,7 @@
             </div>
 
             <div class="table-wrapper">
-                <table class="list-view">
+                <table class="list-view card-grid-contents">
                     <thead>
                         <tr>
                             <th class="">
@@ -49,7 +49,7 @@
                             </th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="card-grid-items">
                         @foreach($assets as $index => $asset)
                             <tr>
                                 <td class="library-img">
