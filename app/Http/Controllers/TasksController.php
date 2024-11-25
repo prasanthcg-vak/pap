@@ -34,7 +34,8 @@ class TasksController extends Controller
             ->where('client_id', $authId)
             ->get();
         // dd($asset);
-        $tasks = Tasks::with(['campaign', 'status'])->where('is_active', 1)->get();
+        // $tasks = Tasks::with(['campaign', 'status'])->where('is_active', 1)->get();
+        $tasks = Tasks::with(['campaign', 'status'])->get();
         return view('tasks.index', compact('tasks', 'campaigns', 'categories', 'assets', 'partners'));
     }
 
@@ -110,7 +111,7 @@ class TasksController extends Controller
                         'ACL' => 'public-read',
                     ]);
 
-                    $extension = $file->getClientOriginalExtension();       
+                    $extension = $file->getClientOriginalExtension();
                     $file_type = '';
 
                     if (in_array($extension, ['jpg', 'jpeg', 'png'])) {
@@ -160,7 +161,7 @@ class TasksController extends Controller
             'campaign_id' => (int) $request->campaign_id,
             'name' => $validatedData['name'],
             'date_required' => $formattedDate,
-            'task_urgent' => $validatedData['task_urgent'] ?? 0, // Default to 0 if not checked
+            'task_urgent' => $request->has('task_urgent') ? 1 : 0, // Convert checkbox value
             'size_width' => $validatedData['size_width'],
             'size_height' => $validatedData['size_height'],
             'image_id' => $image_id,
@@ -169,7 +170,7 @@ class TasksController extends Controller
             'asset_id' => (int) $request->asset_id,
             'description' => $validatedData['description'],
             'status_id' => null, // Set this as needed
-            'is_active' => 1
+            'is_active' => $request->has('is_active') ? 1 : 0,
         ]);
 
 
@@ -300,7 +301,7 @@ class TasksController extends Controller
                     'ACL' => 'public-read',
                 ]);
 
-                $extension = $file->getClientOriginalExtension();       
+                $extension = $file->getClientOriginalExtension();
                 $file_type = '';
 
                 if (in_array($extension, ['jpg', 'jpeg', 'png'])) {
@@ -312,7 +313,7 @@ class TasksController extends Controller
                 } else {
                     $file_type = '';
                 }
-                
+
                 // Update the image in the database
                 if ($task->image_id) {
                     $image = Image::findOrFail($task->image_id);
@@ -341,7 +342,7 @@ class TasksController extends Controller
             'campaign_id' => (int) $request->campaign_id,
             'name' => $validatedData['name'],
             'date_required' => $formattedDate,
-            'task_urgent' => $validatedData['task_urgent'] ?? 0,
+            'task_urgent' => $request->has('task_urgent') ? 1 : 0, // Convert checkbox value
             'size_width' => $validatedData['size_width'],
             'size_height' => $validatedData['size_height'],
             'partner_id' => (int) $request->partner_id,
@@ -349,7 +350,7 @@ class TasksController extends Controller
             'asset_id' => (int) $request->asset_id,
             'description' => $validatedData['description'],
             'status_id' => null,
-            'is_active' => 1,
+            'is_active' =>$request->is_active ?? 0,
         ]);
 
         // Log the successful update
@@ -379,7 +380,14 @@ class TasksController extends Controller
     public function getPartnersByCampaign($campaignId)
     {
         // Assuming each campaign has many partners via a relationship
-        $partners = CampaignPartner::where('campaigns_id',$campaignId)->with("partner")->get();
+        // $partners = CampaignPartner::where('campaigns_id',$campaignId)->with(["partner.roles"])->get();
+
+        $partners = CampaignPartner::where('campaigns_id', $campaignId)
+            ->whereHas('partner.roles', function ($query) {
+                $query->where('role_level', 6);
+            })
+            ->with('partner.roles')
+            ->get();
         // dd($partners);
         return response()->json($partners);
     }

@@ -656,6 +656,27 @@
                                 <textarea name="description" required id="description" placeholder="Add a description for your Task">{{ $task->description }}</textarea>
                             </div>
                         </div>
+                        
+                        <div class="row m-0">
+                            <div class="col-xl-4">
+                                <div class="input-wrap">
+                                    
+
+                                    <div class="form-group">
+                                        <div class="checkbox checbox-switch switch-success">
+                                            <label>
+                                                <div> Active</div>
+                                                <input type="checkbox" name="is_active" {{ $task->is_active ? 'checked' : '' }}/>
+                                                <span></span>
+
+                                            </label>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+
+                            </div>
+                        </div>
 
                         <!-- Image Upload -->
                         <div class="img-upload-con">
