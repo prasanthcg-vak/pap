@@ -85,11 +85,6 @@
                                 </td>
                                 <td class="library-action">
                                     <div class="action-btn-icons">
-                                        {{-- <button 
-                                            class="btn download-btn" 
-                                            data-url="{{ $asset['thumbnail'] }}">
-                                            <i class='bx bx-download'></i>
-                                        </button> --}}
                                         <button 
                                             class="btn download-btn" 
                                             data-url="{{ $asset['thumbnail'] }}">

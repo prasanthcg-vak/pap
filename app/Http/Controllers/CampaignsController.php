@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\URL;
 use App\Models\Campaigns;
 use App\Models\Category;
 use App\Models\Client;
@@ -198,24 +199,6 @@ class CampaignsController extends Controller
     {
         $campaign = Campaigns::findOrFail($id);
         $tasks = Tasks::with('status')->where('campaign_id', $id)->get();
-        // dd($tasks);
-        // if ($campaign && $campaign->image) {
-        //     $image_path = Storage::disk('backblaze')->url($campaign->image->path);
-
-        //     // Get file type and size
-        //     $fileType = Storage::disk('backblaze')->mimeType($campaign->image->path);
-        //     $fileSize = Storage::disk('backblaze')->size($campaign->image->path); // Size in bytes
-        //     $fileExtension = pathinfo($campaign->image->path, PATHINFO_EXTENSION); // Get the file extension
-
-
-        //     // Convert file size to KB for readability
-        //     $fileSizeKB = round($fileSize / 1024, 2);
-        // } else {
-        //     $image_path = null;
-        //     $fileExtension  = null;
-        //     $fileType = null;
-        //     $fileSizeKB = null;
-        // }
 
         $images = Image::where('campaign_id', $id)->get(['id','file_name', 'path']);
 
@@ -241,8 +224,6 @@ class CampaignsController extends Controller
         $partners = ClientPartner::all(); // Assuming you have a Partner model
         return view('campaigns.edit', compact('campaign', 'partners'));
     }
-
-
 
     /**
      * Update the specified resource in storage.
@@ -371,9 +352,16 @@ class CampaignsController extends Controller
     
     public function assetsView(string $id)
     {
+
+        $previousUrl = URL::previous();
         $categories = Category::where('is_active', 1)->get();
         $image = Image::findOrFail($id);
         $campaigns = Campaigns::with('image')->where('id', $image->campaign_id)->get();
+
+        $returnUrl = 'campaigns';
+        if (str_contains(parse_url($previousUrl, PHP_URL_PATH), 'home')) {
+            $returnUrl = 'home';
+        }
 
         // $campaigns = Campaigns::with('image')->where('is_active', 1)->where('id', $id)->first();
         if ($image && $campaigns->isNotEmpty()) {
@@ -396,7 +384,7 @@ class CampaignsController extends Controller
             $campId = "";
         }
 
-        return view('campaigns.asset_view', compact('campaigns', 'image_path', 'categories', 'fileExtension', 'fileSizeKB', 'campDescription','campStatus','campId'));
+        return view('campaigns.asset_view', compact('returnUrl','campaigns', 'image_path', 'categories', 'fileExtension', 'fileSizeKB', 'campDescription','campStatus','campId'));
     }
 
     public function getClientGroups($clientId)
