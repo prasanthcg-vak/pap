@@ -29,7 +29,7 @@
                         <h3>CAMPAIGNS</h3>
                     </div>
                     @if (Auth::user()->hasRolePermission('campaigns.create'))
-                        <a href="#" class="create-task-btn" data-bs-toggle="modal" data-bs-target="#createcampaign">Create
+                        <a href="#" class="create-task-btn" id="createButton">Create
                             Campaign</a>
                     @endif
                 </div>
@@ -127,8 +127,8 @@
                                             @endif
 
                                             @if ($deleteButton)
-                                                <form action="{{ route('campaigns.destroy', $campaign->id) }}"
-                                                    method="POST"
+                                                <form id="Model-Form"
+                                                    action="{{ route('campaigns.destroy', $campaign->id) }}" method="POST"
                                                     onsubmit="return confirm('Are you sure you want to delete this campaign?');">
                                                     @csrf
                                                     @method('DELETE')
@@ -154,11 +154,11 @@
         <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5" >Campaign</h1>
+                    <h1 class="modal-title fs-5">Campaign</h1>
                     <p class="status green active_header_block" id="active_header_block" style="display: none;">Active</p>
                     <p class="status red inactive_header_block" id="inactive_header_block" style="display: none;">Inactive
                     </p>
-                    <button type="button" class="btn-close" id="model-close" id="model-close" data-bs-dismiss="modal"
+                    <button type="button" class="btn-close" id="model-close" data-bs-dismiss="modal"
                         aria-label="Close"></button>
                 </div>
                 <div id="modalLoader" class="modal-loader" style="display: none;">

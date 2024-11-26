@@ -89,7 +89,7 @@
 
                                     @if ($delete)
                                         <!-- Delete Form -->
-                                        <form action="{{ route('categories.destroy', $category->id) }}" method="POST"
+                                        <form id="Model-Form" action="{{ route('categories.destroy', $category->id) }}" method="POST"
                                             class="d-inline-block"
                                             onsubmit="return confirm('Are you sure you want to delete this category?');">
                                             @csrf

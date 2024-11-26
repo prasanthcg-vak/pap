@@ -67,7 +67,7 @@
                                         </a>
                                     @endif
                                     @if ($delete)
-                                        <form action="{{ route('asset-types.destroy', $assetType->id) }}" method="POST"
+                                        <form id="Model-Form" action="{{ route('asset-types.destroy', $assetType->id) }}" method="POST"
                                             class="d-inline-block"
                                             onsubmit="return confirm('Are you sure you want to delete this asset type?');">
                                             @csrf

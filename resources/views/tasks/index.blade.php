@@ -111,7 +111,7 @@
 
                                                     {{-- <button class="btn edit"><i class='bx bx-edit'></i></button> --}}
                                                     @if ($deleteButton)
-                                                        <form action="{{ route('tasks.destroy', $task->id) }}"
+                                                        <form id="Model-Form" action="{{ route('tasks.destroy', $task->id) }}"
                                                             method="POST" style="display:inline;"
                                                             onsubmit="return confirmDelete();">
                                                             @csrf
@@ -145,10 +145,10 @@
                     <h1 class="modal-title fs-5">Create Task
                     </h1>
                     {{-- <p class="status green">Active</p> --}}
-                    <span class="btn-close" data-dismiss="modal" aria-label="Close"></span>
+                    <span class="btn-close" id="model-close" data-dismiss="modal" aria-label="Close"></span>
                 </div>
                 <div class="modal-body">
-                    <form action="{{ route('tasks.store') }}" method="POST" enctype="multipart/form-data">
+                    <form id="Model-Form" action="{{ route('tasks.store') }}"  method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="row m-0">
                             <!-- Campaign Dropdown -->

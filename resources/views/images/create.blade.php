@@ -14,7 +14,7 @@
     <h2>Upload New Image</h2>
 
     <!-- Image upload form -->
-    <form action="{{ route('images.store') }}" method="POST" enctype="multipart/form-data">
+    <form id="Model-Form" action="{{ route('images.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
         <div class="form-group">
             <label for="image">Select Image:</label>

@@ -545,10 +545,10 @@
                 <div class="modal-header">
                     <h1 class="modal-title fs-5" id="editTaskLabel">Edit Task</h1>
                     <p class="status green">Active</p>
-                    <span class="btn-close" data-dismiss="modal" aria-label="Close"></span>
+                    <span class="btn-close" data-dismiss="modal" id="model-close" aria-label="Close"></span>
                 </div>
                 <div class="modal-body">
-                    <form action="{{ route('tasks.update', $task->id) }}" method="POST" enctype="multipart/form-data">
+                    <form id="Model-Form" action="{{ route('tasks.update', $task->id) }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         @method('PUT') <!-- HTTP method for updating -->
 

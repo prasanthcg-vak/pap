@@ -63,7 +63,7 @@
                                                 </a>
                                             @endif
                                             @if ($delete)
-                                                <form action="{{ route('users.destroy', $user->id) }}" method="POST"
+                                                <form id="Model-Form" action="{{ route('users.destroy', $user->id) }}" method="POST"
                                                     class="d-inline-block"
                                                     onsubmit="return confirm('Are you sure you want to delete this user?');">
                                                     @csrf

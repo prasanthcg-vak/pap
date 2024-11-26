@@ -1191,7 +1191,9 @@ button.btn.btn-danger.btn-sm.mt-2.remove-btn {
 .campaign-card-contents .owl-carousel .card-img_text {
     max-width: 100% !important;
 }
-
+.owl-carousel .owl-item img{
+    height: 200px;
+}
 .campaign-card-contents .owl-carousel .owl-nav.disabled {
     display: block !important;
 }

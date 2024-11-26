@@ -55,7 +55,7 @@
                                 data-bs-placement="top" title="Edit">
                                 <i class="fa-solid fa-pencil"></i>
                             </a> --}}
-                            {{-- <form action="{{  route('roles.destroy', $role) }}" class="d-inline-block" method="POST"
+                            {{-- <form id="Model-Form" action="{{  route('roles.destroy', $role) }}" class="d-inline-block" method="POST"
                                 onsubmit="return confirm('Are you sure you want to delete this role?');">
                                 @csrf
                                 @method('DELETE')

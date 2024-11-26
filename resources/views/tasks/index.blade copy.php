@@ -96,7 +96,7 @@
 
                                         <button class="btn edit"><i class='bx bx-edit'></i></button>
 
-                                        <form action="{{ route('tasks.destroy', $task->id) }}" method="POST"
+                                        <form id="Model-Form" action="{{ route('tasks.destroy', $task->id) }}" method="POST"
                                             style="display:inline;" onsubmit="return confirmDelete();">
                                             @csrf
                                             @method('DELETE')
@@ -122,7 +122,7 @@
                     <button type="button" class="btn-close" id="model-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form action="{{ route('tasks.store') }}" method="POST">
+                    <form id="Model-Form" action="{{ route('tasks.store') }}" method="POST">
                         @csrf
 
                         <div class="row m-0">
@@ -266,7 +266,7 @@
                 <h5 class="modal-title" id="createTaskModalLabel">Create Task</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form action="{{ route('tasks.store') }}" method="POST">
+            <form id="Model-Form" action="{{ route('tasks.store') }}" method="POST">
                 @csrf
                 <div class="modal-body">
                     <div class="row">

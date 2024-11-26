@@ -61,7 +61,7 @@
                                         </button>
 
                                         <!-- Delete Form -->
-                                        <form action="{{ route('groups.destroy', $group->id) }}" method="POST"
+                                        <form id="Model-Form" action="{{ route('groups.destroy', $group->id) }}" method="POST"
                                             onsubmit="return confirm('Are you sure you want to delete this group?');"
                                             style="display:inline;">
                                             @csrf

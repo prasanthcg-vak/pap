@@ -42,11 +42,11 @@ class UserController extends Controller
             'is_active' => 'boolean',
         ]);
 
-        if($request->role_id == 4 || $request->role_id == 5){
+        if ($request->role_id == 4 || $request->role_id == 5) {
             $request->validate([
                 'client_id' => 'required',
             ]);
-        }else{
+        } else {
             $request->client_id = null;
         }
 
@@ -84,32 +84,32 @@ class UserController extends Controller
 
     public function update(Request $request, User $user)
     {
-            try {
+        try {
+            $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|email|unique:users,email,' . $request->user_id,
+                'is_active' => 'boolean',
+                'role_id' => 'required|exists:roles,id'
+            ]);
+            if ($request->role_id == 4 || $request->role_id == 5) {
                 $request->validate([
-                    'name' => 'required|string|max:255',
-                    'email' => 'required|email|unique:users,email,' . $request->user_id,
-                    'is_active' => 'boolean',
-                    'role_id' => 'required|exists:roles,id'
+                    'client_id' => 'required',
                 ]);
-                if($request->role_id == 4 || $request->role_id == 5){
-                    $request->validate([
-                        'client_id' => 'required',
-                    ]);
-                }else{
-                    $request->client_id = null;
-                }
+            } else {
+                $request->client_id = null;
+            }
 
-                // Update user details
-                // $data = $request->all();
-                $data['name'] = $request->name;
-                $data['email'] = $request->email;
-                $data['client_id'] = (int) $request->client_id;
-                $data['is_active'] = $request->has('is_active') ? 1 : 0;
-                $user->update($data);
+            // Update user details
+            // $data = $request->all();
+            $data['name'] = $request->name;
+            $data['email'] = $request->email;
+            $data['client_id'] = (int) $request->client_id;
+            $data['is_active'] = $request->has('is_active') ? 1 : 0;
+            $user->update($data);
 
-                if ($request->has('role_id')) {
-                    $user->roles()->sync([$request->input('role_id')]);
-                }
+            if ($request->has('role_id')) {
+                $user->roles()->sync([$request->input('role_id')]);
+            }
 
             return response()->json(['success' => 'User updated successfully']);
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -185,7 +185,7 @@ class UserController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255',
-            'username' => 'required|string|max:255',
+            'contact' => 'required|digits:10', // Ensure it is exactly 10 digits
             'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Only allow images up to 2MB
         ]);
 
@@ -212,7 +212,7 @@ class UserController extends Controller
         }
 
         // Update other fields
-        $user->update($request->only(['name', 'email', 'username', 'is_active']));
+        $user->update($request->only(['name', 'email', 'username', 'is_active', 'contact']));
 
         // Save the changes, including profile picture path if updated
         $user->save();
@@ -225,7 +225,7 @@ class UserController extends Controller
         // dd(Auth::user()->group_id);
         $client_id = Auth::user()->client_id;
 
-        $groups = ClientGroup::where("client_id",$client_id)->get();
+        $groups = ClientGroup::where("client_id", $client_id)->get();
         return view('clientpartner.create', compact('groups'));
     }
 
@@ -253,8 +253,8 @@ class UserController extends Controller
             'password' => Hash::make($randomPassword),
             'contact' => $request->partner_contact, // Hash the random password
             'pcode' => $randomPassword,
-            'client_id' =>  $client_id,
-            'group_id' => (int) $request->group,  
+            'client_id' => $client_id,
+            'group_id' => (int) $request->group,
             'is_active' => $request->status == 'active' ? 1 : 0,  // Set status
         ]);
 
@@ -263,12 +263,12 @@ class UserController extends Controller
             'client_id' => Auth::id(), // Using the authenticated client's ID
             'partner_id' => $user->id,  // Newly created partner's ID
         ]);
-        
-        ClientGroupPartners::create([  
+
+        ClientGroupPartners::create([
             'user_id' => $user->id,
             'group_id' => $request->group,
         ]);
-        
+
         DB::table('role_user')->insert([
             'user_id' => $user->id,
             'role_id' => 6,
@@ -308,10 +308,10 @@ class UserController extends Controller
         $client_id = Auth::user()->client_id;
         $group_id = Auth::user()->group_id;
         $clientPartner = User::findOrFail($id);
-        $groups = ClientGroup::where("client_id",$client_id)->get();
+        $groups = ClientGroup::where("client_id", $client_id)->get();
 
         // dd($clientPartner);
-        return view('clientpartner.edit', compact('clientPartner','groups','group_id'));
+        return view('clientpartner.edit', compact('clientPartner', 'groups', 'group_id'));
     }
 
     // Update the partner's details
@@ -363,18 +363,18 @@ class UserController extends Controller
     {
         // Begin transaction
         $client_partner = ClientPartner::find($id);
-        if($client_partner){
+        if ($client_partner) {
             $client_partner->delete();
         }
         $user = User::find($client_partner->partner_id);
-        if($user){
+        if ($user) {
             $user->delete();
         }
 
         // dd($user);
         return redirect()->route('myprofile')->with('success', 'Partner deleted successfully!');
 
-        
+
     }
     public function getPartnersByCampaign($id)
     {

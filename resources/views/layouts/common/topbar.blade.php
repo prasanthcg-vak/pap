@@ -234,7 +234,7 @@
             </div>
             <!-- top-card-items  -->
             <!--breadcrumb-->
-            <nav aria-label="breadcrumb">
+            {{-- <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="#">
                             <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
@@ -315,7 +315,7 @@
                         </svg>
                     </li>
                 </ol>
-            </nav>
+            </nav> --}}
             <!--End Breadcrumb-->
         </div>
     </div>

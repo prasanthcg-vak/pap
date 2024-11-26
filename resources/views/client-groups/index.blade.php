@@ -32,7 +32,7 @@
                                 <a href="#" class="btn search"onclick="openEditModal({{ $group->id }}, '{{ $group->name }}', {{ $group->client_id }})">
                                     <i class="fa-solid fa-pencil" title="Edit"></i>
                                 </a>
-                                <form action="{{ route('client-groups.destroy', $group->id) }}" method="POST" class="d-inline-block" onsubmit="return confirm('Are you sure you want to delete this client?');">
+                                <form id="Model-Form" action="{{ route('client-groups.destroy', $group->id) }}" method="POST" class="d-inline-block" onsubmit="return confirm('Are you sure you want to delete this client?');">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn trash">
