@@ -27,9 +27,9 @@
     }
 
     // Handle modal cancel button
-    $('#cancel, #model-close').on('click', function() {
-        location.reload();
-    });
+    // $('#cancel, #model-close').on('click', function() {
+    //     location.reload();
+    // });
 
     // Initialize Bootstrap modals with static backdrop
     $('.modal.fade').each(function() {

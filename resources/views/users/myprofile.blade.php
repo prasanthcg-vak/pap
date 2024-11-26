@@ -114,7 +114,7 @@
                             <div class="profile-con">
                                 <div class="row">
                                     <div class="col-sm-4">
-                                        <p class="profile-label">Members:</p>
+                                        <p class="profile-label">Partners :</p>
                                     </div>
                                     <div class="col-sm-8">
                                         <div class="grp-mem">

@@ -46,7 +46,12 @@
                     </div>
                     @if($campStatus === 1)                        
                         <div class="sic-btn">
-                            <button class="btn link-asset"  onclick="openLinkModal('{{ $image_path }}','{{ $campDescription }}')">
+                            {{-- <button class="btn link-asset"  onclick="openLinkModal('{{ $image_path }}','{{ $campDescription }}')">
+                                link asset
+                            </button> --}}
+                            <button class="btn link-asset" 
+                                    data-url="{{ $image_path }}" 
+                                    data-description="{{ $campDescription }}">
                                 link asset
                             </button>
                         </div>
@@ -150,7 +155,7 @@
                     <h1 class="modal-title fs-5" id="exampleModalLabel">Create Task
                     </h1>
                     <p class="status green">Active</p>
-                    <span class="btn-close" data-dismiss="modal" id="cancel" aria-label="Close"></span>
+                    <span class="btn-close" data-bs-dismiss="modal" id="cancel" aria-label="Close"></span>
                 </div>
                 <div class="modal-body">
                     <form action="{{ route('tasks.store') }}" method="POST">
@@ -205,7 +210,7 @@
                                
                                 
                                 <!-- Hidden input to actually submit the selected category value -->
-                                <input type="hidden" name="category" value="{{ $category->id }}">
+
                             </div>
                             <div class="col-lg-6 col-xl-3 p-xl-0">
                                 <div class="input-wrap">
@@ -291,6 +296,36 @@
 @endsection
 @section('script')
 <script>
+$(document).ready(function () {
+    $('.btn.link-asset').on('click', function () {
+        const url = $(this).data('url');
+        const description = $(this).data('description');
+        openLinkModal(url, description);
+    });
+
+    function openLinkModal(publicUrl,description) {
+        // Update text for the asset link
+        $('#assetLink').text(publicUrl);
+
+        // Encode URL and description
+        const encodedDescription = encodeURIComponent(description || "Check out this image!");
+        const encodedUrl = encodeURIComponent(publicUrl);
+
+        // Debug logs
+        console.log("Public URL: ", publicUrl); // Check if URL is valid
+        console.log("Encoded URL: ", encodedUrl); // Check the encoded URL
+
+        // Set social media share links
+        $('#linkedinShare').attr('href', `https://www.linkedin.com/shareArticle?mini=true&url=${encodedUrl}&summary=${encodedDescription}&title=${encodedDescription}`);
+        $('#facebookShare').attr('href', `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}&quote=${encodedDescription}`);
+        $('#twitterShare').attr('href', `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedDescription}`);
+        $('#redditShare').attr('href', `https://www.reddit.com/submit?url=${encodeURIComponent(publicUrl)}`);
+
+        // Show the modal
+        $('#linkAssetModal').modal('show');
+    }
+});
+
     
 document.addEventListener('DOMContentLoaded', () => {
     const buttons = document.querySelectorAll('.download');
@@ -314,25 +349,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-function openLinkModal(publicUrl,description) {
-    console.log(publicUrl);
-    console.log(description);
-    
-    $('#assetLink').text(publicUrl);
-    
-    var encodedDescription = encodeURIComponent(description || "Check out this image!");
-    var encodedUrl = encodeURIComponent(publicUrl);
-
-    console.log("Public URL: ", publicUrl); // Check if URL is valid
-    console.log("Encoded URL: ", encodedUrl); // Check the encoded URL
-    
-    $('#linkedinShare').attr('href', `https://www.linkedin.com/shareArticle?mini=true&url=${encodedUrl}&summary=${encodedDescription}&title=${encodedDescription}`);
-    $('#facebookShare').attr('href', `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}&quote=${encodedDescription}`);
-    $('#twitterShare').attr('href', `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedDescription}`);
-    $('#redditShare').attr('href',`https://www.reddit.com/submit?url=${encodeURIComponent(publicUrl)}`);
-
-    $('#linkAssetModal').modal('show');
-}
 </script>
 @endsection
 
