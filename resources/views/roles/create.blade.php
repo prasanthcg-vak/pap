@@ -17,7 +17,7 @@
             <div class="profile-header">
                 <h3>ADD New Role</h3>
             </div>
-            <form action="{{ route('roles.store') }}" method="POST">
+            <form id="Model-Form" action="{{ route('roles.store') }}" method="POST">
                 @csrf
                 <div class="row">
                     <div class="col-md-6">

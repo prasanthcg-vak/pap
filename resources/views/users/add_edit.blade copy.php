@@ -21,7 +21,7 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('users.store') }}" method="post">
+                    <form id="Model-Form" action="{{ route('users.store') }}" method="post">
                         @csrf
                         @method('PUT')
 

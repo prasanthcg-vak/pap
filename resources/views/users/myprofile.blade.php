@@ -39,7 +39,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="profile-con">
+                        {{-- <div class="profile-con">
                             <div class="row">
                                 <div class="col-sm-4">
                                     <p class="profile-label">Company:</p>
@@ -48,7 +48,7 @@
                                     <p class="profile-data">Partners Company</p>
                                 </div>
                             </div>
-                        </div>
+                        </div> --}}
                         <div class="profile-con">
                             <div class="row">
                                 <div class="col-sm-4">
@@ -187,17 +187,18 @@
     <!-- ========== End CM-main-content ========== -->
 
     <!-- Edit My Profile Modal -->
-    <div class="modal fade Edit-My-Profile-modal" id="Edit-My-Profile" tabindex="-1" aria-labelledby="exampleModalLabel"
+    <div class="modal fade Edit-My-Profile-modal" id="Edit-My-Profile" tabindex="-1" aria-labelledby="ModalLabel"
         aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-md modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel">EDIT CLIENT PROFILE</h1>
+                    <h1 class="modal-title fs-5">EDIT CLIENT PROFILE</h1>
                     <button type="button" class="btn-close" id="model-close" data-bs-dismiss="modal"
                         aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data">
+                    <form id="Model-Form" action="{{ route('profile.update') }}" method="POST"
+                        enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
                         <div class="row m-0">
@@ -207,21 +208,25 @@
                                 <input type="text" id="name" name="name" class="form-control"
                                     value="{{ old('name', ucwords(Auth::user()->name)) }}">
                             </div>
+
                             <div class="col-lg-12">
-                                <label for="group">Company</label>
-                                <input type="text" id="group" name="group" class="form-control" disabled
-                                    value="{{ old('group', 'Partners Company') }}">
+                                <label for="contact">Contact</label>
+                                <input type="tel" id="contact" name="contact" class="form-control"
+                                    value="{{ old('contact', Auth::user()->contact) }}" pattern="[0-9]{10}"
+                                    placeholder="Enter a 10-digit phone number" required>
+                                <small class="form-text text-muted">Please enter a valid 10-digit phone number.</small>
                             </div>
+
                             <div class="col-lg-12">
                                 <label for="email">Email</label>
                                 <input type="email" id="email" name="email" class="form-control"
                                     value="{{ old('email', Auth::user()->email) }}">
                             </div>
-                            <div class="col-lg-12">
+                            {{-- <div class="col-lg-12">
                                 <label for="username">Username</label>
                                 <input type="text" id="username" name="username" class="form-control"
                                     value="{{ old('username', ucwords(Auth::user()->username)) }}">
-                            </div>
+                            </div> --}}
                             {{-- <div class="col-lg-12">
                             <div class="status-radio-btn">
                                 <label for="status">Status</label>
@@ -239,21 +244,15 @@
                                 @if (Auth::user()->profile_picture)
                                     <img src="{{ asset(Auth::user()->profile_picture) }}" alt="Profile Picture"
                                         class="img-thumbnail mt-2" width="100">
-                                @else
-                                    <img src="{{ asset('assets/profile_picture/default.png') }}"
-                                        alt="Default Profile Picture" class="img-thumbnail mt-2" width="100">
                                 @endif
                             </div>
                             <div class="col-lg-12 mb-3">
-                                <label for="profile_picture">Profile Picture</label>
-                                <input type="file" id="profile_picture" name="profile_picture" class="form-control">
+                                <label for="profile_picture">Logo</label>
+                                <input type="file" id="logo" name="logo" class="form-control">
 
-                                @if (Auth::user()->profile_picture)
-                                    <img src="{{ asset(Auth::user()->profile_picture) }}" alt="Profile Picture"
-                                        class="img-thumbnail mt-2" width="100">
-                                @else
-                                    <img src="{{ asset('assets/profile_picture/default.png') }}"
-                                        alt="Default Profile Picture" class="img-thumbnail mt-2" width="100">
+                                @if (Auth::user()->logo)
+                                    <img src="{{ asset(Auth::user()->logo) }}" alt="Logo" class="img-thumbnail mt-2"
+                                        width="100">
                                 @endif
                             </div>
 
@@ -265,10 +264,9 @@
                                 <button class="btn download" id="save">Save</button>
                             </div>
                             <div class="sic-btn">
-                                <button class="btn link-asset" id="cancel" data-bs-dismiss="modal"
-                                    aria-label="Close">
+                                <a class="btn link-asset" id="cancel" data-bs-dismiss="modal" aria-label="Close">
                                     Cancel
-                                </button>
+                                </a>
                             </div>
                         </div>
                     </form>
@@ -280,17 +278,17 @@
     <!-- Edit My Profile Modal -->
 
     <!-- Change Password Modal -->
-    <div class="modal fade Change-password-MP-modal" id="CP-client-profile" tabindex="-1"
-        aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal fade Change-password-MP-modal" id="CP-client-profile" tabindex="-1" aria-labelledby="ModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-md modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel">CHANGE PASSWORD</h1>
+                    <h1 class="modal-title fs-5">CHANGE PASSWORD</h1>
                     <button type="button" class="btn-close" id="model-close" data-bs-dismiss="modal"
                         aria-label="Close">
                 </div>
                 <div class="modal-body">
-                    <form action="{{ route('password.update') }}" method="POST">
+                    <form id="Model-Form" action="{{ route('password.update') }}" method="POST">
                         @csrf
                         @method('PUT')
                         <div class="row m-0">

@@ -526,7 +526,7 @@
                             <div class="campaign-task-cost-button">
                                 @if (Auth::user()->hasRolePermission('tasks.edit'))
                                     <a href="#" class="btn edit-task-btn" data-toggle="modal"
-                                        data-target="#createTask">Edit
+                                        data-target="#createTask" onclick="openModal()">Edit
                                         Task</a>
                                 @endif
                                 {{-- <a href="#" class="btn complete-task-btn">Complete Task</a> --}}
@@ -545,10 +545,10 @@
                 <div class="modal-header">
                     <h1 class="modal-title fs-5" id="editTaskLabel">Edit Task</h1>
                     <p class="status green">Active</p>
-                    <span class="btn-close" data-dismiss="modal" aria-label="Close"></span>
+                    <span class="btn-close" data-dismiss="modal" id="model-close" aria-label="Close"></span>
                 </div>
                 <div class="modal-body">
-                    <form action="{{ route('tasks.update', $task->id) }}" method="POST" enctype="multipart/form-data">
+                    <form id="Model-Form" action="{{ route('tasks.update', $task->id) }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         @method('PUT') <!-- HTTP method for updating -->
 
@@ -613,7 +613,7 @@
 
                         <!-- Category and Asset -->
                         <div class="row m-0">
-                            <div class="col-lg-6 col-xl-4">
+                            <div class="col-lg-6 col-xl-4 mb-4 mb-lg-0">
                                 <select class="form-select" name="category_id" required>
                                     <option value="" disabled>Select Category</option>
                                     @foreach ($categories as $category)
@@ -624,7 +624,7 @@
                                     @endforeach
                                 </select>
                             </div>
-                            <div class="col-lg-6 col-xl-4">
+                            <div class="col-lg-6 col-xl-4 mb-4 mb-lg-0">
                                 <select class="form-select" name="asset_id" required>
                                     <option value="" disabled>Select Asset</option>
                                     @foreach ($assets as $asset)
@@ -681,19 +681,16 @@
                         <!-- Image Upload -->
                         <div class="img-upload-con">
                             <div class="upload--col w-100">
-                                <div class="drop-zone">
+                                <div class="drop-zone  update-campaign">
                                     <div class="drop-zone__prompt">
                                         <div class="drop-zone_color-txt">
-                                            <span><img src="{{ $imageUrl }}" alt="" class="w-50"></span>
+                                            <span><img src="{{ $imageUrl }}" alt="" class="main-image"></span>
                                             <br />
                                             <span><img src="{{ asset('assets/images/fi_upload-cloud.svg') }}"
                                                     alt=""> Upload
                                                 Image</span>
                                         </div>
-                                        <div class="file-format">
-                                            <p>Upload a cover image for your product.</p>
-                                            <p>File Format <b>jpeg, png</b>. Recommended Size <b>600x600 (1:1)</b></p>
-                                        </div>
+                                        
                                     </div>
                                     <!-- Existing Image Display -->
                                     {{-- @if ($imageUrl)
@@ -725,13 +722,16 @@
         </div>
     </div>
 
-
+@endsection
+@section('script')
     <script>
-        $(function() {
-            $('#createTask').modal('toggle');
-        });
+        // $(function() {
+        //     $('#createTask').modal('toggle');
+        // });
+        function openModal(){
+            $('#createTask').modal('show');
+        }
     </script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <!-- jQuery and AJAX for Comment and Reply Submission -->
 
@@ -945,7 +945,4 @@
         });
     </script>
 
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 @endsection

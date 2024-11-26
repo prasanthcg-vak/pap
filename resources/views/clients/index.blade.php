@@ -39,7 +39,7 @@
                                     <a href="#" class="btn search" onclick="editClient({{ json_encode($client) }})">
                                         <i class="fa-solid fa-pencil" title="Edit"></i>
                                     </a>
-                                    <form action="{{ route('clients.destroy', $client->id) }}" method="POST" class="d-inline-block" onsubmit="return confirm('Are you sure you want to delete this client?');">
+                                    <form id="Model-Form" action="{{ route('clients.destroy', $client->id) }}" method="POST" class="d-inline-block" onsubmit="return confirm('Are you sure you want to delete this client?');">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn trash">

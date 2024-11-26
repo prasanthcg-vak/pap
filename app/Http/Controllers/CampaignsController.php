@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AssetType;
 use Illuminate\Support\Facades\URL;
 use App\Models\Campaigns;
 use App\Models\Category;
@@ -353,11 +354,15 @@ class CampaignsController extends Controller
     public function assetsView(string $id)
     {
 
+        $categories = Category::where('is_active', 1)->get();
+        $assets = AssetType::where('is_active', 1)->get();
+        
         $previousUrl = URL::previous();
         $categories = Category::where('is_active', 1)->get();
         $image = Image::findOrFail($id);
         $campaigns = Campaigns::with('image')->where('id', $image->campaign_id)->get();
-
+        $partners = CampaignPartner::where('campaigns_id',$id)->with('partner')->get();
+        // dd($partners);
         $returnUrl = 'campaigns';
         if (str_contains(parse_url($previousUrl, PHP_URL_PATH), 'home')) {
             $returnUrl = 'home';
@@ -384,7 +389,7 @@ class CampaignsController extends Controller
             $campId = "";
         }
 
-        return view('campaigns.asset_view', compact('returnUrl','campaigns', 'image_path', 'categories', 'fileExtension', 'fileSizeKB', 'campDescription','campStatus','campId'));
+        return view('campaigns.asset_view', compact('returnUrl','campaigns', 'image_path', 'categories', 'fileExtension', 'fileSizeKB', 'campDescription','campStatus','campId', 'categories', 'assets','partners'));
     }
 
     public function getClientGroups($clientId)

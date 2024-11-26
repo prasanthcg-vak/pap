@@ -23,7 +23,7 @@
             </div>
 
             <div class="table-wrapper">
-                <table class="list-view">
+                <table class="list-view card-grid-contents">
                     <thead>
                         <tr>
                             <th class="">
@@ -49,7 +49,7 @@
                             </th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="card-grid-items">
                         @foreach($assets as $index => $asset)
                             <tr>
                                 <td class="library-img">
@@ -92,7 +92,7 @@
                                         </button>
                                         <button class="btn btn-link new-link" onclick="openLinkModal('{{ $asset['thumbnail'] }}','{{ $asset['description'] }}')"><i class='bx bx-link-external'></i></button>
                                         
-                                        {{-- <form action="{{ route('images.delete') }}" method="POST" style="display:inline;"
+                                        {{-- <form id="Model-Form" action="{{ route('images.delete') }}" method="POST" style="display:inline;"
                                             onsubmit="return confirm('Are you sure you want to delete this asset?');">
                                             @csrf
                                             @method('DELETE')
