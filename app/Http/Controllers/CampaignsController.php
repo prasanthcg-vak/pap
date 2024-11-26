@@ -201,7 +201,7 @@ class CampaignsController extends Controller
         $campaign = Campaigns::findOrFail($id);
         $tasks = Tasks::with('status')->where('campaign_id', $id)->get();
 
-        $images = Image::where('campaign_id', $id)->get(['id','file_name', 'path']);
+        $images = Image::where('campaign_id', $id)->get(['id','file_name', 'path','file_type']);
 
         // Retrieve the URLs for each image
         $imageUrls = $images->map(function ($image) {
@@ -209,6 +209,7 @@ class CampaignsController extends Controller
                 'image_id' => $image->id,
                 'name' => $image->file_name,
                 'path' => $image->path,
+                'image_type' => $image->file_type,
                 'url' => Storage::disk('backblaze')->url($image->path) // Generate the public URL
             ];
         });
