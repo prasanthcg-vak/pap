@@ -387,24 +387,5 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-function openLinkModal(publicUrl,description) {
-    console.log(publicUrl);
-    console.log(description);
-    
-    $('#assetLink').text(publicUrl);
-    
-    var encodedDescription = encodeURIComponent(description || "Check out this image!");
-    var encodedUrl = encodeURIComponent(publicUrl);
-
-    console.log("Public URL: ", publicUrl); // Check if URL is valid
-    console.log("Encoded URL: ", encodedUrl); // Check the encoded URL
-    
-    $('#linkedinShare').attr('href', `https://www.linkedin.com/shareArticle?mini=true&url=${encodedUrl}&summary=${encodedDescription}&title=${encodedDescription}`);
-    $('#facebookShare').attr('href', `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}&quote=${encodedDescription}`);
-    $('#twitterShare').attr('href', `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedDescription}`);
-    $('#redditShare').attr('href',`https://www.reddit.com/submit?url=${encodeURIComponent(publicUrl)}`);
-
-    $('#linkAssetModal').modal('show');
-}
 </script>
 @endsection
