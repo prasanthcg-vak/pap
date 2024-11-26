@@ -13,7 +13,7 @@
             </div>
             <!-- campaigns-contents -->
         </div>
-        <form action="{{ route('roles.permissions.update', $role->id) }}" method="POST">
+        <form id="Model-Form" action="{{ route('roles.permissions.update', $role->id) }}" method="POST">
         @csrf
         <div class="accordion" id="permissionsAccordion">
             @foreach ($permissions as $group => $groupPermissions)

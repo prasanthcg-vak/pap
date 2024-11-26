@@ -25,7 +25,7 @@
                             <!-- View button opens the modal with the full image -->
                             <button class="btn btn-primary" data-toggle="modal" data-target="#viewModal" onclick="showImage('{{ $image['url'] }}')">View</button>
                             <!-- Delete form sends a DELETE request -->
-                            <form action="{{ route('images.delete') }}" method="POST" style="display:inline;">
+                            <form id="Model-Form" action="{{ route('images.delete') }}" method="POST" style="display:inline;">
                                 @csrf
                                 @method('DELETE')
                                 <input type="hidden" name="path" value="{{ $image['path'] }}">

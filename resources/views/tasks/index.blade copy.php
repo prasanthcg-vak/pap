@@ -96,7 +96,7 @@
 
                                         <button class="btn edit"><i class='bx bx-edit'></i></button>
 
-                                        <form action="{{ route('tasks.destroy', $task->id) }}" method="POST"
+                                        <form id="Model-Form" action="{{ route('tasks.destroy', $task->id) }}" method="POST"
                                             style="display:inline;" onsubmit="return confirmDelete();">
                                             @csrf
                                             @method('DELETE')
@@ -111,18 +111,18 @@
         </div>
     </div>
 
-    <div class="modal fade createTask-modal" id="createTask" tabindex="-1" aria-labelledby="exampleModalLabel"
+    <div class="modal fade createTask-modal" id="createTask" tabindex="-1" aria-labelledby="ModalLabel"
         aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel">Create Task
+                    <h1 class="modal-title fs-5" >Create Task
                         </h1>
                     <p class="status green">Active</p>
                     <button type="button" class="btn-close" id="model-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form action="{{ route('tasks.store') }}" method="POST">
+                    <form id="Model-Form" action="{{ route('tasks.store') }}" method="POST">
                         @csrf
 
                         <div class="row m-0">
@@ -266,7 +266,7 @@
                 <h5 class="modal-title" id="createTaskModalLabel">Create Task</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form action="{{ route('tasks.store') }}" method="POST">
+            <form id="Model-Form" action="{{ route('tasks.store') }}" method="POST">
                 @csrf
                 <div class="modal-body">
                     <div class="row">
@@ -371,9 +371,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
     <script src="https://code.jquery.com/ui/1.14.0/jquery-ui.js"></script>
     <script src="assets/js/main.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js"></script>
-    <script src="https://unpkg.com/boxicons@2.1.4/dist/boxicons.js"></script>
+    
 
 
 

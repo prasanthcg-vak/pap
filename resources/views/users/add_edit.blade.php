@@ -33,7 +33,7 @@
                 <div class="col-md-12">
                     <div class="card">
                         <div class="card-body">
-                            <form action="{{$route}}" method="post" id="data-form">
+                            <form id="Model-Form" action="{{$route}}" method="post" id="data-form">
                                 @csrf
                                 @if($method == "PUT")
                                 @method('PUT')

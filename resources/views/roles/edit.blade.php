@@ -5,7 +5,7 @@
 @section('content')
     <div class="container">
         <h1>Edit Role</h1>
-        <form action="{{ route('roles.update', $role) }}" method="POST">
+        <form id="Model-Form" action="{{ route('roles.update', $role) }}" method="POST">
             @csrf
             @method('PUT')
             <div class="form-group">

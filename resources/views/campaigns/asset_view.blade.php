@@ -1,31 +1,29 @@
 @extends('layouts.app')
 
 @section('content')
+    <div class="CM-main-content">
+        <div class="container-fluid p-0">
+            <!--Single Image Container-->
+            <div class="single-img-con">
+                <div class="sic-wrap">
+                    <div class="sic-header d-flex justify-content-between align-items-center">
+                        <h3>ASSET #01</h3>
+                        <p class="status green">Active</p>
+                    </div>
 
-<div class="CM-main-content">
-    <div class="container-fluid p-0">
-        <!--Single Image Container-->
-        <div class="single-img-con">
-            <div class="sic-wrap">
-                <div class="sic-header d-flex justify-content-between align-items-center">
-                    <h3>ASSET #01</h3>
-                    <p class="status green">Active</p>
-                </div>
+                    <div class="sic-img-info">
+                        <ul class="list-unstyled p-0 m-0 d-flex flex-column flex-md-row align-items-md-center flex-wrap">
+                            <li>
+                                <span>Type: {{ $fileExtension }}</span>
+                            </li>
+                            <li> <span>Dimensions: 1200px (w) 628px (h)</span></li>
+                            <li> <span> Size: {{ $fileSizeKB }}kb</span></li>
+                        </ul>
+                    </div>
 
-                <div class="sic-img-info">
-                    <ul
-                        class="list-unstyled p-0 m-0 d-flex flex-column flex-md-row align-items-md-center flex-wrap">
-                        <li>
-                            <span>Type: {{$fileExtension}}</span>
-                        </li>
-                        <li> <span>Dimensions: 1200px (w) 628px (h)</span></li>
-                        <li> <span> Size: {{$fileSizeKB}}kb</span></li>
-                    </ul>
-                </div>
-
-                <div class="sic-src-wrap">
-                    <img  class="w-50" src="{{$image_path}}" alt="">
-                </div>
+                    <div class="sic-src-wrap">
+                        <img class="w-50" src="{{ $image_path }}" alt="">
+                    </div>
 
                 <div class="sic-action-btns d-flex justify-content-md-end justify-content-center flex-wrap">
                     <div class="sic-btn">
@@ -68,32 +66,32 @@
     </div>
 </div>
 
-<!-- Link Asset Modal -->
-<div class="modal fade linkAsset-modal" id="linkAssetModal" tabindex="-1" aria-labelledby="linkAssetModalLabel"
-    aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered  modal-xl modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5" id="linkAssetModalLabel">Link Asset</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="row m-0">
-                    <div class="col-md-12 mb-4">
-                        <h4 class="bold-labels" for="">public access</h4>
-                        {{--<input type="text" value="" id="myInput">
-                        <button onclick="copyToClipboard()">Copy text</button>--}}
+    <!-- Link Asset Modal -->
+    <div class="modal fade linkAsset-modal" id="linkAssetModal" tabindex="-1" aria-labelledby="linkAssetModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered  modal-xl modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="linkAssetModalLabel">Link Asset</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row m-0">
+                        <div class="col-md-12 mb-4">
+                            <h4 class="bold-labels" for="">public access</h4>
+                            {{-- <input type="text" value="" id="myInput">
+                        <button onclick="copyToClipboard()">Copy text</button> --}}
 
-                        <div class="web-link-col">
-                            <div class="row m-0 align-items-center">
-                                <div class="col-9">
-                                    <div class="check-list">
-                                        <span>
-                                            Web Link : <span id="assetLink" style="color:#EB8205"></span>
-                                        </span>
+                            <div class="web-link-col">
+                                <div class="row m-0 align-items-center">
+                                    <div class="col-9">
+                                        <div class="check-list">
+                                            <span>
+                                                Web Link : <span id="assetLink" style="color:#EB8205"></span>
+                                            </span>
+                                        </div>
                                     </div>
-                                </div>
-                                {{--<div class="col-3 text-end">
+                                    {{-- <div class="col-3 text-end">
                                     <button class=" btn copy-web-link p-0" onclick="copyToClipboard()">
                                         <svg width="39" height="39" viewBox="0 0 39 39" fill="none"
                                             xmlns="http://www.w3.org/2000/svg">
@@ -105,71 +103,86 @@
                                                 fill="#EB8205" />
                                         </svg>
                                     </button>
-                                </div>--}}
+                                </div> --}}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-lg-10 col-xl-6 mb-4">
-                        <h4 class="bold-labels">social media access</h4>
-                        <div class="parah">
-                            <p>Click on the icon below and follow the instructions to post your banner
-                                to your social media account.</p>
-                        </div>
-                        <div class="social-links">
-                            <ul>
-                                <li>
-                                    <a id="linkedinShare" href="#" target="_blank">
-                                        <i class="fa-brands fa-linkedin"></i>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a id="facebookShare" href="#" target="_blank">
-                                        <i class="fa-brands fa-facebook"></i>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a id="twitterShare" href="#" target="_blank">
-                                        <i class="fa-brands fa-x-twitter"></i>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a id="redditShare" href="#" target="_blank">
-                                        <i class="fa-brands fa-reddit-alien"></i>
-                                    </a>
-                                </li>
+                        <div class="col-lg-10 col-xl-6 mb-4">
+                            <h4 class="bold-labels">social media access</h4>
+                            <div class="parah">
+                                <p>Click on the icon below and follow the instructions to post your banner
+                                    to your social media account.</p>
+                            </div>
+                            <div class="social-links">
+                                <ul>
+                                    <li>
+                                        <a id="linkedinShare" href="#" target="_blank">
+                                            <i class="fa-brands fa-linkedin"></i>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a id="facebookShare" href="#" target="_blank">
+                                            <i class="fa-brands fa-facebook"></i>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a id="twitterShare" href="#" target="_blank">
+                                            <i class="fa-brands fa-x-twitter"></i>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a id="redditShare" href="#" target="_blank">
+                                            <i class="fa-brands fa-reddit-alien"></i>
+                                        </a>
+                                    </li>
 
-                            </ul>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<div class="modal fade createTask-modal" id="createTask" tabindex="-1" aria-labelledby="exampleModalLabel"
+    <div class="modal fade createTask-modal" id="createTask" tabindex="-1" aria-labelledby="ModalLabel"
         aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel">Create Task
+                    <h1 class="modal-title fs-5">Create Task
                     </h1>
-                    <p class="status green">Active</p>
+                    {{-- <p class="status green">Active</p> --}}
                     <span class="btn-close" data-bs-dismiss="modal" id="cancel" aria-label="Close"></span>
                 </div>
                 <div class="modal-body">
-                    <form action="{{ route('tasks.store') }}" method="POST">
+                    <form id="Model-Form" action="{{ route('tasks.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
-
                         <div class="row m-0">
-                            <div class="col-xl-4">
-                            <select class="form-select" name="campaign_id" required aria-label="Default select example">
-                                @foreach ($campaigns as $campaign)
-                                    <option value="{{ $campaign->id }}" selected>{{ $campaign->name }}</option>
+                            <!-- Campaign Dropdown -->
+                            <div class="col-xl-4 col-md-6">
+                                <select class="form-select" id="campaign-select" name="campaign_id" required
+                                    aria-label="Default select example">
+                                    {{-- <option value="" >Select Campaign</option> --}}
+                                    @foreach ($campaigns as $campaign)
+                                        <option value="{{ $campaign->id }}" >{{ $campaign->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <!-- Partner Dropdown -->
+                            <div class="col-xl-4 col-md-6 mt-md-0 mt-4">
+                                <select class="form-select" id="partner-select" name="partner_id" required
+                                    aria-label="Default select example">
+                                    <option value="" >Select Partner</option>
+                                @foreach ($partners as $partner)
+                                <option value="{{$partner->partner_id}}" >{{$partner->partner->name}}</option>
+
                                 @endforeach
-                            </select>
+                                </select>
                             </div>
                         </div>
+
                         <div class="row m-0">
                             <div class="col-xl-4">
                                 <input type="text" name="name" id="" required placeholder="Task Name">
@@ -192,6 +205,7 @@
                                             </label>
                                         </div>
                                     </div>
+
                                 </div>
 
                             </div>
@@ -199,24 +213,31 @@
                         <div class="row m-0">
                             <div class="col-lg-6 col-xl-4 mb-4 mb-lg-0">
 
-                                <select class="form-select" name="category1"  aria-label="Default select example">
-                                    <option selected>Select Category</option>
+                                <select class="form-select" name="category_id" required aria-label="Default select example">
+                                    <option value="" selected>Select Category</option>
                                     @foreach ($categories as $category)
                                         <option value="{{ $category->id }} ">
                                             {{ $category->category_name }}
                                         </option>
                                     @endforeach
                                 </select>
-                               
-                                
-                                <!-- Hidden input to actually submit the selected category value -->
-
                             </div>
-                            <div class="col-lg-6 col-xl-3 p-xl-0">
+                            <div class="col-lg-6 col-xl-4 mb-4 mb-lg-0">
+
+                                <select class="form-select" name="asset_id" required aria-label="Default select example">
+                                    <option value="" selected>Select Asset</option>
+                                    @foreach ($assets as $asset)
+                                        <option value="{{ $asset->id }} ">
+                                            {{ $asset->type_name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-lg-6 col-xl-3 p-xl-0 sizing-input">
                                 <div class="input-wrap">
-                                    <input type="text" name="size_width" id="size_width" required
+                                    <input type="number" name="size_width" id="size_width" required
                                         placeholder="Size (Width)">
-                                    <input type="text" name="size_height" id="size_height" required
+                                    <input type="number" name="size_height" id="size_height" required
                                         placeholder="Size (Height)">
                                 </div>
                             </div>
@@ -224,34 +245,53 @@
                         <div class="row m-0">
                             <div class="col-md-12">
                                 <label for="">Task Brief</label>
-                                <textarea name="description" required id="description"></textarea>
+                                <textarea name="description" placeholder="Add a description for your Task" required id="description"></textarea>
                             </div>
-                            <span class="info-text">Add a description for your Task</span>
+
+                            {{-- <span class="info-text">Add a description for your Task</span> --}}
+                        </div>
+                        <div class="row m-0">
+                            <div class="col-xl-4">
+                                <div class="input-wrap">
+
+
+                                    <div class="form-group">
+                                        <div class="checkbox checbox-switch switch-success">
+                                            <label>
+                                                <div> Active</div>
+                                                <input type="checkbox" name="is_active" />
+                                                <span></span>
+
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                            </div>
                         </div>
                         <div class="sic-action-btns d-flex justify-content-md-end justify-content-center flex-wrap">
                             <div class="sic-btn">
-                                <button class="btn create-task" id="uploadAsset">
+                                <a class="btn create-task" id="uploadAsset">
                                     upload assets
-                                </button>
-                            </div>
-                            <div class="sic-btn">
-                                <button type="button" class="btn thumbs-up " id="cancel" data-bs-dismiss="modal">Cancel</button>
-                            </div>
-                            <div class="sic-btn">
+                                </a>
                                 <button class="btn download" id="save">
                                     save
                                 </button>
+                                <span class="btn link-asset" data-dismiss="modal" id="cancel"
+                                    aria-label="Close">cancel</span>
                             </div>
+
                         </div>
 
                         <div class="img-upload-con d-none">
-                            <div class="upload--col">
+                            <div class="upload--col w-100">
                                 <div class="drop-zone">
                                     <div class="drop-zone__prompt">
 
                                         <div class="drop-zone_color-txt">
-                                            <span><img src="{{ asset('assets/images/Image.png') }}" alt=""></span> <br />
-                                            <span><img src="{{ asset('assets/images/fi_upload-cloud.svg') }}" alt="Upload Image"> Upload
+                                            <span><img src="assets/images/Image.png" alt=""></span> <br />
+                                            <span><img src="assets/images/fi_upload-cloud.svg" alt=""> Upload
                                                 Image</span>
                                         </div>
 
@@ -265,7 +305,7 @@
 
                                 <!-- <button type="submit" class="primary-btn">Add</button> -->
                             </div>
-                            <div class="additional-img">
+                            {{-- <div class="additional-img">
                                 <label for="">Additional Images</label>
 
                                 <div class="upload--col">
@@ -273,8 +313,8 @@
                                         <div class="drop-zone__prompt">
 
                                             <div class="drop-zone_color-txt">
-                                                <span><img src="{{ asset('assets/images/Image.png') }}" alt=""></span> <br />
-                                                <span><img src="{{ asset('assets/images/fi_upload-cloud.svg') }}" alt="Upload Image"> Upload
+                                                <span><img src="assets/images/Image.png" alt=""></span> <br />
+                                                <span><img src="assets/images/fi_upload-cloud.svg" alt=""> Upload
                                                     Image</span>
                                             </div>
                                         </div>
@@ -283,7 +323,7 @@
 
                                     <!-- <button type="submit" class="primary-btn">Add</button> -->
                                 </div>
-                            </div>
+                            </div> --}}
                         </div>
 
                     </form>
@@ -291,8 +331,6 @@
             </div>
         </div>
     </div>
-   
-
 @endsection
 @section('script')
 <script>
@@ -330,25 +368,43 @@ $(document).ready(function () {
 document.addEventListener('DOMContentLoaded', () => {
     const buttons = document.querySelectorAll('.download');
 
-    buttons.forEach(button => {
-        button.addEventListener('click', () => {
-            const imageUrl = button.getAttribute('data-url');
-            
-            // Create a temporary <a> element
-            const link = document.createElement('a');
-            link.href = imageUrl;
-            link.setAttribute('download', '');
-            
-            // Append to the document and trigger the download
-            document.body.appendChild(link);
-            link.click();
-            
-            // Cleanup the temporary <a> element
-            document.body.removeChild(link);
-        });
-    });
-});
+            buttons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const imageUrl = button.getAttribute('data-url');
 
+                    // Create a temporary <a> element
+                    const link = document.createElement('a');
+                    link.href = imageUrl;
+                    link.setAttribute('download', '');
+
+                    // Append to the document and trigger the download
+                    document.body.appendChild(link);
+                    link.click();
+
+                    // Cleanup the temporary <a> element
+                    document.body.removeChild(link);
+                });
+            });
+        });
+
+function openLinkModal(publicUrl,description) {
+    console.log(publicUrl);
+    console.log(description);
+    
+    $('#assetLink').text(publicUrl);
+    
+    var encodedDescription = encodeURIComponent(description || "Check out this image!");
+    var encodedUrl = encodeURIComponent(publicUrl);
+
+    console.log("Public URL: ", publicUrl); // Check if URL is valid
+    console.log("Encoded URL: ", encodedUrl); // Check the encoded URL
+    
+    $('#linkedinShare').attr('href', `https://www.linkedin.com/shareArticle?mini=true&url=${encodedUrl}&summary=${encodedDescription}&title=${encodedDescription}`);
+    $('#facebookShare').attr('href', `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}&quote=${encodedDescription}`);
+    $('#twitterShare').attr('href', `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedDescription}`);
+    $('#redditShare').attr('href',`https://www.reddit.com/submit?url=${encodeURIComponent(publicUrl)}`);
+
+    $('#linkAssetModal').modal('show');
+}
 </script>
 @endsection
-

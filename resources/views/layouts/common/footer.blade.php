@@ -27,9 +27,39 @@
     }
 
     // Handle modal cancel button
-    // $('#cancel, #model-close').on('click', function() {
-    //     location.reload();
-    // });
+    $(document).ready(function() {
+        $('#cancel, #model-close').click(function() {
+
+            // Reset the form
+            $('#Model-Form')[0].reset(); // This will close the modal
+            $('.modal.fade').modal('hide');
+            
+
+        });
+    });
+    $('#createButton').on('click', function () {
+    const form = document.getElementById('campaignForm');
+    form.reset(); // Clear form fields
+
+    form.action = '/campaigns'; // Set the action for creating
+    document.getElementById('campaignMethod').value = 'POST'; // Change method to POST
+
+    // Clear dropdowns
+    document.getElementById('client').value = '';
+    document.getElementById('clientGroup').value = '';
+
+    // Hide active/inactive headers
+    document.getElementById('active_header_block').style.display = 'none';
+    document.getElementById('inactive_header_block').style.display = 'none';
+
+    // Hide existing image
+    document.getElementById('existingImageDiv').style.display = 'none';
+
+    // Open the modal
+    $('#createcampaign').modal('show');
+});
+
+
 
     // Initialize Bootstrap modals with static backdrop
     $('.modal.fade').each(function() {

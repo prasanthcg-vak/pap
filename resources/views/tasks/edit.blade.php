@@ -16,7 +16,7 @@
     <div class="container">
         <h1>{{ isset($task) ? 'Edit Task' : 'Create Task' }}</h1>
 
-        <form action="{{ isset($task) ? route('tasks.update', $task->id) : route('tasks.store') }}" method="POST">
+        <form id="Model-Form" action="{{ isset($task) ? route('tasks.update', $task->id) : route('tasks.store') }}" method="POST">
             @if ($errors->any())
                 <div class="alert alert-danger">
                     <ul>

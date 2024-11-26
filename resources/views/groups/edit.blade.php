@@ -1,6 +1,6 @@
 <!-- resources/views/groups/edit.blade.php -->
 <h1>Edit Group</h1>
-<form action="{{ route('groups.update', $group->id) }}" method="POST">
+<form id="Model-Form" action="{{ route('groups.update', $group->id) }}" method="POST">
     @csrf
     @method('PUT')
     <label>Client Group Name:</label>

@@ -325,7 +325,7 @@
                     <div class="title_status mt-3">
                         <h3>COMMENTS</h3>
                     </div>
-                    <form action="{{ route('comments.store') }}" method="POST">
+                    <form id="Model-Form" action="{{ route('comments.store') }}" method="POST">
                         @csrf
                         <input type="hidden" name="task_id" value="{{ $task->id }}">
                         <div class="comments-header">
@@ -372,7 +372,7 @@
                                                         <p>{{ $comment->content }}</p>
 
                                                         <!-- Display replies -->
-                                                        <form action="{{ route('comments.store') }}" method="POST"
+                                                        <form id="Model-Form" action="{{ route('comments.store') }}" method="POST"
                                                             class="mt-2">
                                                             @csrf
                                                             <input type="hidden" name="task_id"
@@ -555,7 +555,7 @@
         <div class="container">
             <h2>Comments for Task: {{ $task->name }}</h2>
 
-            <form action="{{ route('comments.store') }}" method="POST">
+            <form id="Model-Form" action="{{ route('comments.store') }}" method="POST">
                 @csrf
                 <input type="hidden" name="task_id" value="{{ $task->id }}">
                 <div class="form-group">
@@ -572,7 +572,7 @@
                         <p>{{ $comment->content }}</p>
 
                         <!-- Reply form -->
-                        <form action="{{ route('comments.store') }}" method="POST" class="mt-2">
+                        <form id="Model-Form" action="{{ route('comments.store') }}" method="POST" class="mt-2">
                             @csrf
                             <input type="hidden" name="task_id" value="{{ $task->id }}">
                             <input type="hidden" name="parent_id" value="{{ $comment->id }}">
@@ -616,7 +616,7 @@
                     <button type="button" class="btn-close" id="model-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form action="{{ route('tasks.update', $task->id) }}" method="POST" enctype="multipart/form-data">
+                    <form id="Model-Form" action="{{ route('tasks.update', $task->id) }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         @method('PUT') <!-- Use PUT for update requests -->
     
