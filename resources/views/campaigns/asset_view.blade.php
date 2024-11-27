@@ -44,11 +44,12 @@
                     </div>
                     @if($campStatus === 1)                        
                         <div class="sic-btn">
-                            {{-- <button class="btn link-asset"  onclick="openLinkModal('{{ $image_path }}','{{ $campDescription }}')">
+                            {{-- <button class="btn link-asset"  onclick="openLinkModal('{{ $post_id }},{{ $image_path }}','{{ $campDescription }}')">
                                 link asset
                             </button> --}}
                             <button class="btn link-asset" 
                                     data-url="{{ $image_path }}" 
+                                    data-postid="{{ $post_id }}" 
                                     data-description="{{ $campDescription }}">
                                 link asset
                             </button>
@@ -79,9 +80,6 @@
                     <div class="row m-0">
                         <div class="col-md-12 mb-4">
                             <h4 class="bold-labels" for="">public access</h4>
-                            {{-- <input type="text" value="" id="myInput">
-                        <button onclick="copyToClipboard()">Copy text</button> --}}
-
                             <div class="web-link-col">
                                 <div class="row m-0 align-items-center">
                                     <div class="col-9">
@@ -135,7 +133,12 @@
                                             <i class="fa-brands fa-reddit-alien"></i>
                                         </a>
                                     </li>
-
+                                    <li>
+                                        <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ urlencode(route('posts.share', $post_id)) }}" 
+                                        id="ldShare" target="_blank">
+                                            Share on LinkedIn
+                                        </a>
+                                    </li>
                                 </ul>
                             </div>
                         </div>
@@ -278,7 +281,7 @@
                                 <button class="btn download" id="save">
                                     save
                                 </button>
-                                <span class="btn link-asset" data-dismiss="modal" id="cancel"
+                                <span class="btn cancel-btn" data-dismiss="modal" id="cancel"
                                     aria-label="Close">cancel</span>
                             </div>
 
@@ -325,7 +328,6 @@
                                 </div>
                             </div> --}}
                         </div>
-
                     </form>
                 </div>
             </div>
@@ -337,6 +339,7 @@
 $(document).ready(function () {
     $('.btn.link-asset').on('click', function () {
         const url = $(this).data('url');
+        // const image_id = $(this).data('id');
         const description = $(this).data('description');
         openLinkModal(url, description);
     });
