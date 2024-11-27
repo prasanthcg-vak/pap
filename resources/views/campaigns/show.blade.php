@@ -91,12 +91,19 @@
                                 @if (!empty($imageUrls) && count($imageUrls) > 0)
                                     <div class="owl-carousel owl-theme">
                                         @foreach ($imageUrls as $img)
+                                            @php
+                                                $thumbnail = match($img['image_type']) {
+                                                    'image' => $img['url'],
+                                                    'video' => asset('assets/images/video.png'),
+                                                    default => asset('assets/images/document.png'),
+                                                };
+                                            @endphp
                                             <div class="item py-3">
                                             <a href="{{ route('campaigns.assetsview', ['id' => $img['image_id']]) }}" >
                                                     <div class="card-img_text">
                                                         <div class="Detail-card-image">
-                                                            <img src="{{$img['url']}}"
-                                                                alt="automated-prompt-generation" class="w-100">
+                                                            <img src="{{ $thumbnail }}"
+                                                                alt="{{ $img['name'] }}" class="w-100">
                                                         </div>
                                                         {{-- <div class="crew-mark cross">
                                                             <svg width="12" height="12" viewBox="0 0 12 12" fill="none"
