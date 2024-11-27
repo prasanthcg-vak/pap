@@ -321,7 +321,7 @@ $(document).ready(function () {
           partnerDropdown.prop('disabled', false);
           if (Array.isArray(data) && data.length > 0) {
             data.forEach(function (partner) {
-              partnerDropdown.append(`<option value="${partner.id}">${partner.user.name}</option>`);
+              partnerDropdown.append(`<option value="${partner.user.id}">${partner.user.name}</option>`);
               $('.selectpicker').selectpicker('refresh');
 
             });

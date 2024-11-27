@@ -37,7 +37,7 @@ class CampaignsController extends Controller
         // dd($client_id);
         $groups = [];
         if ($role_level > 3) {
-            $groups = ClientGroup::where("client_id",$client_id)->get();
+            $groups = ClientGroup::where("client_id", $client_id)->get();
             // dd($groups);
         }
         // $campaigns = Campaigns::with('image')->where('is_active', 1)->get();
@@ -52,7 +52,7 @@ class CampaignsController extends Controller
         // dd($partners);
         $sideBar = 'dashboard';
         $title = 'dashboard';
-        return view('campaigns.index', compact('campaigns', 'partners', 'clients','role_level','groups','client_id'));
+        return view('campaigns.index', compact('campaigns', 'partners', 'clients', 'role_level', 'groups', 'client_id'));
     }
 
     /**
@@ -78,6 +78,7 @@ class CampaignsController extends Controller
     public function store(Request $request)
     {
 
+        // dd($request->all());
 
         $request->validate(
             [
@@ -185,7 +186,7 @@ class CampaignsController extends Controller
             foreach ($request->related_partner as $partner) {
                 $data = new CampaignPartner();
                 $data->campaigns_id = $id;
-                $data->partner_id = $partner;
+                $data->partner_id = (int) $partner;
                 $data->save();
             }
         }
@@ -201,7 +202,7 @@ class CampaignsController extends Controller
         $campaign = Campaigns::findOrFail($id);
         $tasks = Tasks::with('status')->where('campaign_id', $id)->get();
 
-        $images = Image::where('campaign_id', $id)->get(['id','file_name', 'path']);
+        $images = Image::where('campaign_id', $id)->get(['id', 'file_name', 'path']);
 
         // Retrieve the URLs for each image
         $imageUrls = $images->map(function ($image) {
@@ -350,18 +351,18 @@ class CampaignsController extends Controller
 
         // return view('campaigns.index', compact('title', 'sideBar'));
     }
-    
+
     public function assetsView(string $id)
     {
 
         $categories = Category::where('is_active', 1)->get();
         $assets = AssetType::where('is_active', 1)->get();
-        
+
         $previousUrl = URL::previous();
         $categories = Category::where('is_active', 1)->get();
         $image = Image::findOrFail($id);
         $campaigns = Campaigns::with('image')->where('id', $image->campaign_id)->get();
-        $partners = CampaignPartner::where('campaigns_id',$id)->with('partner')->get();
+        $partners = CampaignPartner::where('campaigns_id', $id)->with('partner')->get();
         // dd($partners);
         $returnUrl = 'campaigns';
         if (str_contains(parse_url($previousUrl, PHP_URL_PATH), 'home')) {
@@ -377,7 +378,7 @@ class CampaignsController extends Controller
             $fileExtension = pathinfo($image->path, PATHINFO_EXTENSION); // Get the file extension
             $fileSizeKB = round($fileSize / 1024, 2);
             $campDescription = $campaigns[0]['description'];
-            $campStatus =  $campaigns[0]['is_active'];
+            $campStatus = $campaigns[0]['is_active'];
             $campId = $campaigns[0]['id'];
         } else {
             $image_path = null;
@@ -389,7 +390,7 @@ class CampaignsController extends Controller
             $campId = "";
         }
 
-        return view('campaigns.asset_view', compact('returnUrl','campaigns', 'image_path', 'categories', 'fileExtension', 'fileSizeKB', 'campDescription','campStatus','campId', 'categories', 'assets','partners'));
+        return view('campaigns.asset_view', compact('returnUrl', 'campaigns', 'image_path', 'categories', 'fileExtension', 'fileSizeKB', 'campDescription', 'campStatus', 'campId', 'categories', 'assets', 'partners'));
     }
 
     public function getClientGroups($clientId)
