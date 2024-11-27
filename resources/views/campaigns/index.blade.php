@@ -404,10 +404,10 @@
 
             if (!Array.from(groupDropdown.options).some(option => option.value == campaign.group_id)) {
                 const newGroupOption = document.createElement('option');
-                newGroupOption.value = campaign.group_id;
-                newGroupOption.textContent = `Group ${campaign.group_id}`; // Customize based on your data
+                newGroupOption.value = campaign.Client_group_id;
+                newGroupOption.textContent = `Group ${campaign.Client_group_id}`; // Customize based on your data
                 groupDropdown.appendChild(newGroupOption);
-                groupDropdown.value = campaign.group_id;
+                groupDropdown.value = campaign.Client_group_id;
             }
 
 

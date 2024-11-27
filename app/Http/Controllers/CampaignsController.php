@@ -39,7 +39,7 @@ class CampaignsController extends Controller
         // dd($client_id);
         $groups = [];
         if ($role_level > 3) {
-            $groups = ClientGroup::where("client_id",$client_id)->get();
+            $groups = ClientGroup::where("client_id", $client_id)->get();
             // dd($groups);
         }
         // $campaigns = Campaigns::with('image')->where('is_active', 1)->get();
@@ -54,7 +54,7 @@ class CampaignsController extends Controller
         // dd($partners);
         $sideBar = 'dashboard';
         $title = 'dashboard';
-        return view('campaigns.index', compact('campaigns', 'partners', 'clients','role_level','groups','client_id'));
+        return view('campaigns.index', compact('campaigns', 'partners', 'clients', 'role_level', 'groups', 'client_id'));
     }
 
     /**
@@ -80,6 +80,7 @@ class CampaignsController extends Controller
     public function store(Request $request)
     {
 
+        // dd($request->all());
 
         $request->validate(
             [
@@ -187,7 +188,7 @@ class CampaignsController extends Controller
             foreach ($request->related_partner as $partner) {
                 $data = new CampaignPartner();
                 $data->campaigns_id = $id;
-                $data->partner_id = $partner;
+                $data->partner_id = (int) $partner;
                 $data->save();
             }
         }
@@ -353,13 +354,13 @@ class CampaignsController extends Controller
 
         // return view('campaigns.index', compact('title', 'sideBar'));
     }
-    
+
     public function assetsView(string $id)
     {
 
         $categories = Category::where('is_active', 1)->get();
         $assets = AssetType::where('is_active', 1)->get();
-        
+
         $previousUrl = URL::previous();
         $categories = Category::where('is_active', 1)->get();
         $image = Image::findOrFail($id);
@@ -397,7 +398,7 @@ class CampaignsController extends Controller
             $fileExtension = pathinfo($image->path, PATHINFO_EXTENSION); // Get the file extension
             $fileSizeKB = round($fileSize / 1024, 2);
             $campDescription = $campaigns[0]['description'];
-            $campStatus =  $campaigns[0]['is_active'];
+            $campStatus = $campaigns[0]['is_active'];
             $campId = $campaigns[0]['id'];
         } else {
             $image_path = null;
