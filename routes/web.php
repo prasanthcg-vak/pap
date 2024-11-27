@@ -136,6 +136,9 @@ Route::get('/get-partners-by-campaign/{campaignId}', [TasksController::class, 'g
 
 });
 
+Route::get('/share/{post}', [PostController::class, 'share'])->name('posts.share');
+
+
 // Clear application cache
 Route::get('/clear-cache', function () {
     Artisan::call('cache:clear');

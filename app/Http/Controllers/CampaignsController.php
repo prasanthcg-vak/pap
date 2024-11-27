@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\AssetType;
-use Illuminate\Support\Facades\URL;
 use App\Models\Campaigns;
 use App\Models\Category;
 use App\Models\Client;
@@ -12,13 +11,16 @@ use App\Models\ClientGroupPartners;
 use App\Models\ClientPartner;
 use App\Models\Status;
 use App\Models\Tasks;
+use App\Models\Post;
+use App\Models\Image;
 use Illuminate\Http\Request;
 use App\Models\UserPermissions;
 use App\Models\CampaignPartner;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use App\Models\Image;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Aws\S3\S3Client;
 use Exception;
@@ -363,6 +365,22 @@ class CampaignsController extends Controller
         $image = Image::findOrFail($id);
         $campaigns = Campaigns::with('image')->where('id', $image->campaign_id)->get();
         $partners = CampaignPartner::where('campaigns_id',$id)->with('partner')->get();
+
+        // Enable query logging
+        DB::enableQueryLog();
+
+        $post = Post::create([
+            'description' =>$campaigns[0]['description'],
+            'file_path' => Storage::disk('backblaze')->url($image->path),
+        ]);
+        $post_id = $post->id;
+
+        // Get the query log
+        $queries = DB::getQueryLog();
+
+        // Log the query to the Laravel log
+        logger()->info('SQL Query:', $queries);
+
         // dd($partners);
         $returnUrl = 'campaigns';
         if (str_contains(parse_url($previousUrl, PHP_URL_PATH), 'home')) {
@@ -371,6 +389,7 @@ class CampaignsController extends Controller
 
         // $campaigns = Campaigns::with('image')->where('is_active', 1)->where('id', $id)->first();
         if ($image && $campaigns->isNotEmpty()) {
+            $post_id = $post_id;
             $image_path = Storage::disk('backblaze')->url($image->path);
             // Get file type and size
             $fileType = Storage::disk('backblaze')->mimeType($image->path);
@@ -388,9 +407,10 @@ class CampaignsController extends Controller
             $campDescription = "";
             $campStatus = null;
             $campId = "";
+            $post_id = "";
         }
 
-        return view('campaigns.asset_view', compact('returnUrl','campaigns', 'image_path', 'categories', 'fileExtension', 'fileSizeKB', 'campDescription','campStatus','campId', 'categories', 'assets','partners'));
+        return view('campaigns.asset_view', compact('post_id','returnUrl','campaigns', 'image_path', 'categories', 'fileExtension', 'fileSizeKB', 'campDescription','campStatus','campId', 'categories', 'assets','partners'));
     }
 
     public function getClientGroups($clientId)
