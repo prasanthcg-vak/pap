@@ -18,7 +18,6 @@ use App\Http\Controllers\LibraryController;
 
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ClientGroupController;
-use App\Http\Controllers\PostController;
 // use App\Http\Controllers\ClientUserController;
 
 
@@ -132,9 +131,9 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/images', [ImageController::class, 'destroy'])->name('images.delete');
 
     Route::get('/get-client-groups/{clientId}', [CampaignsController::class, 'getClientGroups']);
-Route::get('/get-partners/{groupId}', [CampaignsController::class, 'getPartners']);
-Route::get('/get-partners-by-campaign/{campaignId}', [TasksController::class, 'getPartnersByCampaign']);
-Route::get('/pdf/{filename}', [CampaignsController::class, 'showPdf'])->name('show-pdf');
+    Route::get('/get-partners/{groupId}', [CampaignsController::class, 'getPartners']);
+    Route::get('/get-partners-by-campaign/{campaignId}', [TasksController::class, 'getPartnersByCampaign']);
+    Route::get('/pdf/{filename}', [CampaignsController::class, 'showPdf'])->name('show-pdf');
 
     Route::post('/user/{id}/resend-email', [UserController::class, 'resendEmail'])->name('user.resend-email');
 
