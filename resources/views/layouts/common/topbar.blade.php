@@ -3,9 +3,9 @@
         <div class="container-fluid">
             <div class="logo_title">
                 <a class="navbar-brand" href="/home">
-                    <img src="{{ asset('/assets/images/New-CMLogo.svg') }}" alt="logo" href="#" class="img-fluid">
+                    <img src="{{ asset('/assets/images/NewCMLogo2024.svg') }}" alt="logo" href="#" class="img-fluid">
                 </a>
-                <span>Partner Asset Portal</span>
+                <span>Digital Asset Portall</span>
             </div>
 
             <div class="profile-image">

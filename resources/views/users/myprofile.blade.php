@@ -288,7 +288,7 @@
                         aria-label="Close">
                 </div>
                 <div class="modal-body">
-                    <form id="Model-Form" action="{{ route('password.update') }}" method="POST">
+                    <form id="Model-Form" action="{{ route('password.change') }}" method="POST">
                         @csrf
                         @method('PUT')
                         <div class="row m-0">
