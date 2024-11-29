@@ -11,12 +11,18 @@
 <script src="https://cdn.datatables.net/responsive/3.0.3/js/dataTables.responsive.min.js"></script>
 <script src="https://cdn.datatables.net/responsive/3.0.3/js/responsive.bootstrap5.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
-
+<script type="importmap">
+    {
+        "imports": {
+            "ckeditor5": "https://cdn.ckeditor.com/ckeditor5/43.3.1/ckeditor5.js",
+            "ckeditor5/": "https://cdn.ckeditor.com/ckeditor5/43.3.1/"
+        }
+    }
+</script>
 
 <script>
     new DataTable('#datatable');
-</script>
-<script>
+ 
     var uploadAsset = document.getElementById('uploadAsset');
     if (uploadAsset) {
 
@@ -88,6 +94,7 @@
 
 <!-- Your custom scripts -->
 <script src="{{ asset('assets/js/main.js') }}"></script>
+<script type="module"  src="{{ asset('assets/js/ckeditor5.js') }}"></script>
 
 @yield('script')
 
