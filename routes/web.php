@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CampaignsController;
 use App\Http\Controllers\GroupController;
+use App\Http\Controllers\PostController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\RolePermissionController;
@@ -108,7 +109,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/myprofile', [UserController::class, 'myprofile'])->name('myprofile')->middleware('permission:myprofile.view');
     Route::put('/profile', [UserController::class, 'updateprofile'])->name('profile.update')->middleware('permission:myprofile.update');
 
-    Route::put('/password/update', [UserController::class, 'updatepassword'])->name('password.update');
+    Route::put('/password/change', [UserController::class, 'updatepassword'])->name('password.change');
 
     // Client Routes
     Route::get('/clients', [ClientController::class, 'index'])->name('clients.index')->middleware('permission:clients.index');
@@ -130,8 +131,10 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/images', [ImageController::class, 'destroy'])->name('images.delete');
 
     Route::get('/get-client-groups/{clientId}', [CampaignsController::class, 'getClientGroups']);
-Route::get('/get-partners/{groupId}', [CampaignsController::class, 'getPartners']);
-Route::get('/get-partners-by-campaign/{campaignId}', [TasksController::class, 'getPartnersByCampaign']);
+    Route::get('/get-partners/{groupId}', [CampaignsController::class, 'getPartners']);
+    Route::get('/get-partners-by-campaign/{campaignId}', [TasksController::class, 'getPartnersByCampaign']);
+
+    Route::post('/user/{id}/resend-email', [UserController::class, 'resendEmail'])->name('user.resend-email');
 
 
 });

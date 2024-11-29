@@ -17,7 +17,7 @@
             <div class="col-lg-8">
                 <div class="bg-signin">
                     <div class="cm-logo">
-                        <img src="{{ asset('/assets/images/New-CMLogo.svg') }}" alt="logo" class="img-fluid">
+                        <img src="{{ asset('/assets/images/NewCMLogo2024.svg') }}" alt="logo" class="img-fluid">
                     </div>
                     <div class="cm-signin-form">
                         <div class="user-login-fields">
@@ -28,7 +28,7 @@
                     <form method="POST" action="{{ route('password.email') }}">
                         @csrf
                        
-                                 <h2 class="signin-title">Partner Asset Portal</h2>
+                                 <h2 class="signin-title">Digital Asset Portall</h2>
                                     <p class="sub-text">Reset Password</p>
                                     <p class="error_input" style="color: red; text-align: center;"></p>
                                     <div class="email-field">
