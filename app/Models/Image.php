@@ -26,4 +26,9 @@ class Image extends Model
         return $this->belongsTo(Campaigns::class, 'campaign_id');
     }
 
+    public function posts()
+    {
+        return $this->hasMany(Post::class, 'image_id');
+    }
+
 }

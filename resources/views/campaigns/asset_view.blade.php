@@ -10,7 +10,6 @@
                         <h3>ASSET #01</h3>
                         <p class="status green">Active</p>
                     </div>
-
                     <div class="sic-img-info">
                         <ul class="list-unstyled p-0 m-0 d-flex flex-column flex-md-row align-items-md-center flex-wrap">
                             <li>
@@ -20,11 +19,18 @@
                             <li> <span> Size: {{ $fileSizeKB }}kb</span></li>
                         </ul>
                     </div>
-
                     <div class="sic-src-wrap">
-                        <img class="w-50" src="{{ $image_path }}" alt="">
+                        @if($fileType == 'image')
+                            <img class="w-50" src="{{ $image_path }}" alt="">
+                        @elseif($fileType == 'video')
+                            <video width="640" height="360" controls>
+                                <source src="{{ $image_path }}" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        @else
+                            <img src="{{ asset('assets/images/document.png') }}" alt="Pdf document" style="width: 25%;">
+                        @endif
                     </div>
-
                 <div class="sic-action-btns d-flex justify-content-md-end justify-content-center flex-wrap">
                     <div class="sic-btn">
                         @if($returnUrl == 'home')
@@ -136,7 +142,15 @@
                                     <li>
                                         <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ urlencode(route('posts.share', $post_id)) }}" 
                                         id="ldShare" target="_blank">
-                                            Share on LinkedIn
+                                        <i class="fa-brands fa-linkedin"></i>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a 
+                                            href="https://twitter.com/intent/tweet?text={{ urlencode($campDescription . ' ' . $image_path) }}" 
+                                            target="_blank"
+                                            class="btn btn-primary">
+                                            <i class="fa-brands fa-x-twitter"></i>
                                         </a>
                                     </li>
                                 </ul>
