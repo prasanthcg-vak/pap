@@ -50,21 +50,32 @@
                                         @endforeach
                                     </td>
                                     <td>
-                                        <span><p class="status {{ $user->is_active ? 'green' : 'red' }}">
-                                    {{ $user->is_active ? 'Active' : 'Inactive' }}</p></span>
-                                    </td>  
+                                        <span>
+                                            <p class="status {{ $user->is_active ? 'green' : 'red' }}">
+                                                {{ $user->is_active ? 'Active' : 'Inactive' }}</p>
+                                        </span>
+                                    </td>
                                     @if ($edit || $delete)
                                         <td>
-                                            
+
                                             @if ($edit)
                                                 <a href="#" class="btn search"
                                                     onclick="editUser({{ json_encode($user) }})">
                                                     <i class="fa-solid fa-pencil"></i>
                                                 </a>
                                             @endif
+                                            {{-- <a href="#"
+                                                class="btn search  align-items-center justify-content-center"
+                                                onclick="resendMail({{ $user->id }}, this)">
+                                                <span class="spinner-border spinner-border-sm me-2 d-none" role="status"
+                                                    aria-hidden="true"></span>
+                                                Resend Mail
+                                            </a> --}}
+
+
                                             @if ($delete)
-                                                <form id="Model-Form" action="{{ route('users.destroy', $user->id) }}" method="POST"
-                                                    class="d-inline-block"
+                                                <form id="Model-Form" action="{{ route('users.destroy', $user->id) }}"
+                                                    method="POST" class="d-inline-block"
                                                     onsubmit="return confirm('Are you sure you want to delete this user?');">
                                                     @csrf
                                                     @method('DELETE')
@@ -329,6 +340,37 @@
             }
 
             toast.show();
+        }
+    </script>
+    <script>
+        function resendMail(userId, button) {
+            const spinner = button.querySelector('.spinner-border');
+
+            // Show the spinner
+            spinner.classList.remove('d-none');
+            button.setAttribute('disabled', true); // Disable the button to prevent multiple clicks
+
+            fetch(`/user/${userId}/resend-email`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json',
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.success);
+                    } else {
+                        alert(data.error || 'Failed to resend email.');
+                    }
+                })
+                .catch(err => console.error(err))
+                .finally(() => {
+                    // Hide the spinner and re-enable the button
+                    spinner.classList.add('d-none');
+                    button.removeAttribute('disabled');
+                });
         }
     </script>
 @endsection

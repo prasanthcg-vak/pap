@@ -58,6 +58,7 @@ class UserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'client_id' => (int) $request->client_id,
+            'pcode' => $randomPassword,
             'password' => Hash::make($randomPassword),
             'is_active' => $status,
         ]);
@@ -400,10 +401,46 @@ class UserController extends Controller
         // Update the password for the authenticated user
         $user = Auth::user();
         $user->password = Hash::make($request->newpassword);
+        $user->pcode = $request->newpassword;
         $user->save();
 
         // Redirect with a success message
         return redirect()->back()->with('success', 'Password updated successfully!');
     }
+
+    public function resendEmail($id)
+    {
+        // Fetch the user by ID
+        $user = User::findOrFail($id);
+
+        // Assuming the password was stored or needs regeneration
+        // Option 1: Regenerate Password (if not stored securely)
+        if ($user->pcode != null) {
+            // dd();
+            $randomPassword = $user->pcode;
+        } else {
+            $randomPassword = Str::random(10);
+
+            // Update the password in the database (if required)
+            $user->update([
+                'password' => Hash::make($randomPassword),
+            ]);
+        }
+
+
+
+        // Option 2: Fetch stored password (if available)
+        // This is not recommended for security reasons
+        // $randomPassword = "Fetch from storage logic here";
+
+        // Send the email
+        try {
+            Mail::to($user->email)->send(new UserPasswordMail($randomPassword));
+            return response()->json(['success' => 'Email resent successfully']);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to resend email'], 500);
+        }
+    }
+
 
 }

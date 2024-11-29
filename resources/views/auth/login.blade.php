@@ -9,13 +9,14 @@
                 <div class="col-lg-8">
                     <div class="bg-signin">
                         <div class="cm-logo">
-                            <img src="{{ asset('/assets/images/New-CMLogo.svg') }}" alt="logo" class="img-fluid">
+                            <img src="{{ asset('/assets/images/NewCMLogo2024.svg') }}" alt="logo" class="img-fluid">
+                            
                         </div>
                         <div class="cm-signin-form">
                             <div class="user-login-fields">
                                 <form method="POST" action="{{ route('login') }}" id="data-form" class="login-form">
                                     @csrf
-                                    <h2 class="signin-title">Partner Asset Portal</h2>
+                                    <h2 class="signin-title">Digital Asset Portal</h2>
                                     <p class="sub-text">Login into your account</p>
                                     <p class="error_input text-center text-danger"></p>
 
@@ -78,7 +79,7 @@
                                 Top Notch Stock Resources
                             </a>
                         </div>
-                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry.</p>
+                        {{-- <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry.</p> --}}
                     </div>
                 </div>
             </div>

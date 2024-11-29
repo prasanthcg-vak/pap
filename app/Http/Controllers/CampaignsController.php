@@ -204,7 +204,7 @@ class CampaignsController extends Controller
         $campaign = Campaigns::findOrFail($id);
         $tasks = Tasks::with('status')->where('campaign_id', $id)->get();
 
-        $images = Image::where('campaign_id', $id)->get(['id','file_name', 'path','file_type']);
+        $images = Image::where('campaign_id', $id)->get(['id', 'file_name', 'path', 'file_type']);
 
         // Retrieve the URLs for each image
         $imageUrls = $images->map(function ($image) {
@@ -365,13 +365,15 @@ class CampaignsController extends Controller
         $categories = Category::where('is_active', 1)->get();
         $image = Image::findOrFail($id);
         $campaigns = Campaigns::with('image')->where('id', $image->campaign_id)->get();
-        $partners = CampaignPartner::where('campaigns_id',$id)->with('partner')->get();
+        $partners = CampaignPartner::where('campaigns_id', $image->campaign_id)->whereHas('partner.roles', function ($query) {
+            $query->where('role_level', 6);
+        })->with('partner')->get();
 
         // Enable query logging
         DB::enableQueryLog();
 
         $post = Post::create([
-            'description' =>$campaigns[0]['description'],
+            'description' => $campaigns[0]['description'],
             'file_path' => Storage::disk('backblaze')->url($image->path),
         ]);
         $post_id = $post->id;
@@ -411,7 +413,7 @@ class CampaignsController extends Controller
             $post_id = "";
         }
 
-        return view('campaigns.asset_view', compact('post_id','returnUrl','campaigns', 'image_path', 'categories', 'fileExtension', 'fileSizeKB', 'campDescription','campStatus','campId', 'categories', 'assets','partners'));
+        return view('campaigns.asset_view', compact('post_id', 'returnUrl', 'campaigns', 'image_path', 'categories', 'fileExtension', 'fileSizeKB', 'campDescription', 'campStatus', 'campId', 'categories', 'assets', 'partners'));
     }
 
     public function getClientGroups($clientId)
