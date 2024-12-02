@@ -12,8 +12,9 @@ if (addMoreBtn) {
               <div class="drop-zone__prompt">
                   <div class="drop-zone_color-txt">
                       <span><img src="assets/images/Image.png" alt=""></span> <br />
-                      <span><img src="assets/images/fi_upload-cloud.svg" alt=""> Upload Image</span>
-                  </div>
+                      <span style="font-size:14px;"><img src="assets/images/fi_upload-cloud.svg" alt=""> Upload Asset</span>
+                      <span style="font-size:10px;">(PDF, DOC, JPG, PNG, EPS, PSD, AI).</span>
+                      </div>
               </div>
               <input type="file" name="additional_images[]" class="drop-zone__input">
 
@@ -190,20 +191,32 @@ $(document).ready(function () {
   });
 });
 
-// Function to toggle the visibility of the Group section
 function toggleGroupSection() {
   const roleSelect = $('#role_id'); // Select role dropdown using jQuery
   const groupSection = $('#group-section'); // Select group section using jQuery
+  const clientSection = $('#client-section'); // Select client section using jQuery
+  const clientDropdown = $('#client_id_inUser'); // Client dropdown
+  const groupDropdown = $('#group_id'); // Group dropdown
 
   if (roleSelect.length) { // Check if roleSelect exists
-    // Show/Hide group section based on the selected role
+    // Reset the client and group dropdowns
+    clientDropdown.val('').change(); // Reset client dropdown and trigger change event
+    groupDropdown.empty().append('<option value="" disabled selected>Select Client Group</option>').prop('disabled', true); // Reset group dropdown
+
+    // Show/Hide sections based on the selected role
     if (roleSelect.val() == 4 || roleSelect.val() == 5) {
-      groupSection.show(); // Show Group section
+      clientSection.show(); // Show client section
+      groupSection.hide(); // Hide group section
+    } else if (roleSelect.val() == 6) {
+      clientSection.show(); // Show client section
+      groupSection.show(); // Show group section
     } else {
-      groupSection.hide(); // Hide Group section
+      clientSection.hide(); // Hide client section
+      groupSection.hide(); // Hide group section
     }
   }
 }
+
 
 // Attach the event listener to the role dropdown
 $(document).ready(function () {
@@ -301,6 +314,42 @@ $(document).ready(function () {
         }
       });
     }
+  });
+  $('#client_id_inUser').on('change', function () {
+    let clientId = $(this).val();
+    let role_id = $('#role_id').val();
+    if (role_id == 6) {
+      let clientGroupDropdown = $('#group_id');
+      $('#modalLoader').show();
+
+      // Reset subsequent dropdowns
+      clientGroupDropdown.empty().append('<option value="">-- Select Client Group --</option>').prop('disabled', true);
+
+      if (clientId) {
+        $.ajax({
+          url: `/get-client-groups/${clientId}`, // Laravel route for client groups
+          type: 'GET',
+          success: function (data) {
+            clientGroupDropdown.prop('disabled', false);
+            data.forEach(function (group) {
+              clientGroupDropdown.append(`<option value="${group.id}">${group.name}</option>`);
+            });
+            // $('#clientGroupLoader').hide();
+            $('#modalLoader').hide();
+
+
+          },
+          error: function () {
+            alert('Failed to fetch client groups. Please try again.');
+            // $('#clientGroupLoader').hide();
+            $('#modalLoader').hide();
+
+
+          }
+        });
+      }
+    }
+
   });
 
   // When client group dropdown changes

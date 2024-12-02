@@ -1887,7 +1887,9 @@ a {
     color: var(--text-dark-blue);
     margin-bottom: 0;
 }
-
+.active-email {
+    color: var(--Text-Gold-Drop);
+}
 .campaigns-contents input {
     width: 410px;
     border-radius: 10px;

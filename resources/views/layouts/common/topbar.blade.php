@@ -5,7 +5,7 @@
                 <a class="navbar-brand" href="/home">
                     <img src="{{ asset('/assets/images/NewCMLogo2024.svg') }}" alt="logo" href="#" class="img-fluid">
                 </a>
-                <span>Digital Asset Portall</span>
+                <span>Digital Asset Portal</span>
             </div>
 
             <div class="profile-image">
