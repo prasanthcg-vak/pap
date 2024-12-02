@@ -10,7 +10,7 @@ class Tasks extends Model
 
     protected $fillable = [
         'campaign_id', 'name', 'description', 'date_required', 'task_urgent', 
-        'category_id', 'size_width', 'size_height', 'status_id', 'asset_id', 'is_active','partner_id','image_id'
+        'category_id', 'size_width', 'size_height', 'size_measurement', 'status_id', 'asset_id', 'is_active','partner_id','image_id'
     ];
 
     protected $dates = ['deleted_at'];

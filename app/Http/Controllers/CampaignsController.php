@@ -13,9 +13,9 @@ use App\Models\Status;
 use App\Models\Tasks;
 use App\Models\Post;
 use App\Models\Image;
-use Illuminate\Http\Request;
 use App\Models\UserPermissions;
 use App\Models\CampaignPartner;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -322,7 +322,6 @@ class CampaignsController extends Controller
         $campaign->is_active = $request->has('active') ? 1 : 0;
 
         $campaign->update($request->all());
-        // dd($campaign);
 
         if ($request->hasFile('additional_images')) {
 
@@ -373,10 +372,11 @@ class CampaignsController extends Controller
         DB::enableQueryLog();
 
         $post = Post::create([
-            'description' => $campaigns[0]['description'],
-            'file_path' => Storage::disk('backblaze')->url($image->path),
+            'title' => $campaigns[0]['name'],
+            'description' =>$campaigns[0]['description'],
+            'image_id' => $image->id,
         ]);
-        $post_id = $post->id;
+        $post_id = $post->slug;
 
         // Get the query log
         $queries = DB::getQueryLog();
@@ -395,7 +395,9 @@ class CampaignsController extends Controller
             $post_id = $post_id;
             $image_path = Storage::disk('backblaze')->url($image->path);
             // Get file type and size
-            $fileType = Storage::disk('backblaze')->mimeType($image->path);
+            // $fileType = Storage::disk('backblaze')->mimeType($image->path);
+            $fileType = $image->file_type;
+            $file_name = $image->file_name;
             $fileSize = Storage::disk('backblaze')->size($image->path); // Size in bytes
             $fileExtension = pathinfo($image->path, PATHINFO_EXTENSION); // Get the file extension
             $fileSizeKB = round($fileSize / 1024, 2);
@@ -404,6 +406,7 @@ class CampaignsController extends Controller
             $campId = $campaigns[0]['id'];
         } else {
             $image_path = null;
+            $filePath = null;
             $fileType = null;
             $fileExtension = null;
             $fileSizeKB = null;
@@ -413,7 +416,7 @@ class CampaignsController extends Controller
             $post_id = "";
         }
 
-        return view('campaigns.asset_view', compact('post_id', 'returnUrl', 'campaigns', 'image_path', 'categories', 'fileExtension', 'fileSizeKB', 'campDescription', 'campStatus', 'campId', 'categories', 'assets', 'partners'));
+        return view('campaigns.asset_view', compact('file_name','fileType','post_id','returnUrl','campaigns', 'image_path', 'categories', 'fileExtension', 'fileSizeKB', 'campDescription','campStatus','campId', 'categories', 'assets','partners'));
     }
 
     public function getClientGroups($clientId)
@@ -426,6 +429,16 @@ class CampaignsController extends Controller
     {
         $partners = ClientGroupPartners::with('user')->where('group_id', $groupId)->get();
         return response()->json($partners);
+    }
+
+    public function showPdf($filename)
+    {
+        $filePath = "path-to-your-pdf/$filename";
+        $fileContent = Storage::disk('backblaze')->url($filePath);
+
+        return response($fileContent, 200)
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'inline'); // Forces the browser to display in an inline viewer
     }
 
 

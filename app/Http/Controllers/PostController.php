@@ -4,6 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Post;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
+use Aws\S3\S3Client;
+use Exception;
 
 class PostController extends Controller
 {
@@ -30,11 +35,39 @@ class PostController extends Controller
         return back()->with('success', 'Post created successfully.');
     }
 
-    public function share($id)
+    public function share($identifier)
     {
-        $post = Post::findOrFail($id);
+        try {
+            // Find post by slug or GUID
+            $post = Post::with('image')->where('slug', $identifier)->orWhere('guid', $identifier)->first();
 
-        return view('share', compact('post'));
-    }
+            // Handle post not found
+            if (!$post) {
+                \Log::warning("Post not found with identifier: $identifier");
+                abort(404, 'Post not found.');
+            }
+
+            // Prepare post details
+            $postDetails = [
+                'id' => $post->id,
+                'slug' => $post->slug,
+                'title' => $post->title,
+                'description' => $post->description,
+                'file_path' => Storage::disk('backblaze')->url($post->image->path),
+                'file_type' => $post->image->file_type,
+            ];
+
+            \Log::info("Sharing post details", ['postDetails' => $postDetails]);
+
+            return view('share', ['post' => $postDetails]);
+
+        } catch (\Exception $e) {
+            \Log::error("Error sharing post with identifier: $identifier", [
+                'exception' => $e->getMessage(),
+                'identifier' => $identifier,
+            ]);
+            abort(500, 'An error occurred while preparing the post for sharing.');
+        }
+    }   
 
 }

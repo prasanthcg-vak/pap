@@ -94,7 +94,7 @@
                                         <span>{{ $task->date_required }}</span>
                                     </td>
                                     <td class="description">
-                                        <span>{{ $task->description }}</span>
+                                        <span>{!! $task->description !!}</span>
                                     </td>
                                     <td class="active">
                                         <span>{{ $task->status ? $task->status->name : 'N/A' }}</span>
@@ -137,6 +137,8 @@
             </div>
         </div>
     </div>
+
+
     <div class="modal fade createTask-modal" id="createTask" tabindex="-1" aria-labelledby="ModalLabel"
         aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
@@ -153,6 +155,7 @@
                         <div class="row m-0">
                             <!-- Campaign Dropdown -->
                             <div class="col-xl-4 col-md-6">
+                            <label for="">Campaign Name</label>
                                 <select class="form-select" id="campaign-select" name="campaign_id" required
                                     aria-label="Default select example">
                                     <option value="" selected>Select Campaign</option>
@@ -164,6 +167,7 @@
 
                             <!-- Partner Dropdown -->
                             <div class="col-xl-4 col-md-6 mt-md-0 mt-4">
+                            <label for="">Select Campaign Partners</label>
                                 <select class="form-select" id="partner-select" name="partner_id" required
                                     aria-label="Default select example">
                                     <option value="" selected>Select Partner</option>
@@ -173,10 +177,9 @@
 
                         <div class="row m-0">
                             <div class="col-xl-4">
+                                <label for="">Task Name</label>
                                 <input type="text" name="name" id="" required placeholder="Task Name">
                             </div>
-                        </div>
-                        <div class="row m-0">
                             <div class="col-xl-4">
                                 <label for="">Date Required</label>
                                 <div class="input-wrap">
@@ -200,7 +203,7 @@
                         </div>
                         <div class="row m-0">
                             <div class="col-lg-6 col-xl-4 mb-4 mb-lg-0">
-
+                                <label for="">Category</label>
                                 <select class="form-select" name="category_id" required aria-label="Default select example">
                                     <option value="" selected>Select Category</option>
                                     @foreach ($categories as $category)
@@ -211,7 +214,7 @@
                                 </select>
                             </div>
                             <div class="col-lg-6 col-xl-4 mb-4 mb-lg-0">
-
+                                <label for="">Asset Type</label>
                                 <select class="form-select" name="asset_id" required aria-label="Default select example">
                                     <option value="" selected>Select Asset</option>
                                     @foreach ($assets as $asset)
@@ -221,19 +224,28 @@
                                     @endforeach
                                 </select>
                             </div>
-                            <div class="col-lg-6 col-xl-3 p-xl-0 sizing-input">
-                                <div class="input-wrap">
-                                    <input type="number" name="size_width" id="size_width" required
-                                        placeholder="Size (Width)">
-                                    <input type="number" name="size_height" id="size_height" required
-                                        placeholder="Size (Height)">
-                                </div>
+                        </div>
+                        <div class="row m-0">
+                            <div class="col-lg-6 col-xl-4 mb-4 mb-lg-0">
+                                <label for="">Width</label>
+                                <input type="number" name="size_width" id="size_width" required
+                                    placeholder="Size (Width)">
+                            </div>
+                            <div class="col-lg-6 col-xl-4 mb-4 mb-lg-0">
+                                <label for="">Height</label>
+                                <input type="number" name="size_height" id="size_height" required
+                                    placeholder="Size (Height)">
+                            </div>
+                            <div class="col-lg-6 col-xl-4 mb-4 mb-lg-0">
+                                <label for="">Measurement</label>
+                                <input type="text" name="size_measurement" id="size_measurement" required
+                                    placeholder="Size Measurement">
                             </div>
                         </div>
                         <div class="row m-0">
                             <div class="col-md-12">
                                 <label for="">Task Brief</label>
-                                <textarea name="description" placeholder="Add a description for your Task" required id="description"></textarea>
+                                <textarea name="description" id="editor"></textarea>
                             </div>
 
                             {{-- <span class="info-text">Add a description for your Task</span> --}}
@@ -316,6 +328,11 @@
 
                     </form>
                 </div>
+                <div id="modalLoader" class="modal-loader" style="display: none;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -352,6 +369,7 @@
 
             });
         });
+
         document.addEventListener('DOMContentLoaded', function() {
             const campaignDropdown = document.getElementById('campaign-select');
             const partnerDropdown = document.getElementById('partner-select');
@@ -379,39 +397,43 @@
             });
         });
 
-
-
-        document.getElementById('campaign-select').addEventListener('change', function() {
-            const campaignId = this.value;
-            const partnerSelect = document.getElementById('partner-select');
+        $('#campaign-select').on('change', function () {
+            const campaignId = $(this).val();
+            const $partnerSelect = $('#partner-select');
+            $('#modalLoader').show();
 
             // Clear existing options
-            partnerSelect.innerHTML = '<option value="" selected>Select Partner</option>';
-            partnerSelect.disabled = true;
+            $partnerSelect.html('<option value="" selected>Select Partner</option>').prop('disabled', true);
 
             if (campaignId) {
                 // Fetch partners based on the selected campaign
-                fetch(`/partner/${campaignId}`)
-                    .then(response => response.json())
-                    .then(data => {
+                $.ajax({
+                    url: `/partner/${campaignId}`,
+                    method: 'GET',
+                    dataType: 'json',
+                    success: function (data) {
+                        $('#modalLoader').hide();
                         console.log(data); // Log data to inspect the structure
                         if (data.length > 0) {
-                            data.forEach(partner => {
-                                const option = document.createElement('option');
-                                option.value = partner.id; // Assuming 'id' is the primary key
-                                option.textContent = partner.partner ? partner.partner.name :
-                                    'Unnamed Partner'; // Fallback for null partner
-                                partnerSelect.appendChild(option);
+                            $.each(data, function (index, partner) {
+                                const option = $('<option>', {
+                                    value: partner.id, // Assuming 'id' is the primary key
+                                    text: partner.partner ? partner.partner.name : 'Unnamed Partner', // Fallback for null partner
+                                });
+                                $partnerSelect.append(option);
                             });
-                            partnerSelect.disabled = false;
+                            $partnerSelect.prop('disabled', false);
                         }
-                    })
-
-                    .catch(error => console.error('Error fetching partners:', error));
+                    },
+                    error: function (xhr, status, error) {
+                        $('#modalLoader').hide();
+                        console.error('Error fetching partners:', error);
+                    },
+                });
             }
         });
-    </script>
 
+    </script>
 
     <!-- Include Bootstrap JS and dependencies -->
 @endsection
