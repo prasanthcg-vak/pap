@@ -18,7 +18,7 @@ use App\Http\Controllers\LibraryController;
 
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ClientGroupController;
-// use App\Http\Controllers\ClientUserController;
+use App\Http\Controllers\AdminController;
 
 
 Route::get('/', function () {
@@ -35,7 +35,8 @@ Auth::routes(['verify' => true]);
 Route::middleware(['auth'])->group(function () {
 
     Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
-    // Route::get('/dashboard', [ImageController::class, 'listCampaignImages'])->name('dashboard');
+    Route::get('/impersonate/{user}', [AdminController::class, 'impersonate'])->name('impersonate');
+    Route::get('/stop-impersonation', [AdminController::class, 'stopImpersonation'])->name('stop-impersonation');
 
     //Roles
     Route::get('roles', [RoleController::class, 'index'])->name('roles.index')->middleware('permission:roles.index');
