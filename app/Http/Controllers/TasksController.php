@@ -263,6 +263,7 @@ class TasksController extends Controller
             'date_required' => 'required|date',
             'size_width' => 'required|integer',
             'size_height' => 'required|integer',
+            'size_measurement' => 'required|string',
             'description' => 'required|string',
             'partner_id' => 'required|integer',
             'category_id' => 'required|integer',
@@ -349,12 +350,13 @@ class TasksController extends Controller
             'task_urgent' => $request->has('task_urgent') ? 1 : 0, // Convert checkbox value
             'size_width' => $validatedData['size_width'],
             'size_height' => $validatedData['size_height'],
+            'size_measurement' => $validatedData['size_measurement'],
             'partner_id' => (int) $request->partner_id,
             'category_id' => (int) $request->category_id,
             'asset_id' => (int) $request->asset_id,
             'description' => $validatedData['description'],
             'status_id' => null,
-            'is_active' =>$request->is_active ?? 0,
+            'is_active' => $request->has('is_active') ? 1 : 0, 
         ]);
 
         // Log the successful update

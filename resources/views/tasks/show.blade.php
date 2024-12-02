@@ -224,7 +224,7 @@
                                             </div>
                                             <div class="col-md-8">
                                                 <p>{{ $task->size_width ?? 'N/A' }}(w) x
-                                                    {{ $task->size_height ?? 'N/A' }}(h) px</p>
+                                                    {{ $task->size_height ?? 'N/A' }}(h) {{ $task->size_measurement }}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -232,7 +232,7 @@
                                 <div class="col-md-12">
                                     <div class="Task-brief-fields">
                                         <label>Task Brief:</label>
-                                        <p>{{ $task->description ?? 'N/A' }}</p>
+                                        <p>{!! $task->description ?? '<span style="color: gray; font-style: italic;">No description available for this task.</span>' !!}</p>
                                     </div>
                                     <div class="upload-contents">
                                         <label>Uploads:</label>
@@ -555,6 +555,7 @@
                         <!-- Campaign and Partner -->
                         <div class="row m-0">
                             <div class="col-xl-4">
+                            <label for="">Campaign Name</label>
                                 <select class="form-select" id="campaign-select" name="campaign_id" required>
                                     <option value="" disabled>Select Campaign</option>
                                     @foreach ($campaigns as $campaign)
@@ -566,6 +567,7 @@
                                 </select>
                             </div>
                             <div class="col-xl-4">
+                            <label for="">Select Campaign Partners</label>
                                 <select class="form-select" id="partner-select" name="partner_id" required>
                                     <option value="">Select Partner</option>
                                     @foreach ($partners as $partner)
@@ -585,13 +587,11 @@
                         <!-- Task Name -->
                         <div class="row m-0">
                             <div class="col-xl-4">
+                            <label for="">Task Name</label>
                                 <input type="text" name="name" value="{{ $task->name }}" required
                                     placeholder="Task Name">
                             </div>
-                        </div>
-
-                        <!-- Date Required -->
-                        <div class="row m-0">
+                            <!-- Date Required -->
                             <div class="col-xl-4">
                                 <label for="">Date Required</label>
                                 <div class="input-wrap">
@@ -614,6 +614,7 @@
                         <!-- Category and Asset -->
                         <div class="row m-0">
                             <div class="col-lg-6 col-xl-4 mb-4 mb-lg-0">
+                            <label for="">Category</label>
                                 <select class="form-select" name="category_id" required>
                                     <option value="" disabled>Select Category</option>
                                     @foreach ($categories as $category)
@@ -625,6 +626,7 @@
                                 </select>
                             </div>
                             <div class="col-lg-6 col-xl-4 mb-4 mb-lg-0">
+                            <label for="">Asset Type</label>
                                 <select class="form-select" name="asset_id" required>
                                     <option value="" disabled>Select Asset</option>
                                     @foreach ($assets as $asset)
@@ -639,6 +641,23 @@
 
                         <!-- Size Dimensions -->
                         <div class="row m-0">
+                            <div class="col-lg-6 col-xl-4 mb-4 mb-lg-0">
+                                <label for="">Width</label>
+                                <input type="number" name="size_width" id="size_width" required
+                                    value="{{ $task->size_width }}"  placeholder="Size (Width)">
+                            </div>
+                            <div class="col-lg-6 col-xl-4 mb-4 mb-lg-0">
+                                <label for="">Height</label>
+                                <input type="number" name="size_height" id="size_height" required
+                                 value="{{ $task->size_height }}"  placeholder="Size (Height)">
+                            </div>
+                            <div class="col-lg-6 col-xl-4 mb-4 mb-lg-0">
+                                <label for="">Measurement</label>
+                                <input type="text" name="size_measurement" id="size_measurement" required
+                                value="{{ $task->size_measurement }}"  placeholder="Size Measurement">
+                            </div>
+                        </div>
+                        {{-- <div class="row m-0">
                             <div class="col-lg-6 col-xl-3">
                                 <div class="input-wrap">
                                     <input type="text" name="size_width" id="size_width"
@@ -647,21 +666,20 @@
                                         value="{{ $task->size_height }}" required placeholder="Size (Height)">
                                 </div>
                             </div>
-                        </div>
+                        </div> --}}
 
                         <!-- Task Brief -->
                         <div class="row m-0">
                             <div class="col-md-12">
                                 <label for="">Task Brief</label>
-                                <textarea name="description" required id="description" placeholder="Add a description for your Task">{{ $task->description }}</textarea>
+                                <textarea name="description" required id="editor" placeholder="Add a description for your Task">{{ $task->description }}</textarea>
                             </div>
                         </div>
                         
                         <div class="row m-0">
                             <div class="col-xl-4">
                                 <div class="input-wrap">
-                                    
-
+                                <label for="">Status</label>
                                     <div class="form-group">
                                         <div class="checkbox checbox-switch switch-success">
                                             <label>
