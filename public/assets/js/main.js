@@ -320,7 +320,7 @@ $(document).ready(function () {
     let role_id = $('#role_id').val();
     if (role_id == 6) {
       let clientGroupDropdown = $('#group_id');
-      $('#modalLoader').show();
+      // $('#modalLoader').show();
 
       // Reset subsequent dropdowns
       clientGroupDropdown.empty().append('<option value="">-- Select Client Group --</option>').prop('disabled', true);
