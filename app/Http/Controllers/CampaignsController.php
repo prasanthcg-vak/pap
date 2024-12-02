@@ -43,7 +43,7 @@ class CampaignsController extends Controller
             // dd($groups);
         }
         // $campaigns = Campaigns::with('image')->where('is_active', 1)->get();
-        $campaigns = Campaigns::with('image','client','group')->get();
+        $campaigns = Campaigns::with('image', 'client', 'group')->get();
 
         $partners = ClientPartner::with(['client', 'partner'])
             ->where('client_id', $authId)
@@ -87,7 +87,9 @@ class CampaignsController extends Controller
                 'name' => 'required',
                 'description' => 'required',
                 'due_date' => 'required',
-                // 'status_id' => 'required',
+                // 'status_id' => 'required',                
+                'additional_images.*' => 'nullable|mimes:jpeg,png,jpg,mp4,pdf|max:51200',
+                'additional_images' => 'nullable|mimes:jpeg,png,jpg,mp4,pdf|max:51200', // 50 MB limit
             ]
         );
         // dd($request->all());
@@ -239,8 +241,9 @@ class CampaignsController extends Controller
             'name' => 'required',
             'due_date' => 'required|date',
             'campaign_brief' => 'nullable|string',
-            'additional_images' => 'nullable|image|mimes:jpeg,png|max:2048',
-            'additional_images.*' => 'nullable|image|mimes:jpeg,png|max:2048',
+            'additional_images.*' => 'nullable|mimes:jpeg,png,jpg,mp4,pdf|max:51200',
+            'additional_images' => 'nullable|mimes:jpeg,png,jpg,mp4,pdf|max:51200', // 50 MB limit
+
         ]);
 
         Log::info('Incoming request for image upload', [
@@ -373,7 +376,7 @@ class CampaignsController extends Controller
 
         $post = Post::create([
             'title' => $campaigns[0]['name'],
-            'description' =>$campaigns[0]['description'],
+            'description' => $campaigns[0]['description'],
             'image_id' => $image->id,
         ]);
         $post_id = $post->slug;
@@ -416,7 +419,7 @@ class CampaignsController extends Controller
             $post_id = "";
         }
 
-        return view('campaigns.asset_view', compact('file_name','fileType','post_id','returnUrl','campaigns', 'image_path', 'categories', 'fileExtension', 'fileSizeKB', 'campDescription','campStatus','campId', 'categories', 'assets','partners'));
+        return view('campaigns.asset_view', compact('file_name', 'fileType', 'post_id', 'returnUrl', 'campaigns', 'image_path', 'categories', 'fileExtension', 'fileSizeKB', 'campDescription', 'campStatus', 'campId', 'categories', 'assets', 'partners'));
     }
 
     public function getClientGroups($clientId)

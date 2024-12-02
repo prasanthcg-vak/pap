@@ -305,11 +305,10 @@
                                         <div class="drop-zone_color-txt">
                                             <span><img src="assets/images/Image.png" alt=""></span> <br />
                                             <span><img src="assets/images/fi_upload-cloud.svg" alt=""> Upload
-                                                Image</span>
+                                                Asset</span>
                                         </div>
                                         <div class="file-format">
-                                            <p>Upload a cover image for your product.</p>
-                                            <p>File Format <b>jpeg, png</b>. Recommended Size <b>600x600 (1:1)</b></p>
+                                            <p>File Format <b>JEPG, PNG, JPG, MP4, PDF</b></p>
                                         </div>
                                     </div>
                                     <input type="file" name="myFile" class="drop-zone__input">

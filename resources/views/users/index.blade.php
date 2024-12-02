@@ -92,7 +92,7 @@
                                                 </form>
                                             @endif
                                             @if ($impersonate)
-                                                <a href="{{ route('impersonate', $user->id) }}" class="btn btn-sm btn-primary">
+                                                <a href="{{ route('impersonate', $user->id) }}" class="btn btn-sm edit">
                                                     <i class='bx bx-link-external'></i>
                                                 </a>
                                             @endif
