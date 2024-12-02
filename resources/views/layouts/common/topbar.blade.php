@@ -52,6 +52,13 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li>
+                            @if(session('impersonator_id'))
+                                <a href="{{ route('stop-impersonation') }}" class="btn btn-warning">
+                                    Return to Admin Account
+                                </a>
+                            @endif
+                        </li>
                         <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('home') ? 'active' : '' }}"
                                 href="{{ route('home') }}">
