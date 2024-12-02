@@ -28,7 +28,7 @@
                                 {{ $campaign->is_active ? 'Active' : 'Inactive' }}
                             </p>
                                                     </div>
-                        <p>{{$campaign->description}}</p>
+                        <p>{!! $campaign->description !!}</p>
                     </div>
                     <!-- campaign-cost-task -->
                     {{-- <div class="campaign-cost-task">
@@ -169,7 +169,7 @@
                                             <span>{{$task->date_required}}</span>
                                         </td>
                                         <td class="description">
-                                            <span>{{$task->description}}
+                                            <span>{!! $task->description !!}
                                             </span>
                                         </td>
                                         <td class="">

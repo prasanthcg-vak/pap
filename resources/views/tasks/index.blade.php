@@ -94,7 +94,7 @@
                                         <span>{{ $task->date_required }}</span>
                                     </td>
                                     <td class="description">
-                                        <span>{{ $task->description }}</span>
+                                        <span>{!! $task->description !!}</span>
                                     </td>
                                     <td class="active">
                                         <span>{{ $task->status ? $task->status->name : 'N/A' }}</span>
@@ -245,7 +245,7 @@
                         <div class="row m-0">
                             <div class="col-md-12">
                                 <label for="">Task Brief</label>
-                               <div id="editor"></div>
+                                <textarea name="description" id="editor"></textarea>
                             </div>
 
                             {{-- <span class="info-text">Add a description for your Task</span> --}}
@@ -328,6 +328,11 @@
 
                     </form>
                 </div>
+                <div id="modalLoader" class="modal-loader" style="display: none;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -364,6 +369,7 @@
 
             });
         });
+
         document.addEventListener('DOMContentLoaded', function() {
             const campaignDropdown = document.getElementById('campaign-select');
             const partnerDropdown = document.getElementById('partner-select');
@@ -391,39 +397,43 @@
             });
         });
 
-
-
-        document.getElementById('campaign-select').addEventListener('change', function() {
-            const campaignId = this.value;
-            const partnerSelect = document.getElementById('partner-select');
+        $('#campaign-select').on('change', function () {
+            const campaignId = $(this).val();
+            const $partnerSelect = $('#partner-select');
+            $('#modalLoader').show();
 
             // Clear existing options
-            partnerSelect.innerHTML = '<option value="" selected>Select Partner</option>';
-            partnerSelect.disabled = true;
+            $partnerSelect.html('<option value="" selected>Select Partner</option>').prop('disabled', true);
 
             if (campaignId) {
                 // Fetch partners based on the selected campaign
-                fetch(`/partner/${campaignId}`)
-                    .then(response => response.json())
-                    .then(data => {
+                $.ajax({
+                    url: `/partner/${campaignId}`,
+                    method: 'GET',
+                    dataType: 'json',
+                    success: function (data) {
+                        $('#modalLoader').hide();
                         console.log(data); // Log data to inspect the structure
                         if (data.length > 0) {
-                            data.forEach(partner => {
-                                const option = document.createElement('option');
-                                option.value = partner.id; // Assuming 'id' is the primary key
-                                option.textContent = partner.partner ? partner.partner.name :
-                                    'Unnamed Partner'; // Fallback for null partner
-                                partnerSelect.appendChild(option);
+                            $.each(data, function (index, partner) {
+                                const option = $('<option>', {
+                                    value: partner.id, // Assuming 'id' is the primary key
+                                    text: partner.partner ? partner.partner.name : 'Unnamed Partner', // Fallback for null partner
+                                });
+                                $partnerSelect.append(option);
                             });
-                            partnerSelect.disabled = false;
+                            $partnerSelect.prop('disabled', false);
                         }
-                    })
-
-                    .catch(error => console.error('Error fetching partners:', error));
+                    },
+                    error: function (xhr, status, error) {
+                        $('#modalLoader').hide();
+                        console.error('Error fetching partners:', error);
+                    },
+                });
             }
         });
-    </script>
 
+    </script>
 
     <!-- Include Bootstrap JS and dependencies -->
 @endsection

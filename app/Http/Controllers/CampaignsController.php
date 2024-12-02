@@ -322,7 +322,6 @@ class CampaignsController extends Controller
         $campaign->is_active = $request->has('active') ? 1 : 0;
 
         $campaign->update($request->all());
-        // dd($campaign);
 
         if ($request->hasFile('additional_images')) {
 

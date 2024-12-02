@@ -20,6 +20,11 @@
     }
 </script>
 
+
+<!-- Your custom scripts -->
+<script src="{{ asset('assets/js/main.js') }}"></script>
+<script type="module"  src="{{ asset('assets/js/ckeditor5.js') }}"></script>
+
 <script>
     new DataTable('#datatable');
  
@@ -91,10 +96,6 @@
         }
     });
 </script>
-
-<!-- Your custom scripts -->
-<script src="{{ asset('assets/js/main.js') }}"></script>
-<script type="module"  src="{{ asset('assets/js/ckeditor5.js') }}"></script>
 
 @yield('script')
 
