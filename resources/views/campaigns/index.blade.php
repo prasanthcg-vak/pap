@@ -16,8 +16,6 @@
     </style>
     <!-- Table -->
 
-
-
     <div class="CM-main-content">
         <div class="container-fluid p-0">
             <!-- Table -->
@@ -92,8 +90,9 @@
                                     <td class="">
                                         <span>{{ $campaign->name }}</span>
                                     </td>
-                                    <td class="">
-                                        <span>{{ $campaign->description }}</span>
+
+                                    <td class="description">
+                                        <span>{!! $campaign->description !!}</span>
                                     </td>
                                     <td>
                                         {{ $campaign->client ? $campaign->client->name : '-' }} </td>
@@ -187,12 +186,14 @@
                         <input type="hidden" name="_method" value="POST" id="campaignMethod">
                         <div class="row m-0">
                             <div class="col-xl-4 mb-3">
-                                <label for="campaign_name" class="form-label">Campaign Name</label>
+
+                                <label for="">Campaign Name</label>
                                 <input type="text" name="name" id="campaign_name" class="form-control"
                                     placeholder="Campaign Name" required>
                             </div>
                             <div class="col-xl-4 mb-3">
-                                <label for="datepicker" class="form-label">Due Date</label>
+
+                                <label for="">Due Date</label>
                                 <input type="date" name="due_date" id="datepicker" class="form-control"
                                     placeholder="Date">
                             </div>
@@ -306,8 +307,9 @@
 
                         <div class="row m-0">
                             <div class="col-md-12 mb-3">
-                                <label for="campaign_brief" class="form-label">Campaign Brief</label>
-                                <textarea name="description" id="campaign_brief" class="form-control" rows="3"
+
+                                <label for="description">Campaign Brief</label>
+                                <textarea name="description" id="editor" class="form-control" rows="3"
                                     placeholder="Add a description for your campaign"></textarea>
                             </div>
                         </div>
@@ -411,8 +413,9 @@
 @endsection
 
 @section('script')
-    <script>
-        $(document).ready(function() {
+
+<script>
+$(document).ready(function() {
             $('#datatable').DataTable().destroy();
             $('#datatable').DataTable({
                 responsive: true,
@@ -436,79 +439,85 @@
             });
         });
 
-        function editCampaign(campaign, imgUrl) {
-            // Change form action and method for updating
-            const form = document.getElementById('campaignForm');
-            form.action = `/campaigns/${campaign.id}`;
-            document.getElementById('campaignMethod').value = 'PUT';
+function editCampaign(campaign, imgUrl) {
+    // Change form action and method for updating
+    const $form = $('#campaignForm');
+    $form.attr('action', `/campaigns/${campaign.id}`);
+    $('#campaignMethod').val('PUT');
 
-            // Populate form fields with campaign data
-            document.getElementById('campaign_name').value = campaign.name;
+    // Populate form fields with campaign data
+    $('#campaign_name').val(campaign.name);
+    
+    // Extract date portion from due_date (YYYY-MM-DD)
+    const formattedDate = campaign.due_date.split(' ')[0];
+    $('#datepicker').val(formattedDate);
 
-            // Extract date portion from due_date (YYYY-MM-DD)
-            const formattedDate = campaign.due_date.split(' ')[0];
-            document.getElementById('datepicker').value = formattedDate;
+    $('#related_partner').val(campaign.related_partner);
+    // $('.description').val(campaign.description);
 
-            document.getElementById('related_partner').value = campaign.related_partner;
-            document.getElementById('campaign_brief').value = campaign.description;
+    // Handle active checkbox
+    const $activeCheckbox = $('#active');
+    $activeCheckbox.prop('checked', campaign.is_active === 1);
 
-            const activeCheckbox = document.getElementById('active');
-            activeCheckbox.checked = campaign.is_active === 1;
+    // Show active checkbox visibility blocks
+    $('#active_block').show();
+    $('#active_header_block').show();
 
-            // Handle active checkbox visibility
+    console.log(campaign);
 
-            document.getElementById('active_block').style.display = 'block';
-            document.getElementById('active_header_block').style.display = 'block';
+    // Handle client dropdown selection
+    const $clientDropdown = $('#client');
+    $clientDropdown.val(campaign.client_id);
 
-            console.log(campaign);
-            // Handle client dropdown selection
-            const clientDropdown = document.getElementById('client');
-            clientDropdown.value = campaign.client_id; // Set the selected value
+    // Handle group dropdown selection
+    const $groupDropdown = $('#clientGroup');
+    $groupDropdown.val(campaign.Client_group_id);
 
-            // Handle group dropdown selection
-            const groupDropdown = document.getElementById('clientGroup');
-            groupDropdown.value = campaign.Client_group_id; // Set the selected value
+    // If the client ID or group ID is not in the dropdown list, add it dynamically
+    if (!$clientDropdown.find(`option[value="${campaign.client_id}"]`).length) {
+        $clientDropdown.append(
+            $('<option>', {
+                value: campaign.client_id,
+                text: `Client ${campaign.client_id}`, // Customize based on your data
+            })
+        ).val(campaign.client_id);
+    }
 
-            // If the client ID or group ID is not in the dropdown list, add it dynamically
-            if (!Array.from(clientDropdown.options).some(option => option.value == campaign.client_id)) {
-                const newClientOption = document.createElement('option');
-                newClientOption.value = campaign.client_id;
-                newClientOption.textContent = `Client ${campaign.client_id}`; // Customize based on your data
-                clientDropdown.appendChild(newClientOption);
-                clientDropdown.value = campaign.client_id;
-            }
+    if (!$groupDropdown.find(`option[value="${campaign.Client_group_id}"]`).length) {
+        $groupDropdown.append(
+            $('<option>', {
+                value: campaign.Client_group_id,
+                text: `Group ${campaign.Client_group_id}`, // Customize based on your data
+            })
+        ).val(campaign.Client_group_id);
+    }
 
-            if (!Array.from(groupDropdown.options).some(option => option.value == campaign.group_id)) {
-                const newGroupOption = document.createElement('option');
-                newGroupOption.value = campaign.Client_group_id;
-                newGroupOption.textContent = `Group ${campaign.Client_group_id}`; // Customize based on your data
-                groupDropdown.appendChild(newGroupOption);
-                groupDropdown.value = campaign.Client_group_id;
-            }
+    // Toggle active/inactive header blocks
+    if (campaign.is_active === 1) {
+        $('#active_header_block').show();
+        $('#inactive_header_block').hide();
+    } else {
+        $('#inactive_header_block').show();
+        $('#active_header_block').hide();
+    }
+
+    // Display existing cover image if available
+    const $existingImageDiv = $('#existingImageDiv');
+    const $existingImage = $('#existingImage');
+    if (imgUrl) {
+        $existingImage.attr('src', imgUrl); // Set the image source to the URL passed from the backend
+        $existingImageDiv.show();
+    } else {
+        $existingImageDiv.hide();
+    }
+
+    if (window.editor) {
+        window.editor.setData(campaign.description);  // Set data to CKEditor
+    }
 
 
-            if (campaign.is_active === 1) {
-                document.getElementById('active_header_block').style.display = 'block'; // Show Active
-                document.getElementById('inactive_header_block').style.display = 'none'; // Hide Inactive
-            } else {
-                document.getElementById('inactive_header_block').style.display = 'block'; // Show Inactive
-                document.getElementById('active_header_block').style.display = 'none'; // Hide Active
-            }
-            // Display existing cover image if available
-            const existingImage = document.getElementById('existingImage');
-            if (imgUrl) {
-                existingImage.src = imgUrl; // Set the image source to the URL passed from the backend
-
-                document.getElementById('existingImageDiv').style.display = 'block';
-                // existingImage.style.display = 'block'; // Ensure the image is visible
-
-            } else {
-                document.getElementById('existingImageDiv').style.display = 'none';
-                // existingImage.style.display = 'none'; // Hide the image if no URL is passed
-            }
-
-            // Display the modal
-            $('#createcampaign').modal('show');
-        }
-    </script>
+    // Display the modal
+    $('#createcampaign').modal('show');
+}
+</script>
 @endsection

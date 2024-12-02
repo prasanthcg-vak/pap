@@ -1,38 +1,43 @@
-@extends('layouts.login')
-@section('content')
-    <!-- ========== Start view-post ========== -->
-    <section class="view-post">
-        <div class="container">
-            <div class="view-post-wrapper">
-                <!-- Navbar -->
-                <nav class="navbar">
-                    <div class="container-fluid">
-                        <a class="navbar-brand" href="/home">
-                            <img src="{{asset('/assets/images/NewCMLogo2024.svg')}}" alt="logo">
-                        </a>
-                        <div class="login-btn">
-                            <a href="/login" type="button" class="btn">Login</a>
-                        </div>
-                    </div>
-                </nav>
-                <!-- Heading -->
-                {{-- <h1>Lorem ipsum dolor, sit amet consectetur</h1> --}}
-                <!-- View-post-contents -->
-                <div class="col-lg-12 View-post-contents">
-                    <div class="view-post-image">
-                        <img src="assets/images/How-AI-Generative-Chatbots-Boost-Business-Efficiency-and-Profitability-compress.jpg"
-                            alt="post-image">
-                    </div>
-                    <h4 class="sub-heading mt-3">Lorem ipsum dolor sit amet consectetur</h4>
-                    <p class="mt-3">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Libero adipisci hic
-                        consequatur error exercitationem nostrum dicta similique iusto quo, corrupti itaque ab natus et
-                        minima vero neque sapiente necessitatibus nulla!</p>
-                </div>
-            </div>
-        </div>
-    </section>
-    <!-- ========== End view-post ========== -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:title" content="{{ $post['title'] }}">
+    <meta property="og:description" content="{{ $post['description'] }}">
+    @if($post['file_type'] == 'image')
+    <meta property="og:image" content="{{ $post['file_path'] }}"> <!-- Ensure the URL is absolute -->
+    <meta property="og:url" content="{{ route('posts.share', $post['slug']) }}">
+    @elseif($post['file_type'] == 'video')
+    <meta property="og:image" content="{{ $post['file_path'] }}"> <!-- Thumbnail for the video -->
+    <meta property="og:video" content="{{ $post['file_path'] }}"> <!-- Video file URL -->
+    <meta property="og:video:secure_url" content="{{ $post['file_path'] }}"> <!-- Secure HTTPS URL -->
+    <meta property="og:video:type" content="video/mp4"> <!-- MIME type of the video -->
+    <meta property="og:video:width" content="1280"> <!-- Optional: Width of the video -->
+    <meta property="og:video:height" content="720"> <!-- Optional: Height of the video -->
+    <meta property="og:url" content="{{ route('posts.share', $post['slug']) }}">
+    @else
+    <meta property="og:image" content="{{ $post['file_path'] }}"> <!-- Thumbnail for the PDF -->
+    <meta property="og:url" content="{{ $post['file_path'] }}"> <!-- URL to the PDF file -->
+    <meta property="og:type" content="article"> <!-- `article` works for documents -->
+    <meta property="og:document" content="{{ $post['file_path'] }}">
+    @endif
+    <meta property="og:type" content="article">
+    <title>{{ $post['title'] }}</title>
+</head>
+<body>
+    <h1>{{ $post['title'] }}</h1>
+    @if($post['file_type'] == 'image')
+     <img src="{{ $post['file_path'] }}" alt="Post Image">
+    @elseif($post['file_type'] == 'video')
+    <video controls width="600">
+        <source src="{{ $post['file_path'] }}" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+    @else
+        <a href="{{ $post['file_path'] }}" target="_blank" rel="noopener">Download PDF</a>
+    @endif
 
-
-
-    @endsection
+    <p>{{ $post['description']}}</p>
+</body>
+</html>

@@ -35,7 +35,7 @@ Auth::routes(['verify' => true]);
 Route::middleware(['auth'])->group(function () {
 
     Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
-    Route::get('/dashboard', [ImageController::class, 'listCampaignImages'])->name('dashboard');
+    // Route::get('/dashboard', [ImageController::class, 'listCampaignImages'])->name('dashboard');
 
     //Roles
     Route::get('roles', [RoleController::class, 'index'])->name('roles.index')->middleware('permission:roles.index');
@@ -133,13 +133,15 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/get-client-groups/{clientId}', [CampaignsController::class, 'getClientGroups']);
     Route::get('/get-partners/{groupId}', [CampaignsController::class, 'getPartners']);
     Route::get('/get-partners-by-campaign/{campaignId}', [TasksController::class, 'getPartnersByCampaign']);
+    Route::get('/pdf/{filename}', [CampaignsController::class, 'showPdf'])->name('show-pdf');
 
     Route::post('/user/{id}/resend-email', [UserController::class, 'resendEmail'])->name('user.resend-email');
 
 
 });
 
-Route::get('/share/{post}', [PostController::class, 'share'])->name('posts.share');
+// Route::get('/share/{post}', [PostController::class, 'share'])->name('posts.share');
+Route::get('/posts/share/{slug}', [PostController::class, 'share'])->name('posts.share');
 
 
 // Clear application cache
