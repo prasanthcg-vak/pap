@@ -13,7 +13,7 @@ if (addMoreBtn) {
                   <div class="drop-zone_color-txt">
                       <span><img src="assets/images/Image.png" alt=""></span> <br />
                       <span style="font-size:14px;"><img src="assets/images/fi_upload-cloud.svg" alt=""> Upload Asset</span>
-                      <span style="font-size:10px;">(PDF, DOC, JPG, PNG, EPS, PSD, AI).</span>
+                      <span style="font-size:10px;">(JEPG, PNG, JPG, MP4, PDF).</span>
                       </div>
               </div>
               <input type="file" name="additional_images[]" class="drop-zone__input">
