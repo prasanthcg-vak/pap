@@ -28,7 +28,7 @@
                     <form method="POST" action="{{ route('password.email') }}">
                         @csrf
                        
-                                 <h2 class="signin-title">Digital Asset Portall</h2>
+                                 <h2 class="signin-title">Digital Asset Portal</h2>
                                     <p class="sub-text">Reset Password</p>
                                     <p class="error_input" style="color: red; text-align: center;"></p>
                                     <div class="email-field">

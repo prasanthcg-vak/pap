@@ -35,7 +35,11 @@ class TasksController extends Controller
             ->get();
         // dd($asset);
         // $tasks = Tasks::with(['campaign', 'status'])->where('is_active', 1)->get();
-        $tasks = Tasks::with(['campaign', 'status'])->get();
+        $tasks = Tasks::with([
+            'campaign.group',  // Load the group related to the campaign
+            'campaign.client', // Load the client related to the campaign
+            'status'           // Load the status if it's a relation
+        ])->get();        
         return view('tasks.index', compact('tasks', 'campaigns', 'categories', 'assets', 'partners'));
     }
 

@@ -30,4 +30,12 @@ class Campaigns extends Model
     {
         return $this->hasMany(Image::class, 'campaign_id');
     }
+    public function group()
+    {
+        return $this->belongsTo(ClientGroup::class, 'Client_group_id');
+    }
+    public function client()
+    {
+        return $this->belongsTo(Client::class, 'client_id');
+    }
 }

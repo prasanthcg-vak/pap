@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Group extends Model
 {
     use HasFactory;
-
+    
     protected $fillable = [
         'client_group_name',
     ];

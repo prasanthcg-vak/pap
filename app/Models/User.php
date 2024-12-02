@@ -58,6 +58,10 @@ class User extends Authenticatable
     // Belongs-to relationship with Group
     public function group()
     {
-        return $this->belongsTo(Group::class, 'group_id');
+        return $this->belongsTo(ClientGroup::class, 'group_id');
+    }
+    public function client()
+    {
+        return $this->belongsTo(Client::class, 'client_id');
     }
 }

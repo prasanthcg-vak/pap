@@ -43,7 +43,7 @@ class CampaignsController extends Controller
             // dd($groups);
         }
         // $campaigns = Campaigns::with('image')->where('is_active', 1)->get();
-        $campaigns = Campaigns::with('image')->get();
+        $campaigns = Campaigns::with('image','client','group')->get();
 
         $partners = ClientPartner::with(['client', 'partner'])
             ->where('client_id', $authId)

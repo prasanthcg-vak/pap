@@ -25,7 +25,7 @@ class UserController extends Controller
 {
     public function index()
     {
-        $users = User::with('roles', 'group')->get();
+        $users = User::with('roles', 'group','client')->get();
         // $data = User::with('roles')->get();
         // dd($users);
         return view('users.index', compact('users'));
@@ -39,19 +39,28 @@ class UserController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:8|confirmed', // Validate password
             'is_active' => 'boolean',
+            'role_id'=> 'required'
         ]);
 
-        if ($request->role_id == 4 || $request->role_id == 5) {
+        if ($request->role_id == 4 || $request->role_id == 5 || $request->role_id == 6) {
             $request->validate([
                 'client_id' => 'required',
             ]);
+            if($request->role_id == 6){
+                $request->validate([
+                    'group_id' => 'required',
+                ]);
+            }
         } else {
+
             $request->client_id = null;
         }
 
         // Generate a random password for the partner
-        $randomPassword = Str::random(10);
+        // $randomPassword = Str::random(10);
+        $randomPassword = $request->password;
         $status = $request->has('is_active') ? $request->input('is_active') : 0;
 
         $user = User::create([
@@ -89,9 +98,11 @@ class UserController extends Controller
             $request->validate([
                 'name' => 'required|string|max:255',
                 'email' => 'required|email|unique:users,email,' . $request->user_id,
+                'password' => 'nullable|string|min:8|confirmed', // Password is optional for update
                 'is_active' => 'boolean',
                 'role_id' => 'required|exists:roles,id'
             ]);
+    
             if ($request->role_id == 4 || $request->role_id == 5) {
                 $request->validate([
                     'client_id' => 'required',
@@ -99,39 +110,41 @@ class UserController extends Controller
             } else {
                 $request->client_id = null;
             }
-
-            // Update user details
-            // $data = $request->all();
+    
             $data['name'] = $request->name;
             $data['email'] = $request->email;
             $data['client_id'] = (int) $request->client_id;
             $data['is_active'] = $request->has('is_active') ? 1 : 0;
+    
+            if ($request->filled('password')) {
+                $data['password'] = Hash::make($request->password);
+            }
+    
             $user->update($data);
-
+    
             if ($request->has('role_id')) {
                 $user->roles()->sync([$request->input('role_id')]);
             }
-
+    
             return response()->json(['success' => 'User updated successfully']);
         } catch (\Illuminate\Validation\ValidationException $e) {
-            // Handle validation errors
             return response()->json([
                 'error' => 'Validation failed.',
                 'details' => $e->errors(),
             ], 422);
         } catch (\Exception $e) {
-            // Handle general errors
             Log::error('Error while updating user', [
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
                 'input' => $request->all(),
             ]);
-
+    
             return response()->json([
                 'error' => 'An error occurred while updating the user. Please try again later.',
             ], 500);
         }
     }
+    
 
 
     public function destroy($id)
