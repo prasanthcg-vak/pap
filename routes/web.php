@@ -35,8 +35,9 @@ Auth::routes(['verify' => true]);
 Route::middleware(['auth'])->group(function () {
 
     Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
-    Route::get('/impersonate/{user}', [AdminController::class, 'impersonate'])->name('impersonate');
+    Route::get('/impersonate/{user}', [AdminController::class, 'impersonate'])->name('impersonate')->middleware('permission:impersonate');
     Route::get('/stop-impersonation', [AdminController::class, 'stopImpersonation'])->name('stop-impersonation');
+    Route::get('/admin/impersonation-logs', [AdminController::class, 'viewLogs'])->name('impersonateLogs')->middleware('permission:impersonateLogs');
 
     //Roles
     Route::get('roles', [RoleController::class, 'index'])->name('roles.index')->middleware('permission:roles.index');
