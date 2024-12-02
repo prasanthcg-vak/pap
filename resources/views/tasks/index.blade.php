@@ -30,7 +30,7 @@
     @endphp
     <div class="CM-main-content">
         <div class="container-fluid p-0">
-            <div class="task campaingn-table pb-3 common-table task-table-info">
+            <div class="task campaingn-table pb-3 ">
 
                 <!-- campaigns-contents -->
                 <div class="col-lg-12 task campaigns-contents ">
@@ -58,10 +58,11 @@
                     </div>
                 @endif
                 <div class="table-wrapper">
-                    <table id="datatable" style="width:100%">
+                    <table id="datatable" class="table table-bordered table-striped" style="width:100%">
                         <thead>
                             <tr>
-                                <th class="campaingn-title">
+                                <th>Slno</th>
+                                <th class="">
                                     <span>Task Title</span>
                                 </th>
                                 <th>
@@ -73,7 +74,13 @@
                                 <th class="description">
                                     <span>Description</span>
                                 </th>
-                                <th class="active">
+                                <th class="">
+                                    <span>Client</span>
+                                </th>
+                                <th class="">
+                                    <span>Client Group</span>
+                                </th>
+                                <th class="">
                                     <span>Status</span>
                                 </th>
                                 @if ($hasActionPermission)
@@ -84,7 +91,8 @@
                         <tbody>
                             @foreach ($tasks as $task)
                                 <tr>
-                                    <td class="campaingn-title">
+                                    <td></td>
+                                    <td class="">
                                         <span>{{ $task->name }}</span>
                                     </td>
                                     <td>
@@ -96,7 +104,14 @@
                                     <td class="description">
                                         <span>{!! $task->description !!}</span>
                                     </td>
-                                    <td class="active">
+
+                                    <td class="">
+                                        <span>{{$task->campaign->client->name ?? '-'}}</span>
+                                    </td>
+                                    <td class="">
+                                        <span>{{$task->campaign->group->name ?? '-'}} </span>
+                                    </td>
+                                    <td class="">
                                         <span>{{ $task->status ? $task->status->name : 'N/A' }}</span>
                                     </td>
                                     @if ($hasActionPermission)
@@ -111,9 +126,9 @@
 
                                                     {{-- <button class="btn edit"><i class='bx bx-edit'></i></button> --}}
                                                     @if ($deleteButton)
-                                                        <form id="Model-Form" action="{{ route('tasks.destroy', $task->id) }}"
-                                                            method="POST" style="display:inline;"
-                                                            onsubmit="return confirmDelete();">
+                                                        <form id="Model-Form"
+                                                            action="{{ route('tasks.destroy', $task->id) }}" method="POST"
+                                                            style="display:inline;" onsubmit="return confirmDelete();">
                                                             @csrf
                                                             @method('DELETE')
                                                             <button type="submit" class="btn delete"><i
@@ -137,8 +152,6 @@
             </div>
         </div>
     </div>
-
-
     <div class="modal fade createTask-modal" id="createTask" tabindex="-1" aria-labelledby="ModalLabel"
         aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
@@ -150,7 +163,7 @@
                     <span class="btn-close" id="model-close" data-dismiss="modal" aria-label="Close"></span>
                 </div>
                 <div class="modal-body">
-                    <form id="Model-Form" action="{{ route('tasks.store') }}"  method="POST" enctype="multipart/form-data">
+                    <form id="Model-Form" action="{{ route('tasks.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="row m-0">
                             <!-- Campaign Dropdown -->
@@ -284,47 +297,26 @@
 
                         </div>
 
+
                         <div class="img-upload-con d-none">
                             <div class="upload--col w-100">
                                 <div class="drop-zone">
                                     <div class="drop-zone__prompt">
-
                                         <div class="drop-zone_color-txt">
                                             <span><img src="assets/images/Image.png" alt=""></span> <br />
                                             <span><img src="assets/images/fi_upload-cloud.svg" alt=""> Upload
                                                 Image</span>
                                         </div>
-
                                         <div class="file-format">
                                             <p>Upload a cover image for your product.</p>
-                                            <p>File Format <b> jpeg, png</b>. Recommened Size <b>600x600 (1:1)</b></p>
+                                            <p>File Format <b>jpeg, png</b>. Recommended Size <b>600x600 (1:1)</b></p>
                                         </div>
                                     </div>
                                     <input type="file" name="myFile" class="drop-zone__input">
                                 </div>
-
-                                <!-- <button type="submit" class="primary-btn">Add</button> -->
                             </div>
-                            {{-- <div class="additional-img">
-                                <label for="">Additional Images</label>
-
-                                <div class="upload--col">
-                                    <div class="drop-zone">
-                                        <div class="drop-zone__prompt">
-
-                                            <div class="drop-zone_color-txt">
-                                                <span><img src="assets/images/Image.png" alt=""></span> <br />
-                                                <span><img src="assets/images/fi_upload-cloud.svg" alt=""> Upload
-                                                    Image</span>
-                                            </div>
-                                        </div>
-                                        <input type="file" name="myFile" class="drop-zone__input">
-                                    </div>
-
-                                    <!-- <button type="submit" class="primary-btn">Add</button> -->
-                                </div>
-                            </div> --}}
                         </div>
+
 
                     </form>
                 </div>
@@ -339,6 +331,30 @@
 @endsection
 @section('script')
     <script>
+        $(document).ready(function() {
+            $('#datatable').DataTable().destroy();
+            $('#datatable').DataTable({
+                responsive: true,
+                pageLength: 10,
+                columnDefs: [{
+                    searchable: false,
+                    orderable: false,
+                    targets: 0
+                }],
+                order: [
+                    [1, 'asc']
+                ], // Initial sort by name
+                drawCallback: function(settings) {
+                    var api = this.api();
+                    api.column(0, {
+                        order: 'applied'
+                    }).nodes().each(function(cell, i) {
+                        cell.innerHTML = i + 1; // Number rows dynamically
+                    });
+                }
+            });
+        });
+
         function confirmDelete() {
             return confirm('Are you sure you want to delete this task ?');
         }
@@ -359,15 +375,9 @@
 
             //     $(".img-upload-con").toggleClass('d-none')
             // })
-            $(document).on('click', '#uploadAsset', function(e) {
-                $(".img-upload-con").toggleClass('d-none');
 
 
-                e.stopPropagation();
-                e.preventDefault();
 
-
-            });
         });
 
         document.addEventListener('DOMContentLoaded', function() {

@@ -33,6 +33,8 @@
                                 <th>Name</th>
                                 <th>Email</th>
                                 <th>Role</th>
+                                <th>Client</th>
+                                <th>Client Group</th>
                                 <th>Status</th>
                                 @if ($edit || $delete)
                                     <th>Actions</th>
@@ -44,12 +46,18 @@
                                 <tr>
                                     <td>{{ $index + 1 }}</td>
                                     <td>{{ $user->name }}</td>
-                                    <td>{{ $user->email }}</td>
+                                    <td>
+                                        <a href="mailto:{{ $user->email }}"
+                                            class="text-decoration-none active-email">{{ $user->email }}</a>
+                                    </td>
                                     <td>
                                         @foreach ($user->roles as $role)
                                             {{ $role->name }}{{ !$loop->last ? ', ' : '' }}
                                         @endforeach
                                     </td>
+                                    <td>{{ $user->client ? $user->client->name : '-' }}</td>
+                                    <td>{{ $user->group ? $user->group->name : '-' }}</td>
+
                                     <td>
                                         <span>
                                             <p class="status {{ $user->is_active ? 'green' : 'red' }}">
@@ -140,7 +148,7 @@
                                     class="form-select @error('role_id') is-invalid @enderror common-select">
                                     <option value="">-Select-</option>
                                     @foreach (get_roles() as $value => $label)
-                                        @if (!in_array($value, [1, 6]))
+                                        @if (!in_array($value, [1]))
                                             <option value="{{ $value }}"
                                                 {{ isset($data) && $data->role_id == $value ? 'selected' : '' }}>
                                                 {{ $label }}
@@ -154,11 +162,11 @@
                             </div>
 
                             <!-- Group Field -->
-                            <div class="col-lg-12" id="group-section"
-                                style="display: {{ isset($data) && ($data->role_id == 4 || $data->role_id == 5) ? 'block' : 'none' }};">
-                                <label for="client_id" class="common-label">Client</label>
-                                <select id="client_id" name="client_id"
-                                    class="form-select @error('client_id') is-invalid @enderror common-select">
+                            <div class="col-lg-12" id="client-section"
+                                style="display: {{ isset($data) && ($data->role_id == 4 || $data->role_id == 5 || $data->role_id == 6) ? 'block' : 'none' }};">
+                                <label for="client_id_inUser" class="common-label">Client</label>
+                                <select id="client_id_inUser" name="client_id_inUser"
+                                    class="form-select @error('client_id_inUser') is-invalid @enderror common-select">
                                     <option value="">-Select-</option>
                                     @foreach (get_clients() as $value => $label)
                                         <option value="{{ $value }}"
@@ -168,10 +176,43 @@
                                     @endforeach
                                 </select>
                                 <div class="invalid-feedback" id="client_idError"></div>
-                                @error('client_id')
+                                @error('client_id_inUser')
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
                             </div>
+                            <div class="col-lg-12" id="group-section"
+                                style="display: {{ isset($data) && $data->role_id == 6 ? 'block' : 'none' }};">
+                                <label for="group_id" class="form-label">Select Client Group</label>
+                                <select name="group_id" id="group_id" class="form-control" disabled>
+                                    <option value="" disabled selected>Select Client Group</option>
+                                </select>
+                                <div class="invalid-feedback" id="group_idError"></div>
+                                @error('group_id')
+                                    <span class="text-danger">{{ $message }}</span>
+                                @enderror
+                            </div>
+                            <!-- Password Field -->
+                            <div class="col-lg-12">
+                                <label for="password" class="common-label">Password</label>
+                                <input type="password"
+                                    class="form-control @error('password') is-invalid @enderror common-input"
+                                    id="password" name="password" minlength="8" required>
+                                @error('password')
+                                    <span class="text-danger">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+                            <!-- Confirm Password Field -->
+                            <div class="col-lg-12">
+                                <label for="password_confirmation" class="common-label">Confirm Password</label>
+                                <input type="password"
+                                    class="form-control @error('password_confirmation') is-invalid @enderror common-input"
+                                    id="password_confirmation" name="password_confirmation" minlength="8" required>
+                                @error('password_confirmation')
+                                    <span class="text-danger">{{ $message }}</span>
+                                @enderror
+                            </div>
+
 
                             <!-- Active Checkbox -->
                             <div class="col-lg-12">
@@ -282,24 +323,25 @@
                 error: function(xhr) {
                     $('#modalLoader').hide();
 
-                    if (xhr.status === 422) {
-                        // Handle validation errors
+                    if (xhr.status === 422) { // Validation error
                         let errors = xhr.responseJSON.errors;
 
-                        // Loop through the errors and show them in the modal
-                        $.each(errors, function(field, messages) {
-                            // Add invalid class and error message
-                            $(`#${field}`).addClass(
-                                'is-invalid'); // Add invalid class to the input field
-                            $(`#${field}Error`).text(messages[
-                                0]); // Show the first error message under the input field
-                        });
+                        // Clear all previous error messages and 'is-invalid' classes
+                        $('.text-danger').remove(); // Remove previous error messages
+                        $('.is-invalid').removeClass('is-invalid'); // Remove invalid class from inputs
 
-                        // Optionally, you can also display the general message in a toast or modal
-                        showToast(xhr.responseJSON.message, 'error');
-                    } else {
-                        showToast('An error occurred.', 'error');
+                        for (let field in errors) {
+                            let errorMessage = errors[field][0];
+                            let inputField = $(`[name="${field}"]`);
+
+                            // Add 'is-invalid' class to the input field
+                            inputField.addClass('is-invalid');
+
+                            // Append the new error message
+                            inputField.after(`<span class="text-danger">${errorMessage}</span>`);
+                        }
                     }
+
                 }
             });
         });
@@ -311,26 +353,61 @@
         }
 
         function editUser(user) {
-            $('#user_id').val(user.id);
-            $('#name').val(user.name);
-            $('#email').val(user.email);
-            $('#is_active').prop('checked', user.is_active);
+    // Populate basic fields
+    $('#user_id').val(user.id);
+    $('#name').val(user.name);
+    $('#email').val(user.email);
+    $('#is_active').prop('checked', user.is_active); // Check/uncheck based on value
 
-            // Set the client_id and role_id for the selects
-            $('#client_id').val(user.client_id);
-            const groupSection = document.getElementById('group-section');
+    // Populate the role dropdown
+    if (user.roles && user.roles.length > 0) {
+        $('#role_id').val(user.roles[0].id).change(); // Set role and trigger change event
+    } else {
+        $('#role_id').val('').change(); // Reset role if no roles exist
+    }
 
-            if (user.roles[0].id == 4 || user.roles[0].id == 5) {
-                groupSection.style.display = 'block'; // Show Group section
-            }
-            if (user.roles && user.roles.length > 0) {
-                $('#role_id').val(user.roles[0].id);
-            } else {
-                $('#role_id').val('');
-            }
+    // Populate the client dropdown
+    $('#client_id_inUser').val(user.client_id).change(); // Set client and trigger change
 
-            $('#userModal').modal('show');
+    // Show/hide group and client sections based on role
+    const groupSection = $('#group-section');
+    const clientSection = $('#client-section');
+    if (user.roles[0].id == 4 || user.roles[0].id == 5 || user.roles[0].id == 6) {
+        clientSection.show(); // Show Client section
+        if (user.roles[0].id == 6) {
+            groupSection.show(); // Show Group section
+            // Populate group dropdown
+            const groupDropdown = $('#group_id');
+            groupDropdown.empty().append('<option value="">-- Select Client Group --</option>'); // Reset options
+            $.ajax({
+                url: `/get-client-groups/${user.client_id}`, // Fetch groups based on client_id
+                type: 'GET',
+                success: function (data) {
+                    // Populate group dropdown with fetched data
+                    data.forEach(function (group) {
+                        groupDropdown.append(`<option value="${group.id}" ${group.id == user.group_id ? 'selected' : ''}>${group.name}</option>`);
+                    });
+                    groupDropdown.prop('disabled', false); // Enable the dropdown
+                },
+                error: function () {
+                    alert('Failed to fetch client groups.');
+                }
+            });
+        } else {
+            groupSection.hide(); // Hide Group section if role is not 6
         }
+    } else {
+        clientSection.hide(); // Hide Client section for other roles
+        groupSection.hide(); // Hide Group section for other roles
+    }
+
+    // Remove 'required' attribute from password fields
+    $('input[type="password"]').removeAttr('required');
+
+    // Show the modal
+    $('#userModal').modal('show');
+}
+
 
         function showToast(message, type = 'success') {
             $('#toast-message').text(message);
@@ -376,5 +453,6 @@
                     button.removeAttribute('disabled');
                 });
         }
+        const groupDropdown = document.getElementById('clientGroup');
     </script>
 @endsection

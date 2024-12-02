@@ -19,7 +19,7 @@
     <div class="CM-main-content">
         <div class="container-fluid p-0">
             <!-- Table -->
-            <div class="campaingn-table pb-3 common-table">
+            <div class=" pb-3">
 
                 <!-- campaigns-contents -->
                 <div class="col-lg-12 task campaigns-contents">
@@ -41,19 +41,26 @@
                     </div>
                 @endif
                 <!-- campaigns-contents -->
+
                 <div class="table-wrapper">
-                    <table id="datatable">
+                    <table id="datatable" class="table table-bordered table-striped">
                         <thead>
                             <tr>
 
                                 <th>
                                     <span>S.No</span>
                                 </th>
-                                <th class="name">
+                                <th class="">
                                     <span>Name</span>
                                 </th>
-                                <th class="description">
+                                <th class="">
                                     <span>Description</span>
+                                </th>
+                                <th>
+                                    Client
+                                </th>
+                                <th>
+                                    Client Group
                                 </th>
                                 <th>
                                     <span>Due Date</span>
@@ -67,7 +74,7 @@
                                     $deleteButton = Auth::user()->hasRolePermission('campaigns.destroy');
                                 @endphp
                                 @if ($showButton || $editButton || $deleteButton)
-                                    <th class="active">
+                                    <th class="">
                                         <span>Action</span>
                                     </th>
                                 @endif
@@ -80,12 +87,17 @@
                                     <td>
                                         <span>{{ $loop->iteration }}</span>
                                     </td>
-                                    <td class="name">
+                                    <td class="">
                                         <span>{{ $campaign->name }}</span>
                                     </td>
+
                                     <td class="description">
                                         <span>{!! $campaign->description !!}</span>
                                     </td>
+                                    <td>
+                                        {{ $campaign->client ? $campaign->client->name : '-' }} </td>
+                                    <td>
+                                        {{ $campaign->group ? $campaign->group->name : '-' }} </td>
                                     <td>
                                         <span>{{ $campaign->due_date ? \Carbon\Carbon::parse($campaign->due_date)->format('Y-m-d') : '' }}</span>
                                     </td>
@@ -96,44 +108,48 @@
                                         </span>
                                     </td>
                                     @if ($showButton || $editButton || $deleteButton)
-                                        <td class="active action-btn-icons">
-                                            <!-- Show <td> only if any permission is true -->
-                                            <!-- Trigger modal with campaign data -->
-                                            @php
-                                                if (isset($campaign->image)) {
-                                                    $image_url = Storage::disk('backblaze')->url(
-                                                        $campaign->image->path,
-                                                    ); // Add the image URL to the campaign object
-                                                } else {
-                                                    $image_url = null;
-                                                }
-                                            @endphp
+                                        <td class=" ">
+                                            <div class="action-btn-icons">
+                                                <!-- Show <td> only if any permission is true -->
+                                                <!-- Trigger modal with campaign data -->
+                                                @php
+                                                    if (isset($campaign->image)) {
+                                                        $image_url = Storage::disk('backblaze')->url(
+                                                            $campaign->image->path,
+                                                        ); // Add the image URL to the campaign object
+                                                    } else {
+                                                        $image_url = null;
+                                                    }
+                                                @endphp
 
-                                            @if ($showButton)
-                                                <a href="{{ route('campaigns.show', ['id' => $campaign->id]) }}"
-                                                    class="btn edit">
-                                                    <i class="bx bx-show"></i>
-                                                </a>
-                                            @endif
+                                                @if ($showButton)
+                                                    <a href="{{ route('campaigns.show', ['id' => $campaign->id]) }}"
+                                                        class="btn edit">
+                                                        <i class="bx bx-show"></i>
+                                                    </a>
+                                                @endif
 
-                                            @if ($editButton)
-                                                <button type="button" class="btn search" data-bs-toggle="modal"
-                                                    data-bs-target="#createcampaign"
-                                                    onclick="editCampaign({{ $campaign }},'{{ $image_url }}')">
-                                                    <i class="bx bx-edit"></i>
-                                                </button>
-                                            @endif
+                                                @if ($editButton)
+                                                    <button type="button" class="btn search" data-bs-toggle="modal"
+                                                        data-bs-target="#createcampaign"
+                                                        onclick="editCampaign({{ $campaign }},'{{ $image_url }}')">
+                                                        <i class="bx bx-edit"></i>
+                                                    </button>
+                                                @endif
 
-                                            @if ($deleteButton)
-                                                <form id="Model-Form"
-                                                    action="{{ route('campaigns.destroy', $campaign->id) }}" method="POST"
-                                                    onsubmit="return confirm('Are you sure you want to delete this campaign?');">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn comment"><i
-                                                            class="bx bx-trash"></i></button>
-                                                </form>
-                                            @endif
+                                                @if ($deleteButton)
+                                                    <form id="Model-Form"
+                                                        action="{{ route('campaigns.destroy', $campaign->id) }}"
+                                                        method="POST"
+                                                        onsubmit="return confirm('Are you sure you want to delete this campaign?');">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn comment"><i
+                                                                class="bx bx-trash"></i></button>
+                                                    </form>
+                                                @endif
+                                            </div>
+
                                         </td>
                                     @endif
                                 </tr>
@@ -170,11 +186,13 @@
                         <input type="hidden" name="_method" value="POST" id="campaignMethod">
                         <div class="row m-0">
                             <div class="col-xl-4 mb-3">
+
                                 <label for="">Campaign Name</label>
                                 <input type="text" name="name" id="campaign_name" class="form-control"
                                     placeholder="Campaign Name" required>
                             </div>
                             <div class="col-xl-4 mb-3">
+
                                 <label for="">Due Date</label>
                                 <input type="date" name="due_date" id="datepicker" class="form-control"
                                     placeholder="Date">
@@ -185,70 +203,117 @@
                             <!-- Client Dropdown -->
                             @if ($role_level < 3)
                                 <div class="col-xl-4 mb-3">
-                                    <label for="client">Select Client</label>
+                                    <label for="client" class="form-label">Select Client</label>
                                     <select name="client" id="client" class="form-control" required>
                                         <option value="" disabled selected>Select Client</option>
                                         @foreach ($clients as $client)
                                             <option value="{{ $client->id }}">{{ $client->name }}</option>
                                         @endforeach
                                     </select>
-
                                 </div>
                             @else
                                 <input type="hidden" name="client" value="{{ $client_id }}">
                             @endif
 
-
                             <!-- Client Group Dropdown -->
                             @if ($role_level < 3)
                                 <div class="col-xl-4 mb-3">
-                                    <label for="clientGroup">Select Client Group</label>
+                                    <label for="clientGroup" class="form-label">Select Client Group</label>
                                     <select name="clientGroup" id="clientGroup" class="form-control" disabled>
                                         <option value="" disabled selected>Select Client Group</option>
                                     </select>
-
                                 </div>
                             @else
                                 <div class="col-xl-4 mb-3">
-                                    <label for="clientGroup">Select Client Group</label>
+                                    <label for="clientGroup" class="form-label">Select Client Group</label>
                                     <select name="clientGroup" id="clientGroup" class="form-control">
                                         <option value="" selected>Select Client Group</option>
                                         @foreach ($groups as $group)
                                             <option value="{{ $group->id }}">{{ $group->name }}</option>
                                         @endforeach
                                     </select>
-
                                 </div>
                             @endif
 
                             <!-- Partners Multi-Select Dropdown -->
                             <div class="col-xl-4 mb-3">
-
+                                <label for="related_partner" class="form-label">Select Partner</label>
                                 <div class="multiselect_dropdown">
-                                    <label for="clientGroup">Select Partner</label>
-
-                                    <select name="related_partner[]" class="selectpicker" id="related_partner"
-                                        class="selectpicker" multiple aria-label="size 1 select example " multiple
-                                        data-selected-text-format="count > 5" data-live-search="true">
+                                    <select name="related_partner[]" class="selectpicker" id="related_partner" multiple
+                                        aria-label="size 1 select example" data-selected-text-format="count > 5"
+                                        data-live-search="true">
                                         <option value="" disabled>Select Related Partners</option>
-
                                     </select>
                                 </div>
-
+                                <!-- Plus Button to Add New Partner -->
+                                {{-- <button type="button" id="addPartnerBtn" class="btn btn-sm btn-primary mt-2">+ Add Partner</button> --}}
                             </div>
-                        </div>
 
-                        {{-- <li><a role="option" class="dropdown-item" id="bs-select-1-1" tabindex="0" aria-selected="false" aria-setsize="3" aria-posinset="1"><span class=" bs-ok-default check-mark"></span><span class="text">New Partner 1</span></a></li>
-                        <li><a role="option" class="dropdown-item" id="bs-select-1-2" tabindex="0" aria-selected="false" aria-setsize="3" aria-posinset="2"><span class=" bs-ok-default check-mark"></span><span class="text">New Partner 1</span></a></li>
-                        <li><a role="option" class="dropdown-item" id="bs-select-1-3" tabindex="0" aria-selected="false" aria-setsize="3" aria-posinset="3"><span class=" bs-ok-default check-mark"></span><span class="text">New Partner 1</span></a></li> --}}
+                            <!-- Modal to Add New Partner -->
+                            {{-- <div class="modal" id="addPartnerModal" tabindex="-1" aria-labelledby="addPartnerModalLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="addPartnerModalLabel">Add New Partner</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <!-- Input for the New Partner -->
+                                            <div class="mb-3">
+                                                <label for="new_partner_name" class="form-label">Partner Name</label>
+                                                <input type="text" class="form-control" id="new_partner_name" placeholder="Enter new partner name">
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                            <button type="button" class="btn btn-primary" id="savePartnerBtn">Save Partner</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <script>
+                                document.getElementById('addPartnerBtn').addEventListener('click', function() {
+                                    // Open the modal to add a new partner
+                                    var myModal = new bootstrap.Modal(document.getElementById('addPartnerModal'));
+                                    myModal.show();
+                                });
+                            
+                                document.getElementById('savePartnerBtn').addEventListener('click', function() {
+                                    // Get the new partner name from the input field
+                                    var newPartnerName = document.getElementById('new_partner_name').value;
+                            
+                                    if (newPartnerName) {
+                                        // Add the new partner to the select dropdown
+                                        var selectElement = document.getElementById('related_partner');
+                                        var newOption = document.createElement('option');
+                                        newOption.value = newPartnerName;
+                                        newOption.textContent = newPartnerName;
+                                        selectElement.appendChild(newOption);
+                            
+                                        // Reinitialize the selectpicker (if you're using Bootstrap-select or similar)
+                                        $('.selectpicker').selectpicker('refresh');
+                            
+                                        // Close the modal
+                                        var myModal = bootstrap.Modal.getInstance(document.getElementById('addPartnerModal'));
+                                        myModal.hide();
+                                    } else {
+                                        alert("Please enter a partner name");
+                                    }
+                                });
+                            </script> --}}
+
+                        </div>
 
                         <div class="row m-0">
                             <div class="col-md-12 mb-3">
+
                                 <label for="description">Campaign Brief</label>
                                 <textarea name="description" id="editor" class="form-control" rows="3"
                                     placeholder="Add a description for your campaign"></textarea>
                             </div>
                         </div>
+
                         <div class="row m-0 ">
                             <div class="col-3" id="active_block" style="display: none;">
                                 <div class="profile-con add-partner-status">
@@ -265,20 +330,18 @@
                                     </div>
                                 </div>
                             </div>
+
                             <div class="row">
                                 <div class="col-12" id="existingImageDiv" style="display: none;">
                                     <div class="profile-con add-partner-status">
                                         <div class="row">
                                             <div class="col-sm-4">
-
-                                                <label for="cover_image">Existing Cover
-                                                    Image:</label>
+                                                <label for="cover_image" class="form-label">Existing Cover Image:</label>
                                             </div>
                                             <div class="col-sm-8">
                                                 <div>
                                                     <img id="existingImage" src="" alt="Cover Image"
-                                                        class="img-thumbnail mb-3 w-25" style="">
-
+                                                        class="img-thumbnail mb-3 w-25">
                                                 </div>
                                             </div>
                                         </div>
@@ -286,11 +349,8 @@
                                 </div>
                             </div>
 
-
-
                             <div class="sic-action-btns d-flex justify-content-lg-end  flex-wrap">
                                 <div class="sic-btn">
-
                                     <button type="button" class="btn download" id="uploadAsset">Upload Assets</button>
                                     <button type="submit" class="btn create-task">Save</button>
                                     <button type="button" class="btn link-asset" id="cancel"
@@ -299,44 +359,40 @@
                             </div>
 
                             <div class="img-upload-con d-none">
-                                {{-- <div class="upload--col">
-                                    <div class="drop-zone">
-                                        <div class="drop-zone__prompt">
-                                            <div class="drop-zone_color-txt">
-                                                <span><img src="assets/images/Image.png" alt=""></span> <br />
-                                                <span><img src="assets/images/fi_upload-cloud.svg" alt=""> Upload
-                                                    Image</span>
-                                            </div>
-                                            <div class="file-format">
-                                                <p>Upload images for your product.</p>
-                                                <p>File Format: <b>jpeg, png</b>. Recommended Size: <b>600x600 (1:1)</b></p>
-                                            </div>
-                                        </div>
-                                        <input type="file" id="cover_image" name="cover_image" class="drop-zone__input" accept="image/*">
-                                    </div>
-                                </div>
-                                
-                                <!-- Container to display the list of added images -->
-                                <div id="file-list-container" class="mt-3">
-                                    <ul id="file-list"></ul>
-                                </div> --}}
                                 <div class="sic-action-btns justify-content-center flex-wrap">
                                     <div class="addmore"><button type="button" id="add-more-btn"
-                                            class="btn download">Add More</button>
+                                            class="btn download">Add More</button></div>
+
+
+                                    <div style="font-size:10px;">
+                                        <ol style="padding:1rem; color:var(--Gold-Drop)">
+                                            <li>
+                                                Please upload
+                                                any assets required for this campaign.
+                                            </li>
+                                            <li>
+                                                To upload multiple assets, click the Add
+                                                More button and upload assets individually.
+                                            </li>
+                                            <li>Click Save once finished.</li>
+                                            <li>Assets
+                                                can be uploaded at a later date.</li>
+                                        </ol>
                                     </div>
                                 </div>
 
                                 <div id="additional-images-container" class="additional-img my-3">
-                                    {{-- <label>Additional Images</label> --}}
                                     <div class="multiple-image" id="multiple-image" style="display: flex;">
                                         <div class="upload--col">
                                             <div class="drop-zone">
                                                 <div class="drop-zone__prompt">
                                                     <div class="drop-zone_color-txt">
-                                                        <span><img src="assets/images/Image.png" alt=""></span>
-                                                        <br />
-                                                        <span><img src="assets/images/fi_upload-cloud.svg" alt="">
-                                                            Upload Image</span>
+                                                        <span><img src="assets/images/Image.png"
+                                                                alt=""></span><br />
+                                                        <span style="font-size:14px;"><img
+                                                                src="assets/images/fi_upload-cloud.svg" alt="">
+                                                            Upload Asset</span>
+                                                        <span style="font-size:10px;">(PDF, DOC, JPG, PNG, EPS, PSD, AI).</span>
                                                     </div>
                                                 </div>
                                                 <input type="file" name="additional_images[]"
@@ -345,9 +401,11 @@
                                         </div>
                                     </div>
                                 </div>
-
                             </div>
+
+                        </div>
                     </form>
+
                 </div>
             </div>
         </div>
@@ -355,7 +413,31 @@
 @endsection
 
 @section('script')
+
 <script>
+$(document).ready(function() {
+            $('#datatable').DataTable().destroy();
+            $('#datatable').DataTable({
+                responsive: true,
+                pageLength: 10,
+                columnDefs: [{
+                    searchable: false,
+                    orderable: false,
+                    targets: 0
+                }],
+                order: [
+                    [1, 'asc']
+                ], // Initial sort by name
+                drawCallback: function(settings) {
+                    var api = this.api();
+                    api.column(0, {
+                        order: 'applied'
+                    }).nodes().each(function(cell, i) {
+                        cell.innerHTML = i + 1; // Number rows dynamically
+                    });
+                }
+            });
+        });
 
 function editCampaign(campaign, imgUrl) {
     // Change form action and method for updating
