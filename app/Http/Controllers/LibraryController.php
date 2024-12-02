@@ -15,7 +15,7 @@ class LibraryController extends Controller
 {
     public function index(Request $request)
     {     
-        $assets = Tasks::with(['campaign', 'category', 'image'])
+        $assets = Tasks::with(['campaign.group','campaign.client', 'category', 'image'])
             ->get()
             ->map(function ($task) {
                 return [
@@ -30,6 +30,9 @@ class LibraryController extends Controller
                     'dimensions' => $task->size_width . 'x' . $task->size_height,
                     'category' => $task->category->name ?? null,
                     'status' => $task->status_id,
+                    'group' => $task->campaign->group,
+                    'client' => $task->campaign->client,
+
                 ];
             });
         return view('library.index', compact('assets'));
