@@ -90,6 +90,7 @@
                                     <td class="">
                                         <span>{{ $campaign->name }}</span>
                                     </td>
+
                                     <td class="description">
                                         <span>{!! $campaign->description !!}</span>
                                     </td>
@@ -185,11 +186,13 @@
                         <input type="hidden" name="_method" value="POST" id="campaignMethod">
                         <div class="row m-0">
                             <div class="col-xl-4 mb-3">
+
                                 <label for="">Campaign Name</label>
                                 <input type="text" name="name" id="campaign_name" class="form-control"
                                     placeholder="Campaign Name" required>
                             </div>
                             <div class="col-xl-4 mb-3">
+
                                 <label for="">Due Date</label>
                                 <input type="date" name="due_date" id="datepicker" class="form-control"
                                     placeholder="Date">
@@ -304,6 +307,7 @@
 
                         <div class="row m-0">
                             <div class="col-md-12 mb-3">
+
                                 <label for="description">Campaign Brief</label>
                                 <textarea name="description" id="editor" class="form-control" rows="3"
                                     placeholder="Add a description for your campaign"></textarea>
@@ -409,8 +413,9 @@
 @endsection
 
 @section('script')
+
 <script>
-        $(document).ready(function() {
+$(document).ready(function() {
             $('#datatable').DataTable().destroy();
             $('#datatable').DataTable({
                 responsive: true,
@@ -433,7 +438,6 @@
                 }
             });
         });
-
 
 function editCampaign(campaign, imgUrl) {
     // Change form action and method for updating
