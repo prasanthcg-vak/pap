@@ -5,6 +5,7 @@
         $store = Auth::user()->hasRolePermission('users.store');
         $edit = Auth::user()->hasRolePermission('users.update');
         $delete = Auth::user()->hasRolePermission('users.destroy');
+        $impersonate = Auth::user()->hasRolePermission('impersonate');
 
     @endphp
     <div class="CM-main-content">
@@ -79,8 +80,6 @@
                                                     aria-hidden="true"></span>
                                                 Resend Mail
                                             </a> --}}
-
-
                                             @if ($delete)
                                                 <form id="Model-Form" action="{{ route('users.destroy', $user->id) }}"
                                                     method="POST" class="d-inline-block"
@@ -91,6 +90,11 @@
                                                         <i class="fa-regular fa-trash-can"></i>
                                                     </button>
                                                 </form>
+                                            @endif
+                                            @if ($impersonate)
+                                                <a href="{{ route('impersonate', $user->id) }}" class="btn btn-sm btn-primary">
+                                                    <i class='bx bx-link-external'></i>
+                                                </a>
                                             @endif
                                         </td>
                                     @endif
