@@ -72,15 +72,15 @@
                 <!-- Right-Side Image Section -->
                 <div class="col-lg-4 d-none d-lg-block cm-signin-image">
                     <div class="circle-gradient"></div>
-                    <div class="stock-resources">
+                    {{-- <div class="stock-resources">
                         <div class="top-notch-btn">
                             <a href="#">
                                 <img src="{{ asset('/assets/images/thumbs-up.svg') }}" alt="thumbs-up" class="img-fluid"> 
                                 Top Notch Stock Resources
                             </a>
                         </div>
-                        {{-- <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry.</p> --}}
-                    </div>
+                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry.</p>
+                    </div> --}}
                 </div>
             </div>
         </div>

@@ -1,141 +1,156 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="CM-main-content">
-    <div class="container-fluid p-0">
-        <!-- Table -->
-        <div class="task campaingn-table pb-3 common-table">
-            <!-- campaigns-contents -->
-            <div class="col-lg-12 task campaigns-contents">
-                <div class="campaigns-title">
-                    <h3>LIBRARY</h3>
-                </div>
-                <form class="d-flex align-items-center gap-4">
-                    <div class="layout-view d-inline-flex">
-                        <div class=" layout-btn list active">
-                            <i class="box-icon bx bx-list-ul"></i>
-                        </div>
-                        <div class="layout-btn grid">
-                            <i class='box-icon bx bxs-grid-alt'></i>
-                        </div>
+    <div class="CM-main-content">
+        <div class="container-fluid p-0">
+            <!-- Table -->
+            <div class="task campaingn-table pb-3 common-table">
+                <!-- campaigns-contents -->
+                <div class="col-lg-12 task campaigns-contents">
+                    <div class="campaigns-title">
+                        <h3>LIBRARY</h3>
                     </div>
-                </form>
-            </div>
+                    <form class="d-flex align-items-center gap-4">
+                        <div class="layout-view d-inline-flex">
+                            <div class=" layout-btn list active">
+                                <i class="box-icon bx bx-list-ul"></i>
+                            </div>
+                            <div class="layout-btn grid">
+                                <i class='box-icon bx bxs-grid-alt'></i>
+                            </div>
+                        </div>
+                    </form>
+                </div>
 
-            <div class="table-wrapper">
-                <table class="list-view card-grid-contents">
-                    <thead>
-                        <tr>
-                            <th class="">
-                                <span>thumbnail</span>
-                            </th>
-                            <th>
-                                <span>Campaign</span>
-                            </th>
-                            <th>
-                                <span>file name</span>
-                            </th>
-                            <th class="">
-                                <span>Dimensions</span>
-                            </th>
-                            <th class="">
-                                <span>category</span>
-                            </th>
-                            <th class="status">
-                                <span>status</span>
-                            </th>
-                            <th class="">
-                                <span>action</span>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody class="card-grid-items">
-                        @foreach($assets as $index => $asset)
+                <div class="table-wrapper">
+                    <table class="list-view card-grid-contents">
+                        <thead>
                             <tr>
-                                <td class="library-img">
-                                    <span>
-                                    @php
-                                        $thumbnail = match($asset['image_type']) {
-                                            'image' => $asset['thumbnail'],
-                                            'video' => asset('assets/images/video.png'),
-                                            default => asset('assets/images/document.png'),
-                                        };
-                                    @endphp
+                                <th class="">
+                                    <span>thumbnail</span>
+                                </th>
+                                <th>
+                                    <span>Campaign</span>
+                                </th>
+                                <th>
+                                    <span>file name</span>
+                                </th>
+                                <th class="">
+                                    <span>Dimensions</span>
+                                </th>
+                                <th class="">
+                                    <span>category</span>
+                                </th>
+                                <th class="">
+                                    <span>Client</span>
+                                </th>
+                                <th class="">
+                                    <span>Client Group</span>
+                                </th>
+                                <th class="status">
+                                    <span>status</span>
+                                </th>
+                                <th class="">
+                                    <span>action</span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="card-grid-items">
+                            @foreach ($assets as $index => $asset)
+                                <tr>
+                                    <td class="library-img">
+                                        <span>
+                                            @php
+                                                $thumbnail = match ($asset['image_type']) {
+                                                    'image' => $asset['thumbnail'],
+                                                    'video' => asset('assets/images/video.png'),
+                                                    default => asset('assets/images/document.png'),
+                                                };
+                                            @endphp
 
-                                    <img src="{{ $thumbnail }}" class="img-fluid" style="max-height: 200px;" alt="{{ $asset['image_name'] }}">
-                                    {{-- <img class="img-fluid"  src="{{ $asset['thumbnail'] }}" alt=""> --}}
-                                </span>
-                                </td>
-                                <td class="library-camp-title">
-                                    <span>{{ $asset['campaign_name'] }}</span>
-                                </td>
-                                <td class="library-file-name">
-                                    <span>{{ $asset['image_name'] }}</span>
-                                </td>
-                                <td class="library-file-size">
-                                    <span>{{ $asset['dimensions'] }}px
-                                    </span>
-                                </td>
-                                <td class="library-file-category">
-                                    <span>{{ $asset['category'] }}
-                                    </span>
-                                </td>
-                                <td class="library-status">
-                                    {!! $asset['status'] ? '<span class="status green">Active</span>' : '<span class="status red">Inactive</span>' !!}
-                                </td>
-                                <td class="library-action">
-                                    <div class="action-btn-icons">
-                                        <button 
-                                            class="btn download-btn" 
-                                            data-url="{{ $asset['thumbnail'] }}">
-                                            <i class='bx bx-download'></i>
-                                        </button>
-                                        <button class="btn btn-link new-link" onclick="openLinkModal('{{ $asset['thumbnail'] }}','{{ $asset['description'] }}')"><i class='bx bx-link-external'></i></button>
-                                        
-                                        {{-- <form id="Model-Form" action="{{ route('images.delete') }}" method="POST" style="display:inline;"
+                                            <img src="{{ $thumbnail }}" class="img-fluid" style="max-height: 200px;"
+                                                alt="{{ $asset['image_name'] }}">
+                                            {{-- <img class="img-fluid"  src="{{ $asset['thumbnail'] }}" alt=""> --}}
+                                        </span>
+                                    </td>
+                                    <td class="library-camp-title">
+                                        <span>{{ $asset['campaign_name'] }}</span>
+                                    </td>
+                                    <td class="library-file-name">
+                                        <span>{{ $asset['image_name'] }}</span>
+                                    </td>
+                                    <td class="library-file-size">
+                                        <span>{{ $asset['dimensions'] }}px
+                                        </span>
+                                    </td>
+                                    <td class="library-file-category">
+                                        <span>{{ $asset['category'] }}
+                                        </span>
+                                    </td>
+                                    
+                                    
+                                    <td class="">
+                                        <span>{{$asset['client']->name ?? '-'}}</span>
+                                    </td>
+                                    <td class="">
+                                        <span>{{$asset['group']->name ?? '-'}} </span>
+                                    </td>
+                                    <td class="library-status">
+                                        {!! $asset['status'] ? '<span class="status green">Active</span>' : '<span class="status red">Inactive</span>' !!}
+                                    </td>
+                                    <td class="library-action">
+                                        <div class="action-btn-icons">
+                                            <button class="btn download-btn" data-url="{{ $asset['thumbnail'] }}">
+                                                <i class='bx bx-download'></i>
+                                            </button>
+                                            <button class="btn btn-link new-link"
+                                                onclick="openLinkModal('{{ $asset['thumbnail'] }}','{{ $asset['description'] }}')"><i
+                                                    class='bx bx-link-external'></i></button>
+
+                                            {{-- <form id="Model-Form" action="{{ route('images.delete') }}" method="POST" style="display:inline;"
                                             onsubmit="return confirm('Are you sure you want to delete this asset?');">
                                             @csrf
                                             @method('DELETE')
                                             <input type="hidden" name="path" value="{{ $asset['image_path'] }}">
                                             <button type="submit" class="btn delete"><i class='bx bx-trash'></i></button>
                                         </form> --}}
-                                    </div>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Link Asset Modal -->
-<div class="modal fade linkAsset-modal" id="linkAssetModal" tabindex="-1" aria-labelledby="linkAssetModalLabel"
-    aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered  modal-xl modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5" id="linkAssetModalLabel">Link Asset</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="row m-0">
-                    <div class="col-md-12 mb-4">
-                        <h4 class="bold-labels" for="">public access</h4>
-                        {{--<input type="text" value="" id="myInput">
-                        <button onclick="copyToClipboard()">Copy text</button>--}}
+    <!-- Link Asset Modal -->
+    <div class="modal fade linkAsset-modal" id="linkAssetModal" tabindex="-1" aria-labelledby="linkAssetModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered  modal-xl modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="linkAssetModalLabel">Link Asset</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row m-0">
+                        <div class="col-md-12 mb-4">
+                            <h4 class="bold-labels" for="">public access</h4>
+                            {{-- <input type="text" value="" id="myInput">
+                        <button onclick="copyToClipboard()">Copy text</button> --}}
 
-                        <div class="web-link-col">
-                            <div class="row m-0 align-items-center">
-                                <div class="col-9">
-                                    <div class="check-list">
-                                        <span>
-                                            Web Link : <span id="assetLink" style="color:#EB8205"></span>
-                                        </span>
+                            <div class="web-link-col">
+                                <div class="row m-0 align-items-center">
+                                    <div class="col-9">
+                                        <div class="check-list">
+                                            <span>
+                                                Web Link : <span id="assetLink" style="color:#EB8205"></span>
+                                            </span>
+                                        </div>
                                     </div>
-                                </div>
-                                {{--<div class="col-3 text-end">
+                                    {{-- <div class="col-3 text-end">
                                     <button class=" btn copy-web-link p-0" onclick="copyToClipboard()">
                                         <svg width="39" height="39" viewBox="0 0 39 39" fill="none"
                                             xmlns="http://www.w3.org/2000/svg">
@@ -147,137 +162,141 @@
                                                 fill="#EB8205" />
                                         </svg>
                                     </button>
-                                </div>--}}
+                                </div> --}}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-lg-10 col-xl-6 mb-4">
-                        <h4 class="bold-labels">social media access</h4>
-                        <div class="parah">
-                            <p>Click on the icon below and follow the instructions to post your banner
-                                to your social media account.</p>
-                        </div>
-                        <div class="social-links">
-                            <ul>
-                                <li>
-                                    <a id="linkedinShare" href="#" target="_blank">
-                                        <i class="fa-brands fa-linkedin"></i>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a id="facebookShare" href="#" target="_blank">
-                                        <i class="fa-brands fa-facebook"></i>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a id="twitterShare" href="#" target="_blank">
-                                        <i class="fa-brands fa-x-twitter"></i>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a id="redditShare" href="#" target="_blank">
-                                        <i class="fa-brands fa-reddit-alien"></i>
-                                    </a>
-                                </li>
+                        <div class="col-lg-10 col-xl-6 mb-4">
+                            <h4 class="bold-labels">social media access</h4>
+                            <div class="parah">
+                                <p>Click on the icon below and follow the instructions to post your banner
+                                    to your social media account.</p>
+                            </div>
+                            <div class="social-links">
+                                <ul>
+                                    <li>
+                                        <a id="linkedinShare" href="#" target="_blank">
+                                            <i class="fa-brands fa-linkedin"></i>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a id="facebookShare" href="#" target="_blank">
+                                            <i class="fa-brands fa-facebook"></i>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a id="twitterShare" href="#" target="_blank">
+                                            <i class="fa-brands fa-x-twitter"></i>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a id="redditShare" href="#" target="_blank">
+                                            <i class="fa-brands fa-reddit-alien"></i>
+                                        </a>
+                                    </li>
 
-                            </ul>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
-
 @endsection
 @section('script')
-<script>
-$(document).ready(function() {
-    $('#tasksTable').DataTable({
-        responsive: true,
-        pageLength: 10,
-        columnDefs: [
-            { 
-                searchable: false, 
-                orderable: false, 
-                targets: 0 // First column for row numbers
-            }
-        ],
-        order: [[1, 'asc']], // Initial sort by the second column (Name)
-        drawCallback: function(settings) {
-            var api = this.api();
-            api.column(0, { order: 'applied' }).nodes().each(function(cell, i) {
-                cell.innerHTML = i + 1; // Dynamically update row numbers
+    <script>
+        $(document).ready(function() {
+            $('#tasksTable').DataTable({
+                responsive: true,
+                pageLength: 10,
+                columnDefs: [{
+                    searchable: false,
+                    orderable: false,
+                    targets: 0 // First column for row numbers
+                }],
+                order: [
+                    [1, 'asc']
+                ], // Initial sort by the second column (Name)
+                drawCallback: function(settings) {
+                    var api = this.api();
+                    api.column(0, {
+                        order: 'applied'
+                    }).nodes().each(function(cell, i) {
+                        cell.innerHTML = i + 1; // Dynamically update row numbers
+                    });
+                }
             });
-        }
-    });
 
-    $(".layout-btn").click(function() {
-        var targetTable = $(".common-table table");
+            $(".layout-btn").click(function() {
+                var targetTable = $(".common-table table");
 
-            // Remove 'active' class from all buttons and add it to the clicked button
-        $(".layout-btn").removeClass("active");
-        $(this).addClass("active");
-            
-        // Check if the clicked button has the 'list' class
-        if ($(this).hasClass("list")) {
-            $(this)
-            targetTable.removeClass("grid-view").addClass("list-view");
-        } 
-        // Otherwise, check if it has the 'grid' class
-        else if ($(this).hasClass("grid")) {
-            targetTable.removeClass("list-view").addClass("grid-view");
-        }
-    });
-});
+                // Remove 'active' class from all buttons and add it to the clicked button
+                $(".layout-btn").removeClass("active");
+                $(this).addClass("active");
 
-document.addEventListener('DOMContentLoaded', () => {
-    const buttons = document.querySelectorAll('.download-btn');
-
-    buttons.forEach(button => {
-        button.addEventListener('click', () => {
-            const imageUrl = button.getAttribute('data-url');
-            
-            // Create a temporary <a> element
-            const link = document.createElement('a');
-            link.href = imageUrl;
-            link.setAttribute('download', '');
-            
-            // Append to the document and trigger the download
-            document.body.appendChild(link);
-            link.click();
-            
-            // Cleanup the temporary <a> element
-            document.body.removeChild(link);
+                // Check if the clicked button has the 'list' class
+                if ($(this).hasClass("list")) {
+                    $(this)
+                    targetTable.removeClass("grid-view").addClass("list-view");
+                }
+                // Otherwise, check if it has the 'grid' class
+                else if ($(this).hasClass("grid")) {
+                    targetTable.removeClass("list-view").addClass("grid-view");
+                }
+            });
         });
-    });
-});
 
-function openLinkModal(publicUrl,description) {
-    console.log(publicUrl);
-    console.log(description);
-    
-    $('#assetLink').text(publicUrl);
-    
-    var encodedDescription = encodeURIComponent(description || "Check out this image!");
-    var encodedUrl = encodeURIComponent(publicUrl);
+        document.addEventListener('DOMContentLoaded', () => {
+            const buttons = document.querySelectorAll('.download-btn');
 
-    console.log("Public URL: ", publicUrl); // Check if URL is valid
-    console.log("Encoded URL: ", encodedUrl); // Check the encoded URL
-    
-    $('#linkedinShare').attr('href', `https://www.linkedin.com/shareArticle?mini=true&url=${encodedUrl}&summary=${encodedDescription}&title=${encodedDescription}`);
-    $('#facebookShare').attr('href', `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}&quote=${encodedDescription}`);
-    $('#twitterShare').attr('href', `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedDescription}`);
-    $('#redditShare').attr('href',`https://www.reddit.com/submit?url=${encodeURIComponent(publicUrl)}`);
+            buttons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const imageUrl = button.getAttribute('data-url');
 
-    $('#linkAssetModal').modal('show');
-}
+                    // Create a temporary <a> element
+                    const link = document.createElement('a');
+                    link.href = imageUrl;
+                    link.setAttribute('download', '');
 
-function copyToClipboard() {
-    var copyText = $('#myInput').val();
-    navigator.clipboard.writeText(copyText);
-    alert("Copied the text: " + copyText);
-}
+                    // Append to the document and trigger the download
+                    document.body.appendChild(link);
+                    link.click();
 
-</script>
+                    // Cleanup the temporary <a> element
+                    document.body.removeChild(link);
+                });
+            });
+        });
+
+        function openLinkModal(publicUrl, description) {
+            console.log(publicUrl);
+            console.log(description);
+
+            $('#assetLink').text(publicUrl);
+
+            var encodedDescription = encodeURIComponent(description || "Check out this image!");
+            var encodedUrl = encodeURIComponent(publicUrl);
+
+            console.log("Public URL: ", publicUrl); // Check if URL is valid
+            console.log("Encoded URL: ", encodedUrl); // Check the encoded URL
+
+            $('#linkedinShare').attr('href',
+                `https://www.linkedin.com/shareArticle?mini=true&url=${encodedUrl}&summary=${encodedDescription}&title=${encodedDescription}`
+                );
+            $('#facebookShare').attr('href',
+                `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}&quote=${encodedDescription}`);
+            $('#twitterShare').attr('href',
+            `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedDescription}`);
+            $('#redditShare').attr('href', `https://www.reddit.com/submit?url=${encodeURIComponent(publicUrl)}`);
+
+            $('#linkAssetModal').modal('show');
+        }
+
+        function copyToClipboard() {
+            var copyText = $('#myInput').val();
+            navigator.clipboard.writeText(copyText);
+            alert("Copied the text: " + copyText);
+        }
+    </script>
 @endsection
