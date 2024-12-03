@@ -554,6 +554,10 @@
 
                         <!-- Campaign and Partner -->
                         <div class="row m-0">
+                            <div class="col-xl-4 col-md-6">
+                                <label for="client-name">Client Name</label>
+                                <input type="text" id="client-name" name="client_name" class="form-control" readonly>
+                            </div>
                             <div class="col-xl-4">
                             <label for="">Campaign Name</label>
                                 <select class="form-select" id="campaign-select" name="campaign_id" required>
@@ -959,6 +963,38 @@
                         alert('Failed to update the comment. Please try again.');
                     },
                 });
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const campaignDropdown = document.getElementById('campaign-select');
+            const partnerDropdown = document.getElementById('partner-select');
+            const clientName = document.getElementById('client-name'); // The readonly field for client name
+
+            // Handle Campaign Selection
+            campaignDropdown.addEventListener('change', function() {
+                const campaignId = this.value;
+                clientName.value = '';
+
+                if (campaignId) {
+                    partnerDropdown.disabled = true; // Disable while fetching
+                    fetch(`/get-partners-by-campaign/${campaignId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            // Populate Partner Dropdown
+                            
+                            partnerDropdown.innerHTML =
+                                `<option value="" selected>Select Partner</option>`;
+                            data.forEach(partner => {
+                                partnerDropdown.innerHTML +=
+                                    `<option value="${partner.id}">${partner.partner.name}</option>`;
+                            });
+                            partnerDropdown.disabled = false; // Enable after loading
+                            clientName.value = data[0]?.campaign?.client?.name || 'No Client';
+
+                        })
+                        .catch(() => alert('Failed to fetch partners. Please try again.'));
+                }
             });
         });
     </script>

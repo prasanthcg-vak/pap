@@ -388,13 +388,13 @@ class TasksController extends Controller
         // Assuming each campaign has many partners via a relationship
         // $partners = CampaignPartner::where('campaigns_id',$campaignId)->with(["partner.roles"])->get();
 
-        $partners = CampaignPartner::where('campaigns_id', $campaignId)
+        $partners = CampaignPartner::with('campaign.client')->where('campaigns_id', $campaignId)
             ->whereHas('partner.roles', function ($query) {
                 $query->where('role_level', 6);
             })
             ->with('partner.roles')
             ->get();
-        // dd($partners);
+        // dd();
         return response()->json($partners);
     }
 
