@@ -129,6 +129,14 @@
                                 </ul>
                             </li>
                         @endif
+                        @if (Auth::user()->hasRolePermission('impersonateLogs'))
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('impersonateLogs') ? 'active' : '' }}"
+                                    href="{{ route('impersonateLogs') }}">
+                                    Impersonate Logs
+                                </a>
+                            </li>
+                        @endif
                         
                     </ul>
                     <div class="float-left">
