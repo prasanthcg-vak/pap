@@ -65,10 +65,10 @@
                                         </span>
                                     </td>
                                     @if ($edit || $delete)
-                                        <td>
+                                        <td style="display: flex;">
 
                                             @if ($edit)
-                                                <a href="#" class="btn search"
+                                                <a href="#" class="btn search btn-sm me-1 "
                                                     onclick="editUser({{ json_encode($user) }})">
                                                     <i class="fa-solid fa-pencil"></i>
                                                 </a>
@@ -86,16 +86,22 @@
                                                     onsubmit="return confirm('Are you sure you want to delete this user?');">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="btn trash">
+                                                    <button type="submit" class="btn trash btn-sm me-1">
                                                         <i class="fa-regular fa-trash-can"></i>
                                                     </button>
                                                 </form>
                                             @endif
                                             @if ($impersonate)
-                                                <a href="{{ route('impersonate', $user->id) }}" class="btn btn-sm edit">
+                                                <a href="{{ route('impersonate', $user->id) }}" class="btn btn-sm edit me-1">
                                                     <i class='bx bx-link-external'></i>
                                                 </a>
                                             @endif
+                                            @if($user->is_blocked)
+                                            <form action="{{ route('users.unblock', $user->id) }}" method="POST"  onsubmit="return confirm('Are you sure you want to Unblock this user?');">
+                                                @csrf
+                                                <button class="btn thumbs-up btn-sm me-1" type="submit"><i class='bx bx-lock-open'></i></button>
+                                            </form>
+                                        @endif
                                         </td>
                                     @endif
                                 </tr>
@@ -165,7 +171,7 @@
                             <div class="col-lg-12" id="client-section"
                                 style="display: {{ isset($data) && ($data->role_id == 4 || $data->role_id == 5 || $data->role_id == 6) ? 'block' : 'none' }};">
                                 <label for="client_id_inUser" class="common-label">Client</label>
-                                <select id="client_id_inUser" name="client_id_inUser"
+                                <select id="client_id_inUser" name="client_id"
                                     class="form-select @error('client_id_inUser') is-invalid @enderror common-select">
                                     <option value="">-Select-</option>
                                     @foreach (get_clients() as $value => $label)
@@ -175,8 +181,8 @@
                                         </option>
                                     @endforeach
                                 </select>
-                                <div class="invalid-feedback" id="client_idError"></div>
-                                @error('client_id_inUser')
+                                <div class="invalid-feedback" id="client_id"></div>
+                                @error('client_id')
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
                             </div>
@@ -186,7 +192,7 @@
                                 <select name="group_id" id="group_id" class="form-control" disabled>
                                     <option value="" disabled selected>Select Client Group</option>
                                 </select>
-                                <div class="invalid-feedback" id="group_idError"></div>
+                                <div class="invalid-feedback" id="group_id"></div>
                                 @error('group_id')
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
@@ -237,7 +243,7 @@
                                 </button>
                             </div>
                             <div class="sic-btn">
-                                <button class="btn link-asset" id="cancel" data-bs-dismiss="modal"
+                                <button class="btn cancel" id="cancel" data-bs-dismiss="modal"
                                     aria-label="Close">
                                     cancel
                                 </button>

@@ -24,4 +24,8 @@ class CampaignPartner extends Model
     {
         return $this->belongsTo(User::class, 'partner_id');
     }
+    public function campaign()
+    {
+        return $this->belongsTo(Campaigns::class, 'campaigns_id');
+    }
 }

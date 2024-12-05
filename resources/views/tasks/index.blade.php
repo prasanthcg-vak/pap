@@ -106,10 +106,10 @@
                                     </td>
 
                                     <td class="">
-                                        <span>{{$task->campaign->client->name ?? '-'}}</span>
+                                        <span>{{ $task->campaign->client->name ?? '-' }}</span>
                                     </td>
                                     <td class="">
-                                        <span>{{$task->campaign->group->name ?? '-'}} </span>
+                                        <span>{{ $task->campaign->group->name ?? '-' }} </span>
                                     </td>
                                     <td class="">
                                         <span>{{ $task->status ? $task->status->name : 'N/A' }}</span>
@@ -152,8 +152,7 @@
             </div>
         </div>
     </div>
-    <div class="modal fade createTask-modal" id="createTask" tabindex="-1" aria-labelledby="ModalLabel"
-        aria-hidden="true">
+    <div class="modal fade createTask-modal" id="createTask" tabindex="-1" aria-labelledby="ModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
@@ -166,26 +165,32 @@
                     <form id="Model-Form" action="{{ route('tasks.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="row m-0">
-                            <!-- Campaign Dropdown -->
-                            <div class="col-xl-4 col-md-6">
-                            <label for="">Campaign Name</label>
-                                <select class="form-select" id="campaign-select" name="campaign_id" required
-                                    aria-label="Default select example">
+                            
+                            
+                            <div class="col-xl-4 col-md-6  mt-md-0 mt-4">
+                                <label for="campaign-select">Campaign Name</label>
+                                <select class="form-select" id="campaign-select" name="campaign_id" required aria-label="Default select example">
                                     <option value="" selected>Select Campaign</option>
                                     @foreach ($campaigns as $campaign)
-                                        <option value="{{ $campaign->id }}">{{ $campaign->name }}</option>
+                                        <option value="{{ $campaign->id }}" data-client-name="{{ $campaign->client->name }}">
+                                            {{ $campaign->name }}
+                                        </option>
                                     @endforeach
                                 </select>
                             </div>
-
+                            <div class="col-xl-4 col-md-6">
+                                <label for="client-name">Client Name</label>
+                                <input type="text" id="client-name" name="client_name" class="form-control" readonly>
+                            </div>
+                            
                             <!-- Partner Dropdown -->
                             <div class="col-xl-4 col-md-6 mt-md-0 mt-4">
-                            <label for="">Select Campaign Partners</label>
-                                <select class="form-select" id="partner-select" name="partner_id" required
-                                    aria-label="Default select example">
+                                <label for="partner-select">Select Campaign Partners</label>
+                                <select class="form-select" id="partner-select" name="partner_id" required aria-label="Default select example">
                                     <option value="" selected>Select Partner</option>
                                 </select>
                             </div>
+                            
                         </div>
 
                         <div class="row m-0">
@@ -368,7 +373,7 @@
             var scrollTop = $(".scrollTop");
 
             // Initialize the datepicker
-            $("#datepicker").datepicker();
+            // $("#datepicker").datepicker();
 
             // $("#uploadAsset").click(function(){
 
@@ -382,10 +387,12 @@
         document.addEventListener('DOMContentLoaded', function() {
             const campaignDropdown = document.getElementById('campaign-select');
             const partnerDropdown = document.getElementById('partner-select');
+            const clientName = document.getElementById('client-name'); // The readonly field for client name
 
             // Handle Campaign Selection
             campaignDropdown.addEventListener('change', function() {
                 const campaignId = this.value;
+                clientName.value = '';
 
                 if (campaignId) {
                     partnerDropdown.disabled = true; // Disable while fetching
@@ -393,6 +400,7 @@
                         .then(response => response.json())
                         .then(data => {
                             // Populate Partner Dropdown
+                            
                             partnerDropdown.innerHTML =
                                 `<option value="" selected>Select Partner</option>`;
                             data.forEach(partner => {
@@ -400,48 +408,51 @@
                                     `<option value="${partner.id}">${partner.partner.name}</option>`;
                             });
                             partnerDropdown.disabled = false; // Enable after loading
+                            clientName.value = data[0]?.campaign?.client?.name || 'No Client';
+
                         })
                         .catch(() => alert('Failed to fetch partners. Please try again.'));
                 }
             });
         });
 
-        $('#campaign-select').on('change', function () {
-            const campaignId = $(this).val();
-            const $partnerSelect = $('#partner-select');
-            $('#modalLoader').show();
+        // $('#campaign-select').on('change', function() {
+        //     const campaignId = $(this).val();
+        //     const $partnerSelect = $('#partner-select');
+        //     $('#modalLoader').show();
 
-            // Clear existing options
-            $partnerSelect.html('<option value="" selected>Select Partner</option>').prop('disabled', true);
+        //     // Clear existing options
+        //     $partnerSelect.html('<option value="" selected>Select Partner</option>').prop('disabled', true);
 
-            if (campaignId) {
-                // Fetch partners based on the selected campaign
-                $.ajax({
-                    url: `/partner/${campaignId}`,
-                    method: 'GET',
-                    dataType: 'json',
-                    success: function (data) {
-                        $('#modalLoader').hide();
-                        console.log(data); // Log data to inspect the structure
-                        if (data.length > 0) {
-                            $.each(data, function (index, partner) {
-                                const option = $('<option>', {
-                                    value: partner.id, // Assuming 'id' is the primary key
-                                    text: partner.partner ? partner.partner.name : 'Unnamed Partner', // Fallback for null partner
-                                });
-                                $partnerSelect.append(option);
-                            });
-                            $partnerSelect.prop('disabled', false);
-                        }
-                    },
-                    error: function (xhr, status, error) {
-                        $('#modalLoader').hide();
-                        console.error('Error fetching partners:', error);
-                    },
-                });
-            }
-        });
-
+        //     if (campaignId) {
+        //         // Fetch partners based on the selected campaign
+        //         $.ajax({
+        //             url: `/partner/${campaignId}`,
+        //             method: 'GET',
+        //             dataType: 'json',
+        //             success: function(data) {
+        //                 $('#modalLoader').hide();
+        //                 console.log(data); // Log data to inspect the structure
+        //                 if (data.length > 0) {
+        //                     $.each(data, function(index, partner) {
+        //                         const option = $('<option>', {
+        //                             value: partner
+        //                             .id, // Assuming 'id' is the primary key
+        //                             text: partner.partner ? partner.partner.name :
+        //                                 'Unnamed Partner', // Fallback for null partner
+        //                         });
+        //                         $partnerSelect.append(option);
+        //                     });
+        //                     $partnerSelect.prop('disabled', false);
+        //                 }
+        //             },
+        //             error: function(xhr, status, error) {
+        //                 $('#modalLoader').hide();
+        //                 console.error('Error fetching partners:', error);
+        //             },
+        //         });
+        //     }
+        // });
     </script>
 
     <!-- Include Bootstrap JS and dependencies -->

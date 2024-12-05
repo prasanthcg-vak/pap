@@ -273,8 +273,9 @@
                 success: function(response) {
                     $('#modalLoader').hide();
                     $('#clientModal').modal('hide');
-                    showToast(response.success, 'success');
                     location.reload();
+                    showToast(response.success, 'success');
+                    
                 },
                 error: function(xhr) {
                     $('#modalLoader').hide();

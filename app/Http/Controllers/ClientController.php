@@ -40,15 +40,6 @@ class ClientController extends Controller
         // Wrap database operations in a transaction
         DB::beginTransaction();
 
-        // Create the client record
-        $client = Client::create([
-            'name' => $validatedData['name'],
-            'description' => $validatedData['description'],
-            'is_active' => $validatedData['is_active'] ?? 0,
-        ]);
-
-        $clientId = $client->id;
-
         $filePath = null;
         if ($request->hasFile('logo')) {
             $file = $request->file('logo');
@@ -56,6 +47,17 @@ class ClientController extends Controller
             $filePath = 'assets/logo/' . $filename;
             $file->move(public_path('assets/logo'), $filename);
         }
+        // Create the client record
+        $client = Client::create([
+            'name' => $validatedData['name'],
+            'description' => $validatedData['description'],
+            'logo' => $filePath,
+            'is_active' => $validatedData['is_active'] ?? 0,
+        ]);
+
+        $clientId = $client->id;
+
+        
 
         // Create the client admin user
         $user = User::create([

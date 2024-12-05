@@ -21,11 +21,12 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
 
+
 class UserController extends Controller
 {
     public function index()
     {
-        $users = User::with('roles', 'group','client')->get();
+        $users = User::with('roles', 'group', 'client')->get();
         // $data = User::with('roles')->get();
         // dd($users);
         return view('users.index', compact('users'));
@@ -34,6 +35,7 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
+        // dd($request->all());
 
         // Validate the incoming data
         $request->validate([
@@ -41,14 +43,14 @@ class UserController extends Controller
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8|confirmed', // Validate password
             'is_active' => 'boolean',
-            'role_id'=> 'required'
+            'role_id' => 'required'
         ]);
 
         if ($request->role_id == 4 || $request->role_id == 5 || $request->role_id == 6) {
             $request->validate([
                 'client_id' => 'required',
             ]);
-            if($request->role_id == 6){
+            if ($request->role_id == 6) {
                 $request->validate([
                     'group_id' => 'required',
                 ]);
@@ -67,6 +69,7 @@ class UserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'client_id' => (int) $request->client_id,
+            'group_id' => (int) $request->group_id,
             'pcode' => $randomPassword,
             'password' => Hash::make($randomPassword),
             'is_active' => $status,
@@ -79,11 +82,20 @@ class UserController extends Controller
             'created_at' => now(),
             'updated_at' => now()
         ]);
+        if ($request->role_id == 6) {
 
-        // $clientUser = ClientUser::create([
-        //     'user_id' => $user->id,
-        //     'client_id' => $request->client_id
-        // ]);
+            $clientUser = ClientPartner::create([
+                'partner_id' => $user->id,
+                'client_id' => $request->client_id
+            ]);
+        }
+        // if ($request->role_id == 6) {
+
+        //     $clientGroup = ClientGroup::create([
+        //         'user_id' => $user->id,
+        //         'client_id' => $request->client_id
+        //     ]);
+        // }
 
         // Attempt to send email
         Mail::to($request->email)->send(new UserPasswordMail($randomPassword));
@@ -93,58 +105,95 @@ class UserController extends Controller
     }
 
     public function update(Request $request, User $user)
-    {
-        try {
-            $request->validate([
-                'name' => 'required|string|max:255',
-                'email' => 'required|email|unique:users,email,' . $request->user_id,
-                'password' => 'nullable|string|min:8|confirmed', // Password is optional for update
-                'is_active' => 'boolean',
-                'role_id' => 'required|exists:roles,id'
-            ]);
-    
-            if ($request->role_id == 4 || $request->role_id == 5) {
-                $request->validate([
-                    'client_id' => 'required',
-                ]);
-            } else {
-                $request->client_id = null;
+{
+    try {
+        // Validate input
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'password' => 'nullable|string|min:8|confirmed', // Password is optional
+            'is_active' => 'boolean',
+            'role_id' => 'required|exists:roles,id',
+        ]);
+
+        // Additional validation for roles
+        if (in_array($request->role_id, [4, 5, 6])) {
+            $request->validate(['client_id' => 'required']);
+            if ($request->role_id == 6) {
+                $request->validate(['group_id' => 'required']);
             }
-    
-            $data['name'] = $request->name;
-            $data['email'] = $request->email;
-            $data['client_id'] = (int) $request->client_id;
-            $data['is_active'] = $request->has('is_active') ? 1 : 0;
-    
-            if ($request->filled('password')) {
-                $data['password'] = Hash::make($request->password);
-            }
-    
-            $user->update($data);
-    
-            if ($request->has('role_id')) {
-                $user->roles()->sync([$request->input('role_id')]);
-            }
-    
-            return response()->json(['success' => 'User updated successfully']);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json([
-                'error' => 'Validation failed.',
-                'details' => $e->errors(),
-            ], 422);
-        } catch (\Exception $e) {
-            Log::error('Error while updating user', [
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'input' => $request->all(),
-            ]);
-    
-            return response()->json([
-                'error' => 'An error occurred while updating the user. Please try again later.',
-            ], 500);
+        } else {
+            $request->merge(['client_id' => null, 'group_id' => null]); // Nullify client_id and group_id if role doesn't require them
         }
+
+        // Prepare data for update
+        $data = [
+            'name' => $request->name,
+            'email' => $request->email,
+            'client_id' => (int) $request->client_id,
+            'group_id' => (int) $request->group_id,
+            'is_active' => $request->has('is_active') ? 1 : 0,
+        ];
+
+        // Update password if provided
+        if ($request->filled('password')) {
+            $data['password'] = Hash::make($request->password);
+        }
+
+        // Update user
+        $user->update($data);
+
+        // Update roles
+        if ($request->has('role_id')) {
+            $user->roles()->sync([$request->input('role_id')]);
+        }
+
+        // Update ClientPartner table if role is 4, 5, or 6
+        if (in_array($request->role_id, [6])) {
+            ClientPartner::updateOrCreate(
+                ['partner_id' => $user->id], // Find by partner_id
+                ['client_id' => $request->client_id] // Update client_id
+            );
+        } else {
+            // Check if the ClientPartner entry exists before attempting to delete
+            if (ClientPartner::where('partner_id', $user->id)->exists()) {
+                ClientPartner::where('partner_id', $user->id)->delete();
+            }
+        }        
+
+        // Handle group association for role 6
+        // if ($request->role_id == 6) {
+        //     ClientGroup::updateOrCreate(
+        //         ['user_id' => $user->id],
+        //         ['group_id' => $request->group_id]
+        //     );
+        // } else {
+        //     // If not role 6, remove ClientGroup entry
+        //     ClientGroup::where('user_id', $user->id)->delete();
+        // }
+
+        return response()->json(['success' => 'User updated successfully']);
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        // Handle validation errors
+        return response()->json([
+            'error' => 'Validation failed.',
+            'details' => $e->errors(),
+        ], 422);
+    } catch (\Exception $e) {
+        // Log the error for debugging
+        Log::error('Error while updating user', [
+            'message' => $e->getMessage(),
+            'trace' => $e->getTraceAsString(),
+            'input' => $request->all(),
+        ]);
+
+        return response()->json([
+            'error' => 'An error occurred while updating the user. Please try again later.',
+        ], 500);
     }
-    
+}
+
+
 
 
     public function destroy($id)
@@ -454,6 +503,19 @@ class UserController extends Controller
             return response()->json(['error' => 'Failed to resend email'], 500);
         }
     }
+    public function unblock($id)
+{
+    $user = User::findOrFail($id);
+
+    // Unblock the user and reset attempts
+    $user->update([
+        'is_blocked' => 0,
+        'login_attempts' => 0,
+    ]);
+
+    return back()->with('success', 'User has been unblocked successfully.');
+}
+
 
 
 }
