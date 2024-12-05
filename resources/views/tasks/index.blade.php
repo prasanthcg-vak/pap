@@ -373,7 +373,7 @@
             var scrollTop = $(".scrollTop");
 
             // Initialize the datepicker
-            $("#datepicker").datepicker();
+            // $("#datepicker").datepicker();
 
             // $("#uploadAsset").click(function(){
 

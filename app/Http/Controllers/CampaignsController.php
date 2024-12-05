@@ -443,6 +443,20 @@ class CampaignsController extends Controller
             ->header('Content-Type', 'application/pdf')
             ->header('Content-Disposition', 'inline'); // Forces the browser to display in an inline viewer
     }
+    public function fetchImages(Campaigns $campaign)
+    {
+        $images = $campaign->image->map(function ($image) {
+            return [
+                'id' => $image->id,
+                'name' => $image->file_name,
+                'url' => Storage::disk('backblaze')->url($image->path),
+                'file_type' => $image->file_type,
+            ];
+        });
+
+        return response()->json($images);
+    }
+
 
 
 }

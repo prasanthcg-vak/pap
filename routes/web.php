@@ -19,18 +19,29 @@ use App\Http\Controllers\LibraryController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ClientGroupController;
 use App\Http\Controllers\AdminController;
+use Illuminate\Support\Facades\Auth;
 
 
 Route::get('/', function () {
     return redirect()->route('login');
 });
 
+Route::post('/email/resend', function (Request $request) {
+    if (Auth::user()->hasVerifiedEmail()) {
+        return redirect('/dashboard');
+    }
+
+    Auth::user()->sendEmailVerificationNotification();
+
+    return back()->with('resent', true);
+})->middleware(['auth', 'throttle:6,1'])->name('verification.resend');
 
 // Auth::routes();
 
 // Forgot Password and Reset Password Routes
 Auth::routes(['verify' => true]);
 
+Route::middleware(['auth'])->post('/users/{id}/unblock', [UserController::class, 'unblock'])->name('users.unblock');
 
 Route::middleware(['auth'])->group(function () {
 
@@ -138,6 +149,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/pdf/{filename}', [CampaignsController::class, 'showPdf'])->name('show-pdf');
 
     Route::post('/user/{id}/resend-email', [UserController::class, 'resendEmail'])->name('user.resend-email');
+    Route::get('/campaigns/{campaign}/images', [CampaignsController::class, 'fetchImages']);
 
 
 });

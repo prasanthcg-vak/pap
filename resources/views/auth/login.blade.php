@@ -16,6 +16,7 @@
                             <div class="user-login-fields">
                                 <form method="POST" action="{{ route('login') }}" id="data-form" class="login-form">
                                     @csrf
+                                    
                                     <h2 class="signin-title">Digital Asset Portal</h2>
                                     <p class="sub-text">Login into your account</p>
                                     <p class="error_input text-center text-danger"></p>
@@ -87,52 +88,4 @@
     </section>
 @endsection
 
-@section('script')
-    {{-- <script>
-        $(document).ready(function () {
-            // Submit form using AJAX
-            $('#data-form').on('submit', function (e) {
-                e.preventDefault();
-                const form = $(this);
-                const formData = new FormData(form[0]);
-                
-                // Clear previous errors
-                form.find('.is-invalid').removeClass('is-invalid');
-                form.find('.invalid-feedback').remove();
-                $('.error_input').text('').hide();
 
-                // Show loading (if you have a loading indicator)
-                $('#loading').show();
-
-                // Perform AJAX request
-                $.ajax({
-                    url: form.attr('action'),
-                    type: 'POST',
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    success: function (response) {
-                        window.location.href = response.redirect_url;
-                    },
-                    error: function (response) {
-                        $('#loading').hide();
-
-                        if (response.status === 422) {
-                            const errors = response.responseJSON.errors;
-                            $.each(errors, function (key, value) {
-                                const input = form.find(`[name="${key}"]`);
-                                input.addClass('is-invalid');
-                                input.after(`<span class="invalid-feedback"><strong>${value[0]}</strong></span>`);
-                            });
-                        }
-
-                        if (response.status === 401) {
-                            const errorMsg = response.responseJSON.msg;
-                            $('.error_input').text(errorMsg).show().delay(5000).fadeOut('slow');
-                        }
-                    }
-                });
-            });
-        });
-    </script> --}}
-@endsection

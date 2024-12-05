@@ -1191,9 +1191,11 @@ button.btn.btn-danger.btn-sm.mt-2.remove-btn {
 .campaign-card-contents .owl-carousel .card-img_text {
     max-width: 100% !important;
 }
-.owl-carousel .owl-item img{
+
+.owl-carousel .owl-item img {
     height: 200px;
 }
+
 .campaign-card-contents .owl-carousel .owl-nav.disabled {
     display: block !important;
 }
@@ -1887,9 +1889,11 @@ a {
     color: var(--text-dark-blue);
     margin-bottom: 0;
 }
+
 .active-email {
     color: var(--Text-Gold-Drop);
 }
+
 .campaigns-contents input {
     width: 410px;
     border-radius: 10px;
@@ -2351,6 +2355,29 @@ colgroup {
 .btn.thumbs-up:hover {
     background-color: #405189;
     color: #fff;
+}
+
+.btn.cancel {
+    background-color: #7a7d87;
+    color: #fff;
+}
+
+.btn.cancel:hover {
+    background-color: transparent;
+    color: #7a7d87;
+    border-color: #7a7d87;
+}
+
+.btn.save {
+    border: 1px solid #538053;
+    background-color: #538053;
+    color: #fff;
+}
+
+.btn.save:hover {
+    border: 1px solid #538053;
+    background-color: transparent;
+    color: #538053;
 }
 
 .task-table-info .comment-input-fields {
@@ -2844,7 +2871,7 @@ colgroup {
     .common-table table.grid-view tbody {
         gap: 27px;
     }
-    
+
     .drop-zone.update-campaign {
         width: 100%;
     }
@@ -3361,19 +3388,21 @@ input#dt-search-0 {
     background-color: #EB8205;
     font-size: 18px;
     font-weight: 400;
-    color:#fff;
+    color: #fff;
     line-height: 15.5px;
     padding: 10px 25px;
     margin-left: 15px;
     border: 1px solid #EB8205;
     display: inline-block;
 }
-.view-post .login-btn .btn:hover{
+
+.view-post .login-btn .btn:hover {
     background: transparent;
     border: 1px solid #EB8205;
     color: #EB8205;
     transition: all 0.3s ease;
 }
-.View-post-contents p{
+
+.View-post-contents p {
     font-size: 16px;
 }
