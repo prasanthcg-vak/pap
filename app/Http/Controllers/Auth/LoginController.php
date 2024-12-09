@@ -142,7 +142,7 @@ class LoginController extends Controller
                 $this->username() => "No user found for the given {$this->username()}.",
             ]);
         }
-        $user = \App\Models\User::where('email', $request->email)->first();
+        $user = User::where('email', $request->email)->first();
         $attemptsLeft = $maxAttempts - $user->login_attempts;
 
         throw \Illuminate\Validation\ValidationException::withMessages([

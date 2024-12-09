@@ -162,6 +162,8 @@
             $('#asset_type_id').val('');
             $('#is_active').prop('checked', false); // Reset checkbox
             $('#assetTypeModal').modal('show');
+            $('#assetTypeModalLabel').text('Add Asset Type ');
+
         }
 
         function editAssetType(assetType) {
@@ -170,6 +172,8 @@
             $('#type_description').val(assetType.type_description);
             $('#is_active').prop('checked', assetType.is_active);
             $('#assetTypeModal').modal('show');
+            $('#assetTypeModalLabel').text('Edit Asset Type ');
+
         }
 
         $('#assetTypeForm').on('submit', function(e) {

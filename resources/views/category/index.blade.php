@@ -182,6 +182,8 @@
             $('#category_id').val('');
             $('#is_active').prop('checked', false); // Reset checkbox
             $('#categoryModal').modal('show');
+            $('#categoryModalLabel').text('Add category ');
+
         }
 
         function editCategory(category) {
@@ -190,6 +192,8 @@
             $('#category_description').val(category.category_description);
             $('#is_active').prop('checked', category.is_active);
             $('#categoryModal').modal('show');
+            $('#categoryModalLabel').text('Edit category ');
+
         }
 
         $('#categoryForm').on('submit', function(e) {

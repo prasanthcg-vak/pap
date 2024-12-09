@@ -71,7 +71,10 @@
         <div class="modal-dialog modal-dialog-centered modal-md modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="clientModalLabel">Clients</h5>
+                    <h5 class="modal-title" id="clientModalLabel">
+                        <span class="add-model">Add</span>
+                        <span class="edit-model">Edit</span> Clients
+                    </h5>
                     <button type="button" class="btn-close" id="model-close" data-bs-dismiss="modal"
                         aria-label="Close"></button>
                 </div>
@@ -232,14 +235,22 @@
         });
 
         function openModal() {
+            // Reset the form
             $('#clientForm')[0].reset();
             $('#client_id').val('');
             $('#description').val('');
             $('#is_active').prop('checked', false); // Reset checkbox
-            $('#clientModal').modal('show');
-            $('#client_details').removeClass('d-none'); // Replace 'custom-class' with your desired class name
-            $('#logoPreview').addClass('d-none');
 
+            // Set modal for "Add" mode
+            $('.add-model').show(); // Show "Add" label
+            $('.edit-model').hide(); // Hide "Edit" label
+
+            // Show modal
+            $('#clientModal').modal('show');
+
+            // Manage specific elements for "Add" mode
+            $('#client_details').removeClass('d-none'); // Show client details
+            $('#logoPreview').addClass('d-none'); // Hide logo preview (specific to add)
         }
 
         $(document).off('submit', '#clientForm').on('submit', '#clientForm', function(e) {
@@ -275,7 +286,7 @@
                     $('#clientModal').modal('hide');
                     location.reload();
                     showToast(response.success, 'success');
-                    
+
                 },
                 error: function(xhr) {
                     $('#modalLoader').hide();
@@ -314,6 +325,8 @@
             $('#client_admin_name').val(client.admin_name);
             $('#email').val(client.admin_email);
             $('#role_id').val(client.role_id);
+            $('.add-model').hide();  // Hide "Add" label
+            $('.edit-model').show(); // Show "Edit" label
 
             // Display existing logo preview if available
             if (client.logo) {

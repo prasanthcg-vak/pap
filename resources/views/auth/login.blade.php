@@ -72,7 +72,7 @@
 
                 <!-- Right-Side Image Section -->
                 <div class="col-lg-4 d-none d-lg-block cm-signin-image">
-                    <div class="circle-gradient"></div>
+                    {{-- <div class="circle-gradient"></div> --}}
                     {{-- <div class="stock-resources">
                         <div class="top-notch-btn">
                             <a href="#">
