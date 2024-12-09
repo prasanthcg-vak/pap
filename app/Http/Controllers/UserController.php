@@ -105,93 +105,93 @@ class UserController extends Controller
     }
 
     public function update(Request $request, User $user)
-{
-    try {
-        // Validate input
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $user->id,
-            'password' => 'nullable|string|min:8|confirmed', // Password is optional
-            'is_active' => 'boolean',
-            'role_id' => 'required|exists:roles,id',
-        ]);
+    {
+        try {
+            // Validate input
+            $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|email|unique:users,email,' . $user->id,
+                'password' => 'nullable|string|min:8|confirmed', // Password is optional
+                'is_active' => 'boolean',
+                'role_id' => 'required|exists:roles,id',
+            ]);
 
-        // Additional validation for roles
-        if (in_array($request->role_id, [4, 5, 6])) {
-            $request->validate(['client_id' => 'required']);
-            if ($request->role_id == 6) {
-                $request->validate(['group_id' => 'required']);
+            // Additional validation for roles
+            if (in_array($request->role_id, [4, 5, 6])) {
+                $request->validate(['client_id' => 'required']);
+                if ($request->role_id == 6) {
+                    $request->validate(['group_id' => 'required']);
+                }
+            } else {
+                $request->merge(['client_id' => null, 'group_id' => null]); // Nullify client_id and group_id if role doesn't require them
             }
-        } else {
-            $request->merge(['client_id' => null, 'group_id' => null]); // Nullify client_id and group_id if role doesn't require them
-        }
 
-        // Prepare data for update
-        $data = [
-            'name' => $request->name,
-            'email' => $request->email,
-            'client_id' => (int) $request->client_id,
-            'group_id' => (int) $request->group_id,
-            'is_active' => $request->has('is_active') ? 1 : 0,
-        ];
+            // Prepare data for update
+            $data = [
+                'name' => $request->name,
+                'email' => $request->email,
+                'client_id' => (int) $request->client_id,
+                'group_id' => (int) $request->group_id,
+                'is_active' => $request->has('is_active') ? 1 : 0,
+            ];
 
-        // Update password if provided
-        if ($request->filled('password')) {
-            $data['password'] = Hash::make($request->password);
-        }
-
-        // Update user
-        $user->update($data);
-
-        // Update roles
-        if ($request->has('role_id')) {
-            $user->roles()->sync([$request->input('role_id')]);
-        }
-
-        // Update ClientPartner table if role is 4, 5, or 6
-        if (in_array($request->role_id, [6])) {
-            ClientPartner::updateOrCreate(
-                ['partner_id' => $user->id], // Find by partner_id
-                ['client_id' => $request->client_id] // Update client_id
-            );
-        } else {
-            // Check if the ClientPartner entry exists before attempting to delete
-            if (ClientPartner::where('partner_id', $user->id)->exists()) {
-                ClientPartner::where('partner_id', $user->id)->delete();
+            // Update password if provided
+            if ($request->filled('password')) {
+                $data['password'] = Hash::make($request->password);
             }
-        }        
 
-        // Handle group association for role 6
-        // if ($request->role_id == 6) {
-        //     ClientGroup::updateOrCreate(
-        //         ['user_id' => $user->id],
-        //         ['group_id' => $request->group_id]
-        //     );
-        // } else {
-        //     // If not role 6, remove ClientGroup entry
-        //     ClientGroup::where('user_id', $user->id)->delete();
-        // }
+            // Update user
+            $user->update($data);
 
-        return response()->json(['success' => 'User updated successfully']);
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        // Handle validation errors
-        return response()->json([
-            'error' => 'Validation failed.',
-            'details' => $e->errors(),
-        ], 422);
-    } catch (\Exception $e) {
-        // Log the error for debugging
-        Log::error('Error while updating user', [
-            'message' => $e->getMessage(),
-            'trace' => $e->getTraceAsString(),
-            'input' => $request->all(),
-        ]);
+            // Update roles
+            if ($request->has('role_id')) {
+                $user->roles()->sync([$request->input('role_id')]);
+            }
 
-        return response()->json([
-            'error' => 'An error occurred while updating the user. Please try again later.',
-        ], 500);
+            // Update ClientPartner table if role is 4, 5, or 6
+            if (in_array($request->role_id, [6])) {
+                ClientPartner::updateOrCreate(
+                    ['partner_id' => $user->id], // Find by partner_id
+                    ['client_id' => $request->client_id] // Update client_id
+                );
+            } else {
+                // Check if the ClientPartner entry exists before attempting to delete
+                if (ClientPartner::where('partner_id', $user->id)->exists()) {
+                    ClientPartner::where('partner_id', $user->id)->delete();
+                }
+            }
+
+            // Handle group association for role 6
+            // if ($request->role_id == 6) {
+            //     ClientGroup::updateOrCreate(
+            //         ['user_id' => $user->id],
+            //         ['group_id' => $request->group_id]
+            //     );
+            // } else {
+            //     // If not role 6, remove ClientGroup entry
+            //     ClientGroup::where('user_id', $user->id)->delete();
+            // }
+
+            return response()->json(['success' => 'User updated successfully']);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Handle validation errors
+            return response()->json([
+                'error' => 'Validation failed.',
+                'details' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            // Log the error for debugging
+            Log::error('Error while updating user', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'input' => $request->all(),
+            ]);
+
+            return response()->json([
+                'error' => 'An error occurred while updating the user. Please try again later.',
+            ], 500);
+        }
     }
-}
 
 
 
@@ -504,17 +504,17 @@ class UserController extends Controller
         }
     }
     public function unblock($id)
-{
-    $user = User::findOrFail($id);
+    {
+        $user = User::findOrFail($id);
 
-    // Unblock the user and reset attempts
-    $user->update([
-        'is_blocked' => 0,
-        'login_attempts' => 0,
-    ]);
+        // Unblock the user and reset attempts
+        $user->update([
+            'is_blocked' => 0,
+            'login_attempts' => 0,
+        ]);
 
-    return back()->with('success', 'User has been unblocked successfully.');
-}
+        return back()->with('success', 'User has been unblocked successfully.');
+    }
 
 
 

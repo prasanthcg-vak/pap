@@ -109,15 +109,6 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->name ?: $this->username;
     }
 
-    /**
-     * Mutator to hash passwords on setting.
-     *
-     * @param string $value
-     */
-    public function setPasswordAttribute($value)
-    {
-        $this->attributes['password'] = bcrypt($value);
-    }
 
     /**
      * Scope to filter active users.
