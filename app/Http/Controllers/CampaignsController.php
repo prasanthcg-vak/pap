@@ -79,6 +79,119 @@ class CampaignsController extends Controller
      */
     public function store(Request $request)
     {
+        $request->validate([
+            'name' => 'required',
+            'description' => 'required',
+            'due_date' => 'required',
+            'additional_images.*' => 'nullable|mimes:jpeg,png,jpg,mp4,pdf|max:51200', // 50 MB limit
+            'additional_images' => 'nullable|array',
+            'thumbnail' => 'nullable|array',
+            'thumbnail.*' => 'file|mimes:jpeg,png,jpg|max:10240', // 10 MB limit for thumbnails
+        ]);
+    
+        // Log incoming request
+        Log::info('Incoming campaign request', ['request_data' => $request->all()]);
+    
+        // Create Campaign entry
+        $data = new Campaigns();
+        $data->name = $request->name;
+        $data->description = $request->description;
+        $data->due_date = $request->due_date;
+        $data->status_id = null;
+        $data->client_id = (int) $request->client;
+        $data->client_group_id = (int) $request->clientGroup;
+        $data->is_active = 1;
+        $data->save();
+    
+        // Upload additional images and thumbnails
+        if ($request->hasFile('additional_images')) {
+            foreach ($request->file('additional_images') as $key => $file) {
+                $thumbnail = $request->file('thumbnail')[$key] ?? null;
+    
+                try {
+                    $image = new Image();
+    
+                    // Upload main file
+                    $randomName = Str::random(10) . '.' . $file->getClientOriginalExtension();
+                    $filePath = 'images/' . $randomName;
+    
+                    // Upload file to Backblaze
+                    $this->uploadToS3($file, $filePath);
+    
+                    // Determine file type
+                    $extension = $file->getClientOriginalExtension();
+                    $file_type = in_array($extension, ['jpg', 'jpeg', 'png']) ? 'image' :
+                                 ($extension === 'pdf' ? 'document' : 'video');
+    
+                    // Upload thumbnail if provided
+                    $thumbnailPath = null;
+                    if ($thumbnail) {
+                        $thumbnailName = 'thumb_' . Str::random(10) . '.' . $thumbnail->getClientOriginalExtension();
+                        $thumbnailPath = 'images/' . $thumbnailName;
+                        $this->uploadToS3($thumbnail, $thumbnailPath);
+                    }
+    
+                    // Save file details in the database
+                    $image->path = $filePath;
+                    $image->campaign_id = $data->id;
+                    $image->file_name = $randomName;
+                    $image->file_type = $file_type;
+                    $image->thumbnail_path = $thumbnailPath; // Save thumbnail path
+                    $image->save();
+    
+                    Log::info('File uploaded successfully', ['file_id' => $image->id]);
+                } catch (\Exception $e) {
+                    Log::error('File upload error', ['error_message' => $e->getMessage()]);
+                    return response()->json(['error' => 'File upload failed: ' . $e->getMessage()], 500);
+                }
+            }
+        }
+    
+        // Handle related partners
+        if (isset($request->related_partner)) {
+            foreach ($request->related_partner as $partner) {
+                $campaignPartner = new CampaignPartner();
+                $campaignPartner->campaigns_id = $data->id;
+                $campaignPartner->partner_id = (int) $partner;
+                $campaignPartner->save();
+            }
+        }
+    
+        return redirect()->route('campaigns.index')->with('success', 'Campaign created successfully.');
+    }
+    
+    /**
+     * Upload file to S3.
+     *
+     * @param \Illuminate\Http\UploadedFile $file
+     * @param string $filePath
+     * @return void
+     * @throws \Exception
+     */
+    private function uploadToS3($file, $filePath)
+    {
+        $s3Client = new S3Client([
+            'version' => 'latest',
+            'region' => 'us-east-005',
+            'endpoint' => 'https://s3.us-east-005.backblazeb2.com',
+            'credentials' => [
+                'key' => env('BACKBLAZE_KEY_ID'),
+                'secret' => env('BACKBLAZE_APPLICATION_KEY'),
+            ],
+        ]);
+    
+        $s3Client->putObject([
+            'Bucket' => 'cm-pap01',
+            'Key' => $filePath,
+            'Body' => file_get_contents($file),
+            'ACL' => 'public-read',
+        ]);
+    
+        Log::info('File uploaded to S3', ['file_path' => $filePath]);
+    }
+    
+    public function storeOld(Request $request)
+    {
 
         // dd($request->all());
 
@@ -206,7 +319,7 @@ class CampaignsController extends Controller
         $campaign = Campaigns::findOrFail($id);
         $tasks = Tasks::with('status')->where('campaign_id', $id)->get();
 
-        $images = Image::where('campaign_id', $id)->get(['id', 'file_name', 'path', 'file_type']);
+        $images = Image::where('campaign_id', $id)->get(['id', 'file_name', 'path', 'file_type','thumbnail_path']);
 
         // Retrieve the URLs for each image
         $imageUrls = $images->map(function ($image) {
@@ -215,7 +328,8 @@ class CampaignsController extends Controller
                 'name' => $image->file_name,
                 'path' => $image->path,
                 'image_type' => $image->file_type,
-                'url' => Storage::disk('backblaze')->url($image->path) // Generate the public URL
+                'url' => Storage::disk('backblaze')->url($image->path),
+                'thumbnail' => ($image->thumbnail_path) ? Storage::disk('backblaze')->url($image->thumbnail_path) : '',
             ];
         });
         $partners = ClientPartner::all(); // Assuming you have a Partner model

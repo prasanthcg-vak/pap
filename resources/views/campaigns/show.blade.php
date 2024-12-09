@@ -94,8 +94,8 @@
                                             @php
                                                 $thumbnail = match($img['image_type']) {
                                                     'image' => $img['url'],
-                                                    'video' => asset('assets/images/video.png'),
-                                                    default => asset('assets/images/document.png'),
+                                                    'video' => $img['thumbnail'],
+                                                    default => $img['thumbnail'],
                                                 };
                                             @endphp
                                             <div class="item py-3">

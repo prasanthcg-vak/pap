@@ -14,14 +14,26 @@ if (addMoreBtn) {
                       <span><img src="assets/images/Image.png" alt=""></span> <br />
                       <span style="font-size:14px;"><img src="assets/images/fi_upload-cloud.svg" alt=""> Upload Asset</span>
                       <span style="font-size:10px;">(JEPG, PNG, JPG, MP4, PDF).</span>
-                      </div>
+                  </div>
               </div>
-              <input type="file" name="additional_images[]" class="drop-zone__input">
-
+              <input type="file" name="additional_images[]" class="drop-zone__input" onchange="handleFileChange(this)">
           </div>
           <button type="button" class="btn btn-danger btn-sm mt-2 remove-btn">X</button>
-
-  `;
+          <div class="thumbnail-upload" style="display: none;">
+              <label for="thumbnail">Upload Thumbnail (for Video/PDF):</label>
+              <div class="drop-zone">
+                  <div class="drop-zone__prompt">
+                      <div class="drop-zone_color-txt">
+                          <span><img src="assets/images/Image.png" alt=""></span><br />
+                          <span style="font-size:14px;"><img src="assets/images/fi_upload-cloud.svg" alt="">
+                              Upload Asset</span>
+                          <span style="font-size:10px;">(JPEG, PNG, JPG).</span>
+                      </div>
+                  </div>
+                  <input type="file" name="thumbnail[]" class="drop-zone__input">
+              </div>
+          </div>
+      `;
 
     // Append the new section to the container
     container.appendChild(newSection);
@@ -34,6 +46,12 @@ if (addMoreBtn) {
 
     // Initialize the drop-zone functionality for the new section
     initializeDropZone(newSection.querySelector('.drop-zone'));
+
+    // Initialize drop zone functionality for the thumbnail upload
+    const thumbnailDropZone = newSection.querySelector('.thumbnail-upload .drop-zone');
+    if (thumbnailDropZone) {
+      initializeDropZone(thumbnailDropZone);
+    }
   });
 }
 
@@ -50,7 +68,14 @@ function initializeDropZone(dropZoneElement) {
 
   fileInput.addEventListener('change', (e) => {
     if (fileInput.files.length) {
-      updateThumbnail(dropZoneElement, fileInput.files[0]);
+      const file = fileInput.files[0];
+      updateThumbnail(dropZoneElement, file);
+      
+      // Show the custom thumbnail upload for videos and PDFs
+      if (file.type === "video/mp4" || file.type === "application/pdf") {
+        const thumbnailUpload = dropZoneElement.closest('.upload--col').querySelector('.thumbnail-upload');
+        thumbnailUpload.style.display = 'block';
+      }
     }
   });
 
@@ -70,7 +95,14 @@ function initializeDropZone(dropZoneElement) {
 
     if (e.dataTransfer.files.length) {
       fileInput.files = e.dataTransfer.files;
-      updateThumbnail(dropZoneElement, e.dataTransfer.files[0]);
+      const file = e.dataTransfer.files[0];
+      updateThumbnail(dropZoneElement, file);
+      
+      // Show the custom thumbnail upload for videos and PDFs
+      if (file.type === "video/mp4" || file.type === "application/pdf") {
+        const thumbnailUpload = dropZoneElement.closest('.upload--col').querySelector('.thumbnail-upload');
+        thumbnailUpload.style.display = 'block';
+      }
     }
 
     dropZoneElement.classList.remove('drop-zone--over');
@@ -107,7 +139,13 @@ function updateThumbnail(dropZoneElement, file) {
       thumbnailElement.style.backgroundImage = `url('${reader.result}')`;
     };
   } else {
-    thumbnailElement.style.backgroundImage = null;
+    // thumbnailElement.style.backgroundImage = null;
+    if (file.type === "video/mp4") {
+      thumbnailElement.style.backgroundImage = `url('assets/images/video.png')`;
+    }
+    if(file.type === "application/pdf"){
+      thumbnailElement.style.backgroundImage = `url('assets/images/document.png')`;
+    }
   }
 }
 
