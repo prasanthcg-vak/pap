@@ -407,6 +407,7 @@ class CampaignsController extends Controller
             $campDescription = $campaigns[0]['description'];
             $campStatus = $campaigns[0]['is_active'];
             $campId = $campaigns[0]['id'];
+            $title = $campaigns[0]['name'];
         } else {
             $image_path = null;
             $filePath = null;
@@ -419,8 +420,36 @@ class CampaignsController extends Controller
             $post_id = "";
         }
 
-        return view('campaigns.asset_view', compact('file_name', 'fileType', 'post_id', 'returnUrl', 'campaigns', 'image_path', 'categories', 'fileExtension', 'fileSizeKB', 'campDescription', 'campStatus', 'campId', 'categories', 'assets', 'partners'));
+        return view('campaigns.asset_view', compact('title','file_name', 'fileType', 'post_id', 'returnUrl', 'campaigns', 'image_path', 'categories', 'fileExtension', 'fileSizeKB', 'campDescription', 'campStatus', 'campId', 'categories', 'assets', 'partners'));
     }
+
+    public function shareToTwitter($identifier)
+    {
+        // Find post by slug or GUID
+        $post = Post::with('image')->where('slug', $identifier)->orWhere('guid', $identifier)->first();
+
+        // Handle post not found
+        if (!$post) {
+            \Log::warning("Post not found with identifier: $identifier");
+            abort(404, 'Post not found.');
+        }
+
+        // Prepare data for sharing
+        $message = $post->description;
+        $assetUrl = Storage::disk('backblaze')->url($post->image->path);
+        $hashtags = 'Laravel,Backblaze';
+
+        // Generate the Twitter share URL
+        $twitterShareUrl = sprintf(
+            'https://twitter.com/intent/tweet?text=%s&url=%s&hashtags=%s',
+            urlencode($message),
+            urlencode($assetUrl),
+            urlencode($hashtags)
+        );
+
+        return $twitterShareUrl;
+    }
+
 
     public function getClientGroups($clientId)
     {

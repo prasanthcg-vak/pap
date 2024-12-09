@@ -120,37 +120,27 @@
                             <div class="social-links">
                                 <ul>
                                     <li>
-                                        <a id="linkedinShare" href="#" target="_blank">
-                                            <i class="fa-brands fa-linkedin"></i>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a id="facebookShare" href="#" target="_blank">
-                                            <i class="fa-brands fa-facebook"></i>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a id="twitterShare" href="#" target="_blank">
-                                            <i class="fa-brands fa-x-twitter"></i>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a id="redditShare" href="#" target="_blank">
-                                            <i class="fa-brands fa-reddit-alien"></i>
-                                        </a>
-                                    </li>
-                                    <li>
                                         <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ urlencode(route('posts.share', $post_id)) }}" 
                                         id="ldShare" target="_blank">
                                         <i class="fa-brands fa-linkedin"></i>
                                         </a>
                                     </li>
                                     <li>
-                                        <a 
-                                            href="https://twitter.com/intent/tweet?text={{ urlencode($campDescription . ' ' . $image_path) }}" 
-                                            target="_blank"
-                                            class="btn btn-primary">
-                                            <i class="fa-brands fa-x-twitter"></i>
+                                       <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(route('posts.share', $post_id)) }}" 
+                                        id="fbShare" target="_blank" rel="noopener noreferrer">
+                                            <i class="fa-brands fa-facebook"></i>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="https://twitter.com/intent/tweet?text={{ urlencode($campDescription) }}&url={{ urlencode(route('posts.share', $post_id)) }}&hashtags=Laravel,Backblaze" 
+                                        id="twitterShare" target="_blank" rel="noopener noreferrer">
+                                            <i class="fa-brands fa-x-twitter"></i> 
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="https://www.reddit.com/submit?url={{ urlencode(route('posts.share', $post_id)) }}&title={{ urlencode($title) }}" 
+                                        id="redditShare" target="_blank" rel="noopener noreferrer">
+                                            <i class="fa-brands fa-reddit-alien"></i>
                                         </a>
                                     </li>
                                 </ul>
@@ -369,12 +359,6 @@ $(document).ready(function () {
         // Debug logs
         console.log("Public URL: ", publicUrl); // Check if URL is valid
         console.log("Encoded URL: ", encodedUrl); // Check the encoded URL
-
-        // Set social media share links
-        $('#linkedinShare').attr('href', `https://www.linkedin.com/shareArticle?mini=true&url=${encodedUrl}&summary=${encodedDescription}&title=${encodedDescription}`);
-        $('#facebookShare').attr('href', `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}&quote=${encodedDescription}`);
-        $('#twitterShare').attr('href', `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedDescription}`);
-        $('#redditShare').attr('href', `https://www.reddit.com/submit?url=${encodeURIComponent(publicUrl)}`);
 
         // Show the modal
         $('#linkAssetModal').modal('show');
