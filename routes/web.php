@@ -156,6 +156,8 @@ Route::middleware(['auth'])->group(function () {
 
 // Route::get('/share/{post}', [PostController::class, 'share'])->name('posts.share');
 Route::get('/posts/share/{slug}', [PostController::class, 'share'])->name('posts.share');
+Route::post('/twitter/share/{slug}', [PostController::class, 'shareToTwitter'])->name('twitter.share');
+
 
 
 // Clear application cache
