@@ -44,6 +44,8 @@
             // Reset the form
             $('#Model-Form')[0].reset(); // This will close the modal
             $('.modal.fade').modal('hide');
+            $('#campaignModalLabel').text('Add Campaign');
+
             
 
         });

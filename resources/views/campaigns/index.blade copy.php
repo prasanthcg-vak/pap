@@ -16,8 +16,6 @@
     </style>
     <!-- Table -->
 
-
-
     <div class="CM-main-content">
         <div class="container-fluid p-0">
             <!-- Table -->
@@ -170,7 +168,7 @@
         <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5">Campaign</h1>
+                    <h1 class="modal-title fs-5" id="campaignModalLabel">Add Campaign</h1>
                     <p class="status green active_header_block" id="active_header_block" style="display: none;">Active</p>
                     <p class="status red inactive_header_block" id="inactive_header_block" style="display: none;">Inactive
                     </p>
@@ -247,8 +245,131 @@
                                         <option value="" disabled>Select Related Partners</option>
                                     </select>
                                 </div>
-
+                                <!-- Plus Button to Add New Partner -->
+                                {{-- <button type="button" id="addPartnerBtn" class="btn btn-sm btn-primary mt-2">+ Add
+                                    Partner</button> --}}
+                                {{-- <button type="button" id="addEntityBtn" class="btn btn-sm search mt-2">+ Add
+                                    Partner</button> --}}
                             </div>
+
+                            <!-- Modal to Add New Partner -->
+                            <!-- Modal to Add Partner or Another Entity -->
+                            <div class="modal" id="addEntityModal" tabindex="-1" aria-labelledby="addEntityModalLabel"
+                                aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="addEntityModalLabel">Add New Partner</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <!-- Tabs for switching forms -->
+                                            {{-- <ul class="nav nav-tabs" id="entityTab" role="tablist">
+                                                <li class="nav-item">
+                                                    <button class="nav-link active" id="add-partner-tab"
+                                                        data-bs-toggle="tab" data-bs-target="#add-partner" type="button"
+                                                        role="tab" aria-controls="add-partner"
+                                                        aria-selected="true">Add Partner</button>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <button class="nav-link" id="add-client-tab" data-bs-toggle="tab"
+                                                        data-bs-target="#add-client" type="button" role="tab"
+                                                        aria-controls="add-client" aria-selected="false">Add
+                                                        Client</button>
+                                                </li>
+                                            </ul> --}}
+                                            <div class="tab-content" id="entityTabContent">
+                                                <!-- Partner Form -->
+                                                <div class="tab-pane fade show active" id="add-partner" role="tabpanel"
+                                                    aria-labelledby="add-partner-tab">
+                                                    <div class="mb-3 mt-3">
+                                                        <form id="addPartnerForm">
+                                                            <div class="mb-3">
+                                                                <label for="partner_name" class="form-label">Partner
+                                                                    Name</label>
+                                                                <input type="text" class="form-control"
+                                                                    id="partner_name" name="partner_name"
+                                                                    placeholder="Enter Partner Name" required>
+                                                            </div>
+
+                                                            <div class="mb-3">
+                                                                <label for="partner_contact" class="form-label">Partner
+                                                                    Contact</label>
+                                                                <input type="text" class="form-control"
+                                                                    id="partner_contact" name="partner_contact"
+                                                                    placeholder="Enter Partner Contact" required>
+                                                            </div>
+
+                                                            <div class="mb-3">
+                                                                <label for="partner_email" class="form-label">Partner
+                                                                    Email</label>
+                                                                <input type="email" class="form-control"
+                                                                    id="partner_email" name="partner_email"
+                                                                    placeholder="Enter Partner Email" required>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label for="password"
+                                                                    class="common-label">Password</label>
+                                                                <input type="password"
+                                                                    class="form-control @error('password') is-invalid @enderror common-input"
+                                                                    id="password" placeholder="Password" name="password"
+                                                                    minlength="8" required>
+                                                                @error('password')
+                                                                    <span class="text-danger">{{ $message }}</span>
+                                                                @enderror
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label for="password_confirmation"
+                                                                    class="common-label">Confirm Password</label>
+                                                                <input type="password"
+                                                                    class="form-control @error('password_confirmation') is-invalid @enderror common-input"
+                                                                    id="password_confirmation"
+                                                                    placeholder="Confirm  Password"
+                                                                    name="password_confirmation" minlength="8" required>
+                                                                @error('password_confirmation')
+                                                                    <span class="text-danger">{{ $message }}</span>
+                                                                @enderror
+                                                            </div>
+
+                                                            <div class="mb-3">
+                                                                <input type="hidden">
+                                                            </div>
+
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                                <!-- Client Form -->
+                                                <div class="tab-pane fade" id="add-client" role="tabpanel"
+                                                    aria-labelledby="add-client-tab">
+                                                    <div class="mb-3 mt-3">
+                                                        <label for="new_client_name" class="form-label">Client
+                                                            Name</label>
+                                                        <input type="text" class="form-control" id="new_client_name"
+                                                            placeholder="Enter new client name">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="client_email" class="form-label">Client Email</label>
+                                                        <input type="email" class="form-control" id="client_email"
+                                                            placeholder="Enter client email">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn save " id="saveEntityBtn">Save</button>
+                                            <button type="button" class="btn cancel"
+                                                data-bs-dismiss="modal">Cancel</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Button to Open Modal -->
+
+
+
+
 
                         </div>
 
@@ -308,8 +429,7 @@
                             <div class="img-upload-con d-none">
                                 <div class="sic-action-btns justify-content-center flex-wrap">
                                     <div class="addmore"><button type="button" id="add-more-btn"
-                                            class="btn download">Add More</button>
-                                    </div>
+                                            class="btn download">Add More</button></div>
 
 
                                     <div style="font-size:10px;">
@@ -391,6 +511,7 @@
             const $form = $('#campaignForm');
             $form.attr('action', `/campaigns/${campaign.id}`);
             $('#campaignMethod').val('PUT');
+            $('#campaignModalLabel').text('Edit Campaign');
 
             // Populate form fields with campaign data
             $('#campaign_name').val(campaign.name);
@@ -412,14 +533,6 @@
 
             console.log(campaign);
 
-            // Handle client dropdown selection
-            const $clientDropdown = $('#client');
-            $clientDropdown.val(campaign.client_id);
-
-            // Handle group dropdown selection
-            const $groupDropdown = $('#clientGroup');
-            $groupDropdown.val(campaign.Client_group_id);
-
             // If the client ID or group ID is not in the dropdown list, add it dynamically
             if (!$clientDropdown.find(`option[value="${campaign.client_id}"]`).length) {
                 $clientDropdown.append(
@@ -439,6 +552,16 @@
                 ).val(campaign.Client_group_id);
             }
 
+            // Handle client dropdown selection
+            const $clientDropdown = $('#client');
+            $clientDropdown.val(campaign.client_id);
+
+            // Handle group dropdown selection
+            const $groupDropdown = $('#clientGroup');
+            $groupDropdown.val(campaign.Client_group_id);
+
+
+
             // Toggle active/inactive header blocks
             if (campaign.is_active === 1) {
                 $('#active_header_block').show();
@@ -447,6 +570,7 @@
                 $('#inactive_header_block').show();
                 $('#active_header_block').hide();
             }
+
             // Display existing cover image if available
             const $existingImageDiv = $('#existingImageDiv');
             const $existingImage = $('#existingImage');
@@ -464,6 +588,84 @@
 
             // Display the modal
             $('#createcampaign').modal('show');
+        }
+    </script>
+    <script>
+        // document.getElementById('addPartnerBtn').addEventListener('click', function() {
+        //     // Open the modal to add a new partner
+        //     var myModal = new bootstrap.Modal(document.getElementById('addPartnerModal'));
+        //     myModal.show();
+        // });
+
+        // document.getElementById('savePartnerBtn').addEventListener('click', function() {
+        //     // Get the new partner name from the input field
+        //     var newPartnerName = document.getElementById('new_partner_name').value;
+
+        //     if (newPartnerName) {
+        //         // Add the new partner to the select dropdown
+        //         var selectElement = document.getElementById('related_partner');
+        //         var newOption = document.createElement('option');
+        //         newOption.value = newPartnerName;
+        //         newOption.textContent = newPartnerName;
+        //         selectElement.appendChild(newOption);
+
+        //         // Reinitialize the selectpicker (if you're using Bootstrap-select or similar)
+        //         $('.selectpicker').selectpicker('refresh');
+
+        //         // Close the modal
+        //         var myModal = bootstrap.Modal.getInstance(document.getElementById('addPartnerModal'));
+        //         myModal.hide();
+        //     } else {
+        //         alert("Please enter a partner name");
+        //     }
+        // });
+
+        var addEntityBtn = document.getElementById('addEntityBtn');
+        if (addEntityBtn) { // Check if the element exists
+
+            document.getElementById('addEntityBtn').addEventListener('click', function() {
+                var myModal = new bootstrap.Modal(document.getElementById('addEntityModal'));
+                myModal.show();
+            });
+        }
+
+        var saveEntityBtn = document.getElementById('saveEntityBtn');
+
+        if (saveEntityBtn) {
+            document.getElementById('saveEntityBtn').addEventListener('click', function() {
+                const activeTab = document.querySelector('#entityTab .nav-link.active').getAttribute('id');
+
+                if (activeTab === 'add-partner-tab') {
+                    // Add Partner Logic
+                    const partnerName = document.getElementById('new_partner_name').value;
+                    if (partnerName) {
+                        const partnerDropdown = document.getElementById('related_partner');
+                        const newOption = document.createElement('option');
+                        newOption.value = partnerName;
+                        newOption.textContent = partnerName;
+                        partnerDropdown.appendChild(newOption);
+                        $('.selectpicker').selectpicker('refresh'); // Refresh if using Bootstrap Select
+                        alert("Partner added successfully!");
+                    } else {
+                        alert("Please enter a partner name.");
+                    }
+                } else if (activeTab === 'add-client-tab') {
+                    // Add Client Logic
+                    const clientName = document.getElementById('new_client_name').value;
+                    const clientEmail = document.getElementById('client_email').value;
+
+                    if (clientName && clientEmail) {
+                        alert(`Client ${clientName} (${clientEmail}) added successfully!`);
+                        // Add logic to save the client details (e.g., AJAX call or update dropdown)
+                    } else {
+                        alert("Please fill out all client details.");
+                    }
+                }
+
+                // Close Modal
+                var myModal = bootstrap.Modal.getInstance(document.getElementById('addEntityModal'));
+                myModal.hide();
+            });
         }
     </script>
 @endsection
