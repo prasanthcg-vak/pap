@@ -54,6 +54,7 @@ class PostController extends Controller
                 'title' => $post->title,
                 'description' => $post->description,
                 'file_path' => Storage::disk('backblaze')->url($post->image->path),
+                'thumbnail_path' => ($post->image->thumbnail_path) ? Storage::disk('backblaze')->url($post->image->thumbnail_path) : '',
                 'file_type' => $post->image->file_type,
             ];
 
