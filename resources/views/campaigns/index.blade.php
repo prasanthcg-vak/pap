@@ -351,7 +351,24 @@
                                                     </div>
                                                 </div>
                                                 <input type="file" name="additional_images[]"
-                                                    class="drop-zone__input">
+                                                    class="drop-zone__input" onchange="handleFileChange(this)">
+                                            </div>
+                                            <!-- Thumbnail Upload for video and PDF files -->
+                                            <div class="thumbnail-upload" style="display: none;">
+                                                <label for="thumbnail">Upload Thumbnail (for Video/PDF):</label>
+                                                <div class="drop-zone">
+                                                    <div class="drop-zone__prompt">
+                                                        <div class="drop-zone_color-txt">
+                                                            <span><img src="assets/images/Image.png"
+                                                                    alt=""></span><br />
+                                                            <span style="font-size:14px;"><img
+                                                                    src="assets/images/fi_upload-cloud.svg" alt="">
+                                                                Upload Asset</span>
+                                                            <span style="font-size:10px;">(JEPG, PNG, JPG).</span>
+                                                        </div>
+                                                    </div>
+                                                    <input type="file" name="thumbnail[]" class="drop-zone__input">
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -392,6 +409,20 @@
                 }
             });
         });
+
+        function handleFileChange(inputElement) {
+            const file = inputElement.files[0];
+            const fileType = file.type; // Get the MIME type of the file
+            const thumbnailDiv = inputElement.closest('.upload--col').querySelector('.thumbnail-upload');
+        console.log(fileType);
+
+            // Show thumbnail input if the file is a video or PDF
+            if (fileType.includes('video') || fileType === 'application/pdf') {
+                thumbnailDiv.style.display = 'block';
+            } else {
+                thumbnailDiv.style.display = 'none';
+            }
+        }
 
         function editCampaign(campaign, imgUrl) {
             // Change form action and method for updating

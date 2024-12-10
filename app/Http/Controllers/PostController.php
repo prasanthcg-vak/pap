@@ -54,6 +54,7 @@ class PostController extends Controller
                 'title' => $post->title,
                 'description' => $post->description,
                 'file_path' => Storage::disk('backblaze')->url($post->image->path),
+                'thumbnail_path' => ($post->image->thumbnail_path) ? Storage::disk('backblaze')->url($post->image->thumbnail_path) : '',
                 'file_type' => $post->image->file_type,
             ];
 
@@ -69,5 +70,37 @@ class PostController extends Controller
             abort(500, 'An error occurred while preparing the post for sharing.');
         }
     }   
+
+    public function shareToTwitter($identifier)
+    {
+        // Find post by slug or GUID
+        $post = Post::with('image')->where('slug', $identifier)->orWhere('guid', $identifier)->first();
+    
+        // Handle post not found
+        if (!$post) {
+            \Log::warning("Post not found with identifier: $identifier");
+            abort(404, 'Post not found.');
+        }
+    
+        // Prepare data for sharing
+        $message = $post->description;
+        $assetUrl = Storage::disk('backblaze')->url($post->image->path);
+        $hashtags = 'Laravel,Backblaze';
+    
+        // Generate the Twitter share URL
+        $twitterShareUrl = sprintf(
+            'https://twitter.com/intent/tweet?text=%s&url=%s&hashtags=%s',
+            urlencode($message),
+            urlencode($assetUrl),
+            urlencode($hashtags)
+        );
+    
+        // Pass the Twitter share URL to the view
+        return view('your-view-file', [
+            'twitterShareUrl' => $twitterShareUrl,
+            'post' => $post, // Pass post for additional data
+        ]);
+    }
+    
 
 }
