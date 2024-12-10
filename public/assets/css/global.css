@@ -3406,3 +3406,15 @@ input#dt-search-0 {
 .View-post-contents p {
     font-size: 16px;
 }
+a.btn.btn-sm.edit svg {
+    height: 25px;
+    width: 25px;
+}
+a.btn.btn-sm.edit svg path {
+   fill: #21b9ad;
+}
+
+.btn.edit:hover svg path {
+    fill: #fff;
+
+}

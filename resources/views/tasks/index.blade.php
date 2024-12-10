@@ -165,14 +165,16 @@
                     <form id="Model-Form" action="{{ route('tasks.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="row m-0">
-                            
-                            
+
+
                             <div class="col-xl-4 col-md-6  mt-md-0 mt-4">
                                 <label for="campaign-select">Campaign Name</label>
-                                <select class="form-select" id="campaign-select" name="campaign_id" required aria-label="Default select example">
+                                <select class="form-select" id="campaign-select" name="campaign_id" required
+                                    aria-label="Default select example">
                                     <option value="" selected>Select Campaign</option>
                                     @foreach ($campaigns as $campaign)
-                                        <option value="{{ $campaign->id }}" data-client-name="{{ $campaign->client->name }}">
+                                        <option value="{{ $campaign->id }}"
+                                            data-client-name="{{ $campaign->client->name }}">
                                             {{ $campaign->name }}
                                         </option>
                                     @endforeach
@@ -182,15 +184,16 @@
                                 <label for="client-name">Client Name</label>
                                 <input type="text" id="client-name" name="client_name" class="form-control" readonly>
                             </div>
-                            
+
                             <!-- Partner Dropdown -->
                             <div class="col-xl-4 col-md-6 mt-md-0 mt-4">
                                 <label for="partner-select">Select Campaign Partners</label>
-                                <select class="form-select" id="partner-select" name="partner_id" required aria-label="Default select example">
+                                <select class="form-select" id="partner-select" name="partner_id" required
+                                    aria-label="Default select example">
                                     <option value="" selected>Select Partner</option>
                                 </select>
                             </div>
-                            
+
                         </div>
 
                         <div class="row m-0">
@@ -222,7 +225,8 @@
                         <div class="row m-0">
                             <div class="col-lg-6 col-xl-4 mb-4 mb-lg-0">
                                 <label for="">Category</label>
-                                <select class="form-select" name="category_id" required aria-label="Default select example">
+                                <select class="form-select" name="category_id" required
+                                    aria-label="Default select example">
                                     <option value="" selected>Select Category</option>
                                     @foreach ($categories as $category)
                                         <option value="{{ $category->id }} ">
@@ -399,20 +403,26 @@
                     fetch(`/get-partners-by-campaign/${campaignId}`)
                         .then(response => response.json())
                         .then(data => {
+                            // Populate Client Name
+                            clientName.value = data.client?.name || 'No Client';
+
                             // Populate Partner Dropdown
-                            
                             partnerDropdown.innerHTML =
                                 `<option value="" selected>Select Partner</option>`;
-                            data.forEach(partner => {
-                                partnerDropdown.innerHTML +=
-                                    `<option value="${partner.id}">${partner.partner.name}</option>`;
-                            });
+                            if (data.partners.length > 0) {
+                                data.partners.forEach(partner => {
+                                    partnerDropdown.innerHTML +=
+                                        `<option value="${partner.id}">${partner.partner.name}</option>`;
+                                });
+                            }
                             partnerDropdown.disabled = false; // Enable after loading
-                            clientName.value = data[0]?.campaign?.client?.name || 'No Client';
-
                         })
-                        .catch(() => alert('Failed to fetch partners. Please try again.'));
+                        .catch(() => {
+                            alert('Failed to fetch partners. Please try again.');
+                            partnerDropdown.disabled = false;
+                        });
                 }
+
             });
         });
 

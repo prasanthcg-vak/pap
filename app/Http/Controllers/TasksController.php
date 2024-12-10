@@ -26,6 +26,9 @@ class TasksController extends Controller
     public function index()
     {
         $authId = Auth::id();
+        $role_level = Auth::user()->roles->first()->role_level;
+        $client_id = Auth::user()->client_id;
+        $group_id = Auth::user()->group_id;
 
         $campaigns = Campaigns::all(); // Get all campaigns for the dropdown
         $categories = Category::where('is_active', 1)->get();
@@ -35,11 +38,31 @@ class TasksController extends Controller
             ->get();
         // dd($asset);
         // $tasks = Tasks::with(['campaign', 'status'])->where('is_active', 1)->get();
-        $tasks = Tasks::with([
-            'campaign.group',  // Load the group related to the campaign
-            'campaign.client', // Load the client related to the campaign
-            'status'           // Load the status if it's a relation
-        ])->get();        
+        if ($role_level < 4) {
+            $tasks = Tasks::with([
+                'campaign.group',  // Load the group related to the campaign
+                'campaign.client', // Load the client related to the campaign
+                'status'           // Load the status if it's a relation
+            ])->get();
+        } elseif ($role_level == 4) {
+            $tasks = Tasks::with(['campaign.group', 'campaign.client', 'status'])
+                ->whereHas('campaign', function ($query) use ($client_id) {
+                    $query->where('client_id', $client_id);
+                })
+                ->get();
+        } elseif ($role_level == 5) {
+            $tasks = Tasks::with(['campaign.group', 'campaign.client', 'status'])
+                ->whereHas('campaign', function ($query) use ($client_id, $group_id) {
+                    $query->where('client_id', $client_id)
+                        ->where('client_group_id', $group_id);
+                })
+                ->get();
+        } elseif ($role_level == 6) {
+            $tasks = Tasks::with(['campaign.group', 'campaign.client', 'status', 'campaign.partner'])
+                ->where('partner_id', $authId)
+                ->get();
+        }
+
         return view('tasks.index', compact('tasks', 'campaigns', 'categories', 'assets', 'partners'));
     }
 
@@ -356,7 +379,7 @@ class TasksController extends Controller
             'asset_id' => (int) $request->asset_id,
             'description' => $validatedData['description'],
             'status_id' => null,
-            'is_active' => $request->has('is_active') ? 1 : 0, 
+            'is_active' => $request->has('is_active') ? 1 : 0,
         ]);
 
         // Log the successful update
@@ -385,18 +408,28 @@ class TasksController extends Controller
     }
     public function getPartnersByCampaign($campaignId)
     {
-        // Assuming each campaign has many partners via a relationship
-        // $partners = CampaignPartner::where('campaigns_id',$campaignId)->with(["partner.roles"])->get();
+        // Retrieve the campaign with the client and partners
+        $campaign = Campaigns::with('client')->find($campaignId);
 
-        $partners = CampaignPartner::with('campaign.client')->where('campaigns_id', $campaignId)
+        if (!$campaign) {
+            return response()->json(['message' => 'Campaign not found'], 404);
+        }
+
+        // Get partners related to the campaign with role_level 6
+        $partners = CampaignPartner::with('campaign.client')
+            ->where('campaigns_id', $campaignId)
             ->whereHas('partner.roles', function ($query) {
                 $query->where('role_level', 6);
             })
             ->with('partner.roles')
             ->get();
-        // dd();
-        return response()->json($partners);
+
+        return response()->json([
+            'client' => $campaign->client,
+            'partners' => $partners,
+        ]);
     }
+
 
 
 }

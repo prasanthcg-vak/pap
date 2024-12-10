@@ -38,4 +38,8 @@ class Campaigns extends Model
     {
         return $this->belongsTo(Client::class, 'client_id');
     }
+    public function partner()
+    {
+        return $this->hasMany(CampaignPartner::class, 'campaigns_id');
+    }
 }

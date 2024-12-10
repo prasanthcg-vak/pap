@@ -24,3 +24,6 @@ yarn-error.log
 /.zed
 zip/artisan.zip
 zip/pap.zip
+zip/pdf/CM-DAP-Trialrun02-SuperAdmin.pdf
+app/Http/Controllers/backup/CampaignsController.php
+/app/Http/Controllers/backup

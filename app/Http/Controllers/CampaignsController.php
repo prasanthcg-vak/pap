@@ -36,15 +36,35 @@ class CampaignsController extends Controller
 
         $role_level = Auth::user()->roles->first()->role_level;
         $client_id = Auth::user()->client_id;
+        $group_id = Auth::user()->group_id;
+
         // dd($client_id);
         $groups = [];
-        if ($role_level > 3) {
-            $groups = ClientGroup::where("client_id", $client_id)->get();
-            // dd($groups);
-        }
+        // if ($role_level > 3) {
+        $groups = ClientGroup::where("client_id", $client_id)->get();
+        // dd($groups);
+        // }
         // $campaigns = Campaigns::with('image')->where('is_active', 1)->get();
-        $campaigns = Campaigns::with('image', 'client', 'group')->get();
+        if ($role_level < 4) {
+            $campaigns = Campaigns::with('image', 'client', 'group')->get();
 
+        } elseif ($role_level == 4) {
+            $campaigns = Campaigns::with('image', 'client', 'group')->where("client_id", $client_id)->get();
+        } elseif ($role_level == 5) {
+            $campaigns = Campaigns::with('image', 'client', 'group')->where("client_id", $client_id)->where("Client_group_id", $group_id)->get();
+
+        } elseif ($role_level == 6) {
+            $campaigns = Campaigns::with('image', 'client', 'group', 'partner')
+                ->whereHas('partner', function ($query) use ($authId) {
+                    $query->where('partner_id', $authId);
+                })
+                ->get();
+            // dd($campaigns);
+
+        }
+        // $campaigns = Campaigns::with('image', 'client', 'group')->get();
+
+        // dd($campaigns[3]->group->name);
         $partners = ClientPartner::with(['client', 'partner'])
             ->where('client_id', $authId)
             ->get();
@@ -436,6 +456,12 @@ class CampaignsController extends Controller
         }
 
         $campaign = Campaigns::findOrFail($id);
+        $campaign->name = $request->name;
+        $campaign->description = $request->description;
+        $campaign->due_date = $request->due_date;
+        $campaign->client_id = (int) $request->client;
+        $campaign->client_group_id = (int) $request->clientGroup;
+        // $data->image_id = $image->id;
         $campaign->is_active = $request->has('active') ? 1 : 0;
 
         $campaign->update($request->all());
@@ -444,6 +470,21 @@ class CampaignsController extends Controller
 
             $campaign->image_id = $image->id;
             $campaign->save();
+        }
+
+        if (isset($request->related_partner)) {
+            foreach ($request->related_partner as $partner) {
+                CampaignPartner::updateOrCreate(
+                    [
+                        'campaigns_id' => $id, // Matching condition
+                        'partner_id' => (int) $partner,
+                    ],
+                    [
+                        // Any additional data to update
+                        'updated_at' => now(),
+                    ]
+                );
+            }
         }
 
         if ($request->hasFile('additional_images')) {
