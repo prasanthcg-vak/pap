@@ -42,6 +42,13 @@
                         </ul>
                     </div>
                 @endif
+                @if (session('success'))
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        {{ session('success') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
+
                 <!-- campaigns-contents -->
 
                 <div class="table-wrapper">
@@ -146,7 +153,7 @@
                                                         onsubmit="return confirm('Are you sure you want to delete this campaign?');">
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button type="submit" class="btn comment"><i
+                                                        <button type="submit" class="btn trash"><i
                                                                 class="bx bx-trash"></i></button>
                                                     </form>
                                                 @endif
@@ -221,7 +228,7 @@
                             @if ($role_level < 3)
                                 <div class="col-xl-4 mb-3">
                                     <label for="clientGroup" class="form-label">Select Client Group</label>
-                                    <select name="clientGroup" id="clientGroup" class="form-control" disabled>
+                                    <select name="clientGroup" id="clientGroup" class="form-control">
                                         <option value="" disabled selected>Select Client Group</option>
                                     </select>
                                 </div>
@@ -430,11 +437,21 @@
                 ).val(campaign.client_id);
             }
 
+            $groupDropdown.empty(); // Clear all existing options
+
             if (!$groupDropdown.find(`option[value="${campaign.Client_group_id}"]`).length) {
                 $groupDropdown.append(
                     $('<option>', {
+                        value: '',
+                        text: 'Select Client Group',
+                        disabled: true,
+                        selected: true,
+                    })
+                );
+                $groupDropdown.append(
+                    $('<option>', {
                         value: campaign.Client_group_id,
-                        text: `Group ${campaign.Client_group_id}`, // Customize based on your data
+                        text: `Group ${campaign.group.name}`, // Customize based on your data
                     })
                 ).val(campaign.Client_group_id);
             }

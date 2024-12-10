@@ -89,13 +89,14 @@ class UserController extends Controller
                 'client_id' => $request->client_id
             ]);
         }
-        // if ($request->role_id == 6) {
+        if ($request->role_id == 6) {
 
-        //     $clientGroup = ClientGroup::create([
-        //         'user_id' => $user->id,
-        //         'client_id' => $request->client_id
-        //     ]);
-        // }
+            $clientGroup = ClientGroupPartners::create([
+                'user_id' => $user->id,
+                'client_id' => $request->client_id
+            ]);
+        }
+
 
         // Attempt to send email
         Mail::to($request->email)->send(new UserPasswordMail($randomPassword));
@@ -162,15 +163,17 @@ class UserController extends Controller
             }
 
             // Handle group association for role 6
-            // if ($request->role_id == 6) {
-            //     ClientGroup::updateOrCreate(
-            //         ['user_id' => $user->id],
-            //         ['group_id' => $request->group_id]
-            //     );
-            // } else {
-            //     // If not role 6, remove ClientGroup entry
-            //     ClientGroup::where('user_id', $user->id)->delete();
-            // }
+            if ($request->role_id == 6) {
+                ClientGroupPartners::updateOrCreate(
+                    ['user_id' => $user->id],
+                    ['group_id' => $request->group_id]
+                );
+            } else {
+                // If not role 6, remove ClientGroup entry
+                if (ClientGroupPartners::where('user_id', $user->id)->exists()) {
+                    ClientGroupPartners::where('user_id', $user->id)->delete();
+                }
+            }
 
             return response()->json(['success' => 'User updated successfully']);
         } catch (\Illuminate\Validation\ValidationException $e) {

@@ -9,7 +9,7 @@ class CampaignPartner extends Model
 {
     use HasFactory;
     
-    protected $fillable = ['name', 'description', 'is_active'];
+    protected $fillable = ['campaigns_id', 'partner_id'];
 
     public function tasks()
     {

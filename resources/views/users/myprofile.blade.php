@@ -8,9 +8,9 @@
             <!-- profile-content -->
             <div class="profile-content client-profile">
                 <div class="profile-header">
-                    <h3>Client Profile</h3>
+                    <h3>User Profile</h3>
                     <a href="#" class="Edit-My-Profile-btn" data-bs-toggle="modal" data-bs-target="#Edit-My-Profile">Edit
-                        Client Profile</a>
+                        User Profile</a>
                 </div>
                 @if ($errors->any())
                     <div class="alert alert-danger">
@@ -94,7 +94,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-6 d-none">
                         <div class="profile-con">
                             <div class="row">
                                 <div class="col-sm-4">
@@ -192,7 +192,7 @@
         <div class="modal-dialog modal-dialog-centered modal-md modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5">EDIT CLIENT PROFILE</h1>
+                    <h1 class="modal-title fs-5">EDIT USER PROFILE</h1>
                     <button type="button" class="btn-close" id="model-close" data-bs-dismiss="modal"
                         aria-label="Close"></button>
                 </div>
@@ -246,7 +246,7 @@
                                         class="img-thumbnail mt-2" width="100">
                                 @endif
                             </div>
-                            <div class="col-lg-12 mb-3">
+                            {{-- <div class="col-lg-12 mb-3">
                                 <label for="profile_picture">Logo</label>
                                 <input type="file" id="logo" name="logo" class="form-control">
 
@@ -254,7 +254,7 @@
                                     <img src="{{ asset(Auth::user()->logo) }}" alt="Logo" class="img-thumbnail mt-2"
                                         width="100">
                                 @endif
-                            </div>
+                            </div> --}}
 
 
                         </div>
