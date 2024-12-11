@@ -181,7 +181,7 @@
                                     class="form-select @error('role_id') is-invalid @enderror common-select">
                                     <option value="">-Select-</option>
                                     @foreach (get_roles() as $value => $label)
-                                        @if (!in_array($value, [1]))
+                                        @if (!in_array($value, [1,4]))
                                             <option value="{{ $value }}"
                                                 {{ isset($data) && $data->role_id == $value ? 'selected' : '' }}>
                                                 {{ $label }}

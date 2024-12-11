@@ -81,6 +81,9 @@
                                     <span>Client Group</span>
                                 </th>
                                 <th class="">
+                                    <span>Assets</span>
+                                </th>
+                                <th class="">
                                     <span>Status</span>
                                 </th>
                                 @if ($hasActionPermission)
@@ -101,8 +104,26 @@
                                     <td>
                                         <span>{{ $task->date_required }}</span>
                                     </td>
-                                    <td class="description">
-                                        <span>{!! $task->description !!}</span>
+                                   
+                                    <td class="">
+                                        @php
+                                            $words = explode(' ', strip_tags($task->description)); // Strip HTML tags and split into words
+                                            $truncated = implode(' ', array_slice($words, 0, 15)); // Get the first 15 words
+                                        @endphp
+                                        <span class="truncated-text">
+                                            {!! $truncated !!}{{ count($words) > 15 ? '...' : '' }}
+                                        </span>
+                                        @if (count($words) > 15)
+                                            <span class="read-more"
+                                                style="color: orange; cursor: pointer; text-decoration: underline;"> Read
+                                                more</span>
+                                            <span class="full-text" style="display: none;">
+                                                {!! $task->description !!}
+                                                <span class="read-less"
+                                                    style="color: orange; cursor: pointer; text-decoration: underline;"> Read
+                                                    less</span>
+                                            </span>
+                                        @endif
                                     </td>
 
                                     <td class="">
@@ -111,6 +132,7 @@
                                     <td class="">
                                         <span>{{ $task->campaign->group->name ?? '-' }} </span>
                                     </td>
+                                    <td>{{ $task->image_id ? '1' : '0' }}</td>
                                     <td class="">
                                         <span>{{ $task->status ? $task->status->name : 'N/A' }}</span>
                                     </td>
@@ -160,6 +182,11 @@
                     </h1>
                     {{-- <p class="status green">Active</p> --}}
                     <span class="btn-close" id="model-close" data-dismiss="modal" aria-label="Close"></span>
+                </div>
+                <div id="modalLoader" class="modal-loader" style="display: none;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
                 </div>
                 <div class="modal-body">
                     <form id="Model-Form" action="{{ route('tasks.store') }}" method="POST" enctype="multipart/form-data">
@@ -395,6 +422,7 @@
 
             // Handle Campaign Selection
             campaignDropdown.addEventListener('change', function() {
+                $('#modalLoader').show();
                 const campaignId = this.value;
                 clientName.value = '';
 
@@ -405,7 +433,6 @@
                         .then(data => {
                             // Populate Client Name
                             clientName.value = data.client?.name || 'No Client';
-
                             // Populate Partner Dropdown
                             partnerDropdown.innerHTML =
                                 `<option value="" selected>Select Partner</option>`;
@@ -416,12 +443,17 @@
                                 });
                             }
                             partnerDropdown.disabled = false; // Enable after loading
+                            $('#modalLoader').hide();
+
                         })
                         .catch(() => {
                             alert('Failed to fetch partners. Please try again.');
                             partnerDropdown.disabled = false;
+                            $('#modalLoader').hide();
                         });
                 }
+                
+
 
             });
         });

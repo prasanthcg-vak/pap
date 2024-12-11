@@ -62,7 +62,7 @@
                                 <th class="">
                                     <span>Name</span>
                                 </th>
-                                <th class="">
+                                <th class="" width="20px">
                                     <span>Description</span>
                                 </th>
                                 <th>
@@ -73,6 +73,12 @@
                                 </th>
                                 <th>
                                     <span>Due Date</span>
+                                </th>
+                                <th>
+                                    <span>Tasks</span>
+                                </th>
+                                <th>
+                                    <span>Assets</span>
                                 </th>
                                 <th>
                                     <span>Status</span>
@@ -100,15 +106,89 @@
                                         <span>{{ $campaign->name }}</span>
                                     </td>
 
-                                    <td class="description">
-                                        <span>{!! $campaign->description !!}</span>
+                                    <td class="">
+                                        @php
+                                            $words = explode(' ', strip_tags($campaign->description)); // Strip HTML tags and split into words
+                                            $truncated = implode(' ', array_slice($words, 0, 15)); // Get the first 15 words
+                                        @endphp
+                                        <span class="truncated-text">
+                                            {!! $truncated !!}{{ count($words) > 15 ? '...' : '' }}
+                                        </span>
+                                        @if (count($words) > 15)
+                                            <span class="read-more"
+                                                style="color: orange; cursor: pointer; text-decoration: underline;"> Read
+                                                more</span>
+                                            <span class="full-text" style="display: none;">
+                                                {!! $campaign->description !!}
+                                                <span class="read-less"
+                                                    style="color: orange; cursor: pointer; text-decoration: underline;">
+                                                    Read
+                                                    less</span>
+                                            </span>
+                                        @endif
                                     </td>
+
+
+                                    {{-- <style>
+                                        
+                                        .description-tooltip {
+                                            position: relative;
+                                            cursor: pointer;
+                                        }
+
+                                        .description-tooltip::after {
+                                            content: attr(title);
+                                            /* Show the full description from the title attribute */
+                                            position: absolute;
+                                            top: 100%;
+                                            left: 0;
+                                            background: rgba(0, 0, 0, 0.8);
+                                            color: #fff;
+                                            padding: 10px;
+                                            border-radius: 5px;
+                                            white-space: pre-wrap;
+                                            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+                                            display: none;
+                                            /* Initially hide */
+                                            z-index: 10;
+                                            width: 400px;
+                                            /* Adjust width as needed */
+                                        }
+
+                                        .description-tooltip:hover::after {
+                                            display: block;
+                                            /* Show tooltip on hover */
+                                        }
+                                    </style> --}}
                                     <td>
                                         {{ $campaign->client ? $campaign->client->name : '-' }} </td>
                                     <td>
                                         {{ $campaign->group ? $campaign->group->name : '-' }} </td>
                                     <td>
                                         <span>{{ $campaign->due_date ? \Carbon\Carbon::parse($campaign->due_date)->format('Y-m-d') : '' }}</span>
+                                    </td>
+                                    <td>
+
+                                        @if ($campaign->tasks->isNotEmpty())
+                                            <a href="{{ route('campaigns.tasks', ['id' => $campaign->id]) }}"
+                                                class="">
+                                                {{ $campaign->tasks->count() }}
+                                            </a>
+                                        @else
+                                            0
+                                        @endif
+                                    </td>
+
+                                    {{-- Asset count column --}}
+                                    <td>
+                                        @if ($campaign->images->isNotEmpty())
+                                            <a href="{{ route('campaigns.assetsList', ['id' => $campaign->id]) }} "
+                                                class="">
+                                                {{ $campaign->images->count() }}
+                                            </a>
+                                        @else
+                                            0
+                                        @endif
                                     </td>
                                     <td>
                                         <span>
@@ -350,8 +430,8 @@
                                                         <span style="font-size:10px;">(JEPG, PNG, JPG, MP4, PDF).</span>
                                                     </div>
                                                 </div>
-                                                <input type="file" name="additional_images[]"
-                                                    class="drop-zone__input" onchange="handleFileChange(this)">
+                                                <input type="file" name="additional_images[]" class="drop-zone__input"
+                                                    onchange="handleFileChange(this)">
                                             </div>
                                             <!-- Thumbnail Upload for video and PDF files -->
                                             <div class="thumbnail-upload" style="display: none;">
@@ -362,7 +442,8 @@
                                                             <span><img src="assets/images/Image.png"
                                                                     alt=""></span><br />
                                                             <span style="font-size:14px;"><img
-                                                                    src="assets/images/fi_upload-cloud.svg" alt="">
+                                                                    src="assets/images/fi_upload-cloud.svg"
+                                                                    alt="">
                                                                 Upload Asset</span>
                                                             <span style="font-size:10px;">(JEPG, PNG, JPG).</span>
                                                         </div>
@@ -386,6 +467,8 @@
 
 @section('script')
     <script>
+   
+
         $(document).ready(function() {
             $('#datatable').DataTable().destroy();
             $('#datatable').DataTable({
@@ -414,7 +497,7 @@
             const file = inputElement.files[0];
             const fileType = file.type; // Get the MIME type of the file
             const thumbnailDiv = inputElement.closest('.upload--col').querySelector('.thumbnail-upload');
-        console.log(fileType);
+            console.log(fileType);
 
             // Show thumbnail input if the file is a video or PDF
             if (fileType.includes('video') || fileType === 'application/pdf') {
