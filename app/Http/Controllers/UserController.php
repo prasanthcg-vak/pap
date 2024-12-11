@@ -93,7 +93,7 @@ class UserController extends Controller
 
             $clientGroup = ClientGroupPartners::create([
                 'user_id' => $user->id,
-                'client_id' => $request->client_id
+                'group_id' => (int) $request->group_id
             ]);
         }
 

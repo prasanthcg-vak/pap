@@ -404,7 +404,8 @@ $(document).ready(function () {
         url: `/get-partners/${groupId}`, // Laravel route for partners
         type: 'GET',
         success: function (data) {
-
+          partnerDropdown.empty(); // Clear all existing options
+          $('.selectpicker').selectpicker('refresh');
           partnerDropdown.prop('disabled', false);
           if (Array.isArray(data) && data.length > 0) {
             data.forEach(function (partner) {
@@ -425,5 +426,18 @@ $(document).ready(function () {
         }
       });
     }
+  });
+});
+$(document).ready(function() {
+  $('.read-more').on('click', function() {
+      $(this).hide(); // Hide "Read more"
+      $(this).siblings('.truncated-text').hide(); // Hide truncated text
+      $(this).siblings('.full-text').show(); // Show full text
+  });
+
+  $('.read-less').on('click', function() {
+      $(this).parent('.full-text').hide(); // Hide full text
+      $(this).parent('.full-text').siblings('.truncated-text').show(); // Show truncated text
+      $(this).parent('.full-text').siblings('.read-more').show(); // Show "Read more"
   });
 });

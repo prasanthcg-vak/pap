@@ -46,21 +46,21 @@ class CampaignsController extends Controller
         // }
         // $campaigns = Campaigns::with('image')->where('is_active', 1)->get();
         if ($role_level < 4) {
-            $campaigns = Campaigns::with('image', 'client', 'group')->get();
+            $campaigns = Campaigns::with('images', 'client', 'group', 'tasks')->get();
+            // dd($campaigns[0]->images);
 
         } elseif ($role_level == 4) {
-            $campaigns = Campaigns::with('image', 'client', 'group')->where("client_id", $client_id)->get();
+            $campaigns = Campaigns::with('images', 'client', 'group')->where("client_id", $client_id)->get();
         } elseif ($role_level == 5) {
-            $campaigns = Campaigns::with('image', 'client', 'group')->where("client_id", $client_id)->where("Client_group_id", $group_id)->get();
+            $campaigns = Campaigns::with('images', 'client', 'group')->where("client_id", $client_id)->where("Client_group_id", $group_id)->get();
 
         } elseif ($role_level == 6) {
-            $campaigns = Campaigns::with('image', 'client', 'group', 'partner')
+            $campaigns = Campaigns::with('images', 'client', 'group', 'partner')
                 ->whereHas('partner', function ($query) use ($authId) {
                     $query->where('partner_id', $authId);
                 })
                 ->get();
             // dd($campaigns);
-
         }
         // $campaigns = Campaigns::with('image', 'client', 'group')->get();
 
@@ -108,10 +108,10 @@ class CampaignsController extends Controller
             'thumbnail' => 'nullable|array',
             'thumbnail.*' => 'file|mimes:jpeg,png,jpg|max:10240', // 10 MB limit for thumbnails
         ]);
-    
+
         // Log incoming request
         Log::info('Incoming campaign request', ['request_data' => $request->all()]);
-    
+
         // Create Campaign entry
         $data = new Campaigns();
         $data->name = $request->name;
@@ -122,27 +122,27 @@ class CampaignsController extends Controller
         $data->client_group_id = (int) $request->clientGroup;
         $data->is_active = 1;
         $data->save();
-    
+
         // Upload additional images and thumbnails
         if ($request->hasFile('additional_images')) {
             foreach ($request->file('additional_images') as $key => $file) {
                 $thumbnail = $request->file('thumbnail')[$key] ?? null;
-    
+
                 try {
                     $image = new Image();
-    
+
                     // Upload main file
                     $randomName = Str::random(10) . '.' . $file->getClientOriginalExtension();
                     $filePath = 'images/' . $randomName;
-    
+
                     // Upload file to Backblaze
                     $this->uploadToS3($file, $filePath);
-    
+
                     // Determine file type
                     $extension = $file->getClientOriginalExtension();
                     $file_type = in_array($extension, ['jpg', 'jpeg', 'png']) ? 'image' :
-                                 ($extension === 'pdf' ? 'document' : 'video');
-    
+                        ($extension === 'pdf' ? 'document' : 'video');
+
                     // Upload thumbnail if provided
                     $thumbnailPath = null;
                     if ($thumbnail) {
@@ -150,7 +150,7 @@ class CampaignsController extends Controller
                         $thumbnailPath = 'images/' . $thumbnailName;
                         $this->uploadToS3($thumbnail, $thumbnailPath);
                     }
-    
+
                     // Save file details in the database
                     $image->path = $filePath;
                     $image->campaign_id = $data->id;
@@ -158,7 +158,7 @@ class CampaignsController extends Controller
                     $image->file_type = $file_type;
                     $image->thumbnail_path = $thumbnailPath; // Save thumbnail path
                     $image->save();
-    
+
                     Log::info('File uploaded successfully', ['file_id' => $image->id]);
                 } catch (\Exception $e) {
                     Log::error('File upload error', ['error_message' => $e->getMessage()]);
@@ -166,7 +166,7 @@ class CampaignsController extends Controller
                 }
             }
         }
-    
+
         // Handle related partners
         if (isset($request->related_partner)) {
             foreach ($request->related_partner as $partner) {
@@ -176,10 +176,10 @@ class CampaignsController extends Controller
                 $campaignPartner->save();
             }
         }
-    
+
         return redirect()->route('campaigns.index')->with('success', 'Campaign created successfully.');
     }
-    
+
     /**
      * Upload file to S3.
      *
@@ -199,17 +199,17 @@ class CampaignsController extends Controller
                 'secret' => env('BACKBLAZE_APPLICATION_KEY'),
             ],
         ]);
-    
+
         $s3Client->putObject([
             'Bucket' => 'cm-pap01',
             'Key' => $filePath,
             'Body' => file_get_contents($file),
             'ACL' => 'public-read',
         ]);
-    
+
         Log::info('File uploaded to S3', ['file_path' => $filePath]);
     }
-    
+
     public function storeOld(Request $request)
     {
 
@@ -339,7 +339,7 @@ class CampaignsController extends Controller
         $campaign = Campaigns::findOrFail($id);
         $tasks = Tasks::with('status')->where('campaign_id', $id)->get();
 
-        $images = Image::where('campaign_id', $id)->get(['id', 'file_name', 'path', 'file_type','thumbnail_path']);
+        $images = Image::where('campaign_id', $id)->get(['id', 'file_name', 'path', 'file_type', 'thumbnail_path']);
 
         // Retrieve the URLs for each image
         $imageUrls = $images->map(function ($image) {
@@ -354,6 +354,50 @@ class CampaignsController extends Controller
         });
         $partners = ClientPartner::all(); // Assuming you have a Partner model
         return view('campaigns.show', compact('campaign', 'partners', 'tasks', 'imageUrls'));
+    }
+    public function showTasks($id)
+    {
+        $campaign = Campaigns::findOrFail($id);
+        $tasks = Tasks::with('status')->where('campaign_id', $id)->get();
+
+        $images = Image::where('campaign_id', $id)->get(['id', 'file_name', 'path', 'file_type', 'thumbnail_path']);
+
+        // Retrieve the URLs for each image
+        $imageUrls = $images->map(function ($image) {
+            return [
+                'image_id' => $image->id,
+                'name' => $image->file_name,
+                'path' => $image->path,
+                'image_type' => $image->file_type,
+                'url' => Storage::disk('backblaze')->url($image->path),
+                'thumbnail' => ($image->thumbnail_path) ? Storage::disk('backblaze')->url($image->thumbnail_path) : '',
+            ];
+        });
+        $partners = ClientPartner::all(); // Assuming you have a Partner model
+        return view('campaigns.showTask', compact('campaign', 'partners', 'tasks', 'imageUrls'));
+    }
+
+    public function assetsList($id)
+    {
+        $campaign = Campaigns::findOrFail($id);
+        $assets = Image::with('campaign')
+        // ->whereNotNull('campaign_id')
+        ->where('campaign_id',$id)
+        ->get()
+        ->map(function ($image) {
+            return [
+                'id' => $image->id,
+                'file_name' => $image->file_name,
+                // 'image_type' => pathinfo($image->file_name, PATHINFO_EXTENSION), 
+                'image_type' => $image->file_type,
+                'image' => Storage::disk('backblaze')->url($image->path) ?? null, 
+                'campaign_name' => $image->campaign ? $image->campaign->name : 'No Campaign', 
+                'campaign_id' => $image->campaign_id, 
+                'campaign_status' => $image->campaign ? $image->campaign->is_active : null,
+            ];
+        });
+
+    return view('campaigns.list', compact('assets','campaign'));
     }
 
     /**
@@ -575,7 +619,7 @@ class CampaignsController extends Controller
             $post_id = "";
         }
 
-        return view('campaigns.asset_view', compact('title','file_name', 'fileType', 'post_id', 'returnUrl', 'campaigns', 'image_path', 'categories', 'fileExtension', 'fileSizeKB', 'campDescription', 'campStatus', 'campId', 'categories', 'assets', 'partners'));
+        return view('campaigns.asset_view', compact('title', 'file_name', 'fileType', 'post_id', 'returnUrl', 'campaigns', 'image_path', 'categories', 'fileExtension', 'fileSizeKB', 'campDescription', 'campStatus', 'campId', 'categories', 'assets', 'partners'));
     }
 
     public function shareToTwitter($identifier)

@@ -13,7 +13,7 @@ class Campaigns extends Model
 
     public function tasks()
     {
-        return $this->hasMany(Tasks::class);
+        return $this->hasMany(Tasks::class,'campaign_id');
     }
 
     public function taskstatus() {

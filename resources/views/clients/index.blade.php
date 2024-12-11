@@ -4,7 +4,7 @@
     <div class="CM-main-content">
         <div class="container-fluid p-0">
             <!-- Table -->
-            <div class="task campaingn-table pb-3 common-table">
+            <div class="task campaingn-table pb-3 ">
                 <!-- campaigns-contents -->
                 <div class="col-lg-12 task campaigns-contents">
                     <div class="campaigns-title">
@@ -21,6 +21,8 @@
                                 <th>#</th>
                                 <th>Name</th>
                                 <th>Description</th>
+                                <th>Client Admin</th>
+                                <th>Email</th>
                                 <th>Status</th>
                                 <th>Actions</th>
                             </tr>
@@ -31,6 +33,12 @@
                                     <td>{{ $index + 1 }}</td>
                                     <td>{{ $client->name }}</td>
                                     <td>{{ $client->description }}</td>
+                                    <td>
+                                        {{ optional(optional($client->users->first())->user)->name ?? 'No User Found' }}
+                                    </td>
+                                    <td>
+                                        {{ optional(optional($client->users->first())->user)->email ?? 'No User Found' }}
+                                    </td>
                                     <td>
                                         <span>
                                             <p class="status {{ $client->is_active ? 'green' : 'red' }}">
@@ -318,17 +326,18 @@
         const base_url = "{{ url('/') }}";
 
         function editClient(client) {
+            console.log(client.users[0]?.user?.name || 'No user found');
+
+            // Set form values from the passed `client` object
             $('#client_id').val(client.id);
             $('#name').val(client.name);
             $('#description').val(client.description);
             $('#is_active').prop('checked', client.is_active);
-            $('#client_admin_name').val(client.admin_name);
-            $('#email').val(client.admin_email);
-            $('#role_id').val(client.role_id);
-            $('.add-model').hide();  // Hide "Add" label
-            $('.edit-model').show(); // Show "Edit" label
+            $('#client_admin_name').val(client.users[0]?.user?.name || '');
+            $('#email').val(client.users[0]?.user?.email || '');
+            // $('#role_id').val(client.role_id || '');
 
-            // Display existing logo preview if available
+            // Handle logo preview
             if (client.logo) {
                 const logoPath = `${base_url}/${client.logo}`; // Ensure `base_url` is set correctly
                 $('#logoPreview').html(`
@@ -337,8 +346,12 @@
             } else {
                 $('#logoPreview').html('No logo available');
             }
-            $('#client_details').addClass('d-none'); // Replace 'custom-class' with your desired class name
 
+            // Toggle Add/Edit labels
+            $('.add-model').hide(); // Hide "Add" label
+            $('.edit-model').show(); // Show "Edit" label
+
+            // Show the modal
             $('#clientModal').modal('show');
         }
 
