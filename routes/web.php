@@ -100,7 +100,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('campaigns/create', [CampaignsController::class, 'create'])->name('campaigns.create')->middleware('permission:campaigns.create');
     Route::post('campaigns', [CampaignsController::class, 'store'])->name('campaigns.store')->middleware('permission:campaigns.store');
     Route::get('campaigns/{id}', [CampaignsController::class, 'show'])->name('campaigns.show')->middleware('permission:campaigns.show');
+    Route::get('campaigns/{id}/tasks', [CampaignsController::class, 'showTasks'])->name('campaigns.tasks');
     Route::get('campaigns/{id}/assets', [CampaignsController::class, 'assetsView'])->name('campaigns.assetsview');
+    Route::get('campaigns/{id}/assets/list', [CampaignsController::class, 'assetsList'])->name('campaigns.assetsList');
 
     Route::put('campaigns/{id}', [CampaignsController::class, 'update'])->name('campaigns.update')->middleware('permission:campaigns.update');
     Route::delete('campaigns/{id}', [CampaignsController::class, 'destroy'])->name('campaigns.destroy')->middleware('permission:campaigns.destroy');
@@ -152,6 +154,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/campaigns/{campaign}/images', [CampaignsController::class, 'fetchImages']);
 
 
+    // Edit Forms Ajax call
+    Route::get('/clients/{id}/edit', [ClientController::class, 'edit'])->name('clients.edit');
 });
 
 // Route::get('/share/{post}', [PostController::class, 'share'])->name('posts.share');
