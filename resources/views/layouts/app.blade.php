@@ -4,15 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <meta property="og:title" content="Digital Asset Portal" />
-    <meta property="og:description" content="Description of the content." />
-    <meta property="og:image" content="https://www.example.com/image.jpg" />
-    <meta property="og:url" content="https://www.example.com" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Digital Asset Portal" />
-    <meta name="twitter:description" content="Description of the content." />
-    <meta name="twitter:image" content="https://www.example.com/image.jpg" />
 
     <title>Crew Mark</title>
 

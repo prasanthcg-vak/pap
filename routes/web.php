@@ -43,7 +43,7 @@ Auth::routes(['verify' => true]);
 
 Route::middleware(['auth'])->post('/users/{id}/unblock', [UserController::class, 'unblock'])->name('users.unblock');
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['web', 'auth'])->group(function () {
 
     Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
     Route::get('/impersonate/{user}', [AdminController::class, 'impersonate'])->name('impersonate')->middleware('permission:impersonate');
@@ -150,6 +150,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::post('/user/{id}/resend-email', [UserController::class, 'resendEmail'])->name('user.resend-email');
     Route::get('/campaigns/{campaign}/images', [CampaignsController::class, 'fetchImages']);
+    Route::post('/posts/create', [PostController::class, 'createPost'])->name('posts.create');
 
 
 });

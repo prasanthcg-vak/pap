@@ -68,7 +68,7 @@
                             alt="post-image"> -->
                     </div>
                     <!-- <h4 class="sub-heading mt-3">Lorem ipsum dolor sit amet consectetur</h4> -->
-                    <p class="mt-3">{{ $post['description']}}</p>
+                    <p class="mt-3">{!! $post['description'] !!}</p>
                 </div>
             </div>
         </div>
