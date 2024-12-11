@@ -38,9 +38,9 @@ class HomeController extends Controller
                 return [
                     'id' => $image->id,
                     'file_name' => $image->file_name,
-                    // 'image_type' => pathinfo($image->file_name, PATHINFO_EXTENSION), 
                     'image_type' => $image->file_type,
                     'image' => Storage::disk('backblaze')->url($image->path) ?? null, 
+                    'thumbnail' => $image->thumbnail_path ? Storage::disk('backblaze')->url($image->thumbnail_path) : null, 
                     'campaign_name' => $image->campaign ? $image->campaign->name : 'No Campaign', 
                     'campaign_id' => $image->campaign_id, 
                     'campaign_status' => $image->campaign ? $image->campaign->is_active : null,

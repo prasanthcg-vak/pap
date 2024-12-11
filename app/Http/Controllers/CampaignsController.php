@@ -592,12 +592,9 @@ class CampaignsController extends Controller
             $returnUrl = 'home';
         }
 
-        // $campaigns = Campaigns::with('image')->where('is_active', 1)->where('id', $id)->first();
         if ($image && $campaigns->isNotEmpty()) {
             $post_id = $post_id;
             $image_path = Storage::disk('backblaze')->url($image->path);
-            // Get file type and size
-            // $fileType = Storage::disk('backblaze')->mimeType($image->path);
             $fileType = $image->file_type;
             $file_name = $image->file_name;
             $fileSize = Storage::disk('backblaze')->size($image->path); // Size in bytes
@@ -607,6 +604,7 @@ class CampaignsController extends Controller
             $campStatus = $campaigns[0]['is_active'];
             $campId = $campaigns[0]['id'];
             $title = $campaigns[0]['name'];
+            $image_id = $id;
         } else {
             $image_path = null;
             $filePath = null;
@@ -617,9 +615,10 @@ class CampaignsController extends Controller
             $campStatus = null;
             $campId = "";
             $post_id = "";
+            $image_id = null;
         }
 
-        return view('campaigns.asset_view', compact('title', 'file_name', 'fileType', 'post_id', 'returnUrl', 'campaigns', 'image_path', 'categories', 'fileExtension', 'fileSizeKB', 'campDescription', 'campStatus', 'campId', 'categories', 'assets', 'partners'));
+        return view('campaigns.asset_view', compact('image_id','title','file_name', 'fileType', 'post_id', 'returnUrl', 'campaigns', 'image_path', 'categories', 'fileExtension', 'fileSizeKB', 'campDescription', 'campStatus', 'campId', 'categories', 'assets', 'partners'));
     }
 
     public function shareToTwitter($identifier)

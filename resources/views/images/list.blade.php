@@ -12,8 +12,8 @@
                         @php
                             $thumbnail = match($asset['image_type']) {
                                 'image' => $asset['image'],
-                                'video' => asset('assets/images/video.png'),
-                                default => asset('assets/images/document.png'),
+                                'video' => $asset['thumbnail'],
+                                default => $asset['thumbnail'],
                             };
                         @endphp
                             <a href="{{ route('campaigns.assetsview', ['id' => $asset['id']]) }}" >
