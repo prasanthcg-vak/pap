@@ -4,9 +4,12 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Post;
+use App\Models\Tasks;
+use App\Models\Campaigns;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Aws\S3\S3Client;
 use Exception;
 
@@ -102,5 +105,54 @@ class PostController extends Controller
         ]);
     }
     
+    public function createPost(Request $request)
+    {
+        // Validate the incoming request
+        $validated = $request->validate([
+            'image' => 'required|integer|exists:images,id', // Ensures the image ID exists
+            'task_id' => 'required|integer', // Ensure task_id exists in the tasks table
+        ]);
+
+        // Fetch the task description
+        $description = '';
+        $title = '';
+        if($request->post_type === 'task'){
+            $task = Tasks::find($validated['task_id']);
+            if ($task || $description) {
+                $description = $task['description'];
+                $title = $task['name'];
+            }
+        }else{
+            $campaigns = Campaigns::find($validated['task_id']);
+            if ($campaigns || $description) {
+                $description = $campaigns['description'];
+                $title = $campaigns['name'];
+            }
+        }
+
+        // Create the post
+        $post = Post::create([
+            'title' => $title ? $title : '',
+            'description' => $description,
+            'image_id' => $validated['image'],
+        ]);
+
+        $postUrl = route('posts.share', $post->slug);
+
+        // Prepare social media links
+        $socialLinks = [
+            'linkedin' => "https://www.linkedin.com/shareArticle?mini=true&url=" . urlencode($postUrl) . "&summary=" . urlencode($description),
+            'facebook' => "https://www.facebook.com/sharer/sharer.php?u=" . urlencode($postUrl),
+            'twitter' => "https://twitter.com/intent/tweet?url=" . urlencode($postUrl) . "&text=" . urlencode($description),
+            'reddit' => "https://www.reddit.com/submit?url=" . urlencode($postUrl) . "&title=" . urlencode($description),
+        ];
+
+        return response()->json([
+            'postUrl' => $postUrl,
+            'encodedDescription' => urlencode($description),
+            'socialLinks' => $socialLinks,
+        ]);
+    }
+
 
 }
