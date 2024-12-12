@@ -36,7 +36,9 @@
                             </div>
                         @endif
                         <div class="Detail-card-text">
-                            <h3>{{ $asset['file_name'] }}</h3>
+                            <h3>
+                                {{-- {{ $asset['file_name'] }} --}}
+                            </h3>
                             <div class="detail-icon">
                                 @if($asset['image_type'] == 'image')
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none"

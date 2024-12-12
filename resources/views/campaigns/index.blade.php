@@ -494,16 +494,47 @@
         function handleFileChange(inputElement) {
             const file = inputElement.files[0];
             const fileType = file.type; // Get the MIME type of the file
-            const thumbnailDiv = inputElement.closest('.upload--col').querySelector('.thumbnail-upload');
+            const uploadColDiv = inputElement.closest('.upload--col'); // Find the corresponding parent
+            let thumbnailDiv = uploadColDiv.querySelector('.thumbnail-upload'); // Look for an existing thumbnail div
+
             console.log(fileType);
 
             // Show thumbnail input if the file is a video or PDF
             if (fileType.includes('video') || fileType === 'application/pdf') {
-                thumbnailDiv.style.display = 'block';
+                if (!thumbnailDiv) {
+                    // If thumbnail div doesn't exist, create and append it
+                    const thumbnailUploadSection = `
+                <div class="thumbnail-upload" >
+                    <label for="thumbnail">Upload Thumbnail (for Video/PDF):</label>
+                    <div class="drop-zone">
+                        <div class="drop-zone__prompt">
+                            <div class="drop-zone_color-txt">
+                                <span><img src="assets/images/Image.png" alt=""></span><br />
+                                <span style="font-size:14px;"><img src="assets/images/fi_upload-cloud.svg" alt="">
+                                    Upload Asset</span>
+                                <span style="font-size:10px;">(JPEG, PNG, JPG).</span>
+                            </div>
+                        </div>
+                        <input type="file" name="thumbnail[]" class="drop-zone__input">
+                    </div>
+                </div>`;
+
+                    $(uploadColDiv).append(thumbnailUploadSection); // Append to the corresponding upload--col
+                    thumbnailDiv = uploadColDiv.querySelector('.thumbnail-upload .drop-zone'); // Update reference
+                    if (thumbnailDiv) {
+                        initializeDropZone(thumbnailDiv);
+                    }
+                }
+
+                // thumbnailDiv.style.display = 'block'; // Make sure the thumbnail div is visible
             } else {
-                thumbnailDiv.style.display = 'none';
+                // If the file is not a video or PDF, remove the thumbnail div if it exists
+                if (thumbnailDiv) {
+                    thumbnailDiv.remove();
+                }
             }
         }
+
 
         function editCampaign(campaign, imgUrl) {
             // Change form action and method for updating

@@ -53,8 +53,7 @@
             const firstDropZone = firstDropZoneInput.closest('.drop-zone');
             firstDropZone.find('.drop-zone__thumb').remove();
             if (!firstDropZone.find('.drop-zone__prompt').length) {
-                firstDropZone.prepend(`
-      <div class="drop-zone__prompt">
+                firstDropZone.prepend(`<div class="drop-zone__prompt">
           <div class="drop-zone_color-txt">
               <span><img src="assets/images/Image.png" alt=""></span><br />
               <span style="font-size:14px;"><img src="assets/images/fi_upload-cloud.svg" alt="">
