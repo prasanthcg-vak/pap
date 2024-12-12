@@ -62,7 +62,7 @@
                                 <th class="">
                                     <span>Name</span>
                                 </th>
-                                <th class="" width="20px">
+                                <th class="">
                                     <span>Description</span>
                                 </th>
                                 <th>
@@ -467,8 +467,6 @@
 
 @section('script')
     <script>
-   
-
         $(document).ready(function() {
             $('#datatable').DataTable().destroy();
             $('#datatable').DataTable({

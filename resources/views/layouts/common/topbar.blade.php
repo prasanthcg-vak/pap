@@ -1,10 +1,23 @@
 <div class="topbar">
+    @php
+        // dd(Auth::user()->client->logo);
+    @endphp
     <nav class="navbar">
         <div class="container-fluid">
             <div class="logo_title">
+
                 <a class="navbar-brand" href="/home">
-                    <img src="{{ asset('/assets/images/NewCMLogo2024.svg') }}" alt="logo" href="#"
-                        class="img-fluid">
+
+                    @if (Auth::user()->roles->first()->role_level > 3)
+                        <img src="{{ Auth::user()->client && Auth::user()->client->logo
+                            ? asset(Auth::user()->client->logo)
+                            : asset('/assets/images/NewCMLogo2024.svg') }}"
+                            alt="logo" class="img-fluid">
+                    @else
+                        <img src="{{ asset('/assets/images/NewCMLogo2024.svg') }}" alt="logo" href="#"
+                            class="img-fluid">
+                    @endif
+
                 </a>
                 <span>Digital Asset Portal</span>
             </div>

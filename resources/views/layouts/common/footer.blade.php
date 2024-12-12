@@ -23,11 +23,11 @@
 
 <!-- Your custom scripts -->
 <script src="{{ asset('assets/js/main.js') }}"></script>
-<script type="module"  src="{{ asset('assets/js/ckeditor5.js') }}"></script>
+<script type="module" src="{{ asset('assets/js/ckeditor5.js') }}"></script>
 
 <script>
     new DataTable('#datatable');
- 
+
     var uploadAsset = document.getElementById('uploadAsset');
     if (uploadAsset) {
 
@@ -39,38 +39,63 @@
 
     // Handle modal cancel button
     $(document).ready(function() {
+
         $('#cancel, #model-close').click(function() {
-
             // Reset the form
-            $('#Model-Form')[0].reset(); // This will close the modal
-            $('.modal.fade').modal('hide');
-            $('#campaignModalLabel').text('Add Campaign');
+            $('#Model-Form')[0].reset(); // Reset form fields
+            $('.modal.fade').modal('hide'); // Close the modal
 
-            
+            // Reset the file input in the first drop-zone
+            const firstDropZoneInput = $('.drop-zone__input').first();
+            firstDropZoneInput.val(''); // Clear the file input field
 
+            // Clear any thumbnails in the first drop-zone
+            const firstDropZone = firstDropZoneInput.closest('.drop-zone');
+            firstDropZone.find('.drop-zone__thumb').remove();
+            if (!firstDropZone.find('.drop-zone__prompt').length) {
+                firstDropZone.prepend(`
+      <div class="drop-zone__prompt">
+          <div class="drop-zone_color-txt">
+              <span><img src="assets/images/Image.png" alt=""></span><br />
+              <span style="font-size:14px;"><img src="assets/images/fi_upload-cloud.svg" alt="">
+                  Upload Asset</span>
+              <span style="font-size:10px;">(JEPG, PNG, JPG, MP4, PDF).</span>
+          </div>
+      </div>
+    `);
+            }
+
+            // Remove all dynamically added `upload--col` divs except the first one
+            $('.upload--col').not(':first').remove();
+
+            // Hide thumbnail upload for videos/PDFs
+            $('.thumbnail-upload').hide();
         });
+
+
+
     });
-    $('#createButton').on('click', function () {
-    const form = document.getElementById('campaignForm');
-    form.reset(); // Clear form fields
+    $('#createButton').on('click', function() {
+        const form = document.getElementById('campaignForm');
+        form.reset(); // Clear form fields
 
-    form.action = '/campaigns'; // Set the action for creating
-    document.getElementById('campaignMethod').value = 'POST'; // Change method to POST
+        form.action = '/campaigns'; // Set the action for creating
+        document.getElementById('campaignMethod').value = 'POST'; // Change method to POST
 
-    // Clear dropdowns
-    document.getElementById('client').value = '';
-    document.getElementById('clientGroup').value = '';
+        // Clear dropdowns
+        document.getElementById('client').value = '';
+        document.getElementById('clientGroup').value = '';
 
-    // Hide active/inactive headers
-    document.getElementById('active_header_block').style.display = 'none';
-    document.getElementById('inactive_header_block').style.display = 'none';
+        // Hide active/inactive headers
+        document.getElementById('active_header_block').style.display = 'none';
+        document.getElementById('inactive_header_block').style.display = 'none';
 
-    // Hide existing image
-    document.getElementById('existingImageDiv').style.display = 'none';
+        // Hide existing image
+        document.getElementById('existingImageDiv').style.display = 'none';
 
-    // Open the modal
-    $('#createcampaign').modal('show');
-});
+        // Open the modal
+        $('#createcampaign').modal('show');
+    });
 
 
 
