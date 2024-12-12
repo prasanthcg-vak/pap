@@ -8,32 +8,32 @@ if (addMoreBtn) {
     newSection.classList.add('upload--col');
 
     newSection.innerHTML = `
-          <div class="drop-zone">
-              <div class="drop-zone__prompt">
-                  <div class="drop-zone_color-txt">
-                      <span><img src="assets/images/Image.png" alt=""></span> <br />
-                      <span style="font-size:14px;"><img src="assets/images/fi_upload-cloud.svg" alt=""> Upload Asset</span>
-                      <span style="font-size:10px;">(JEPG, PNG, JPG, MP4, PDF).</span>
-                  </div>
-              </div>
-              <input type="file" name="additional_images[]" class="drop-zone__input" onchange="handleFileChange(this)">
-          </div>
-          <button type="button" class="btn btn-danger btn-sm mt-2 remove-btn">X</button>
-          <div class="thumbnail-upload" style="display: none;">
-              <label for="thumbnail">Upload Thumbnail (for Video/PDF):</label>
-              <div class="drop-zone">
-                  <div class="drop-zone__prompt">
-                      <div class="drop-zone_color-txt">
-                          <span><img src="assets/images/Image.png" alt=""></span><br />
-                          <span style="font-size:14px;"><img src="assets/images/fi_upload-cloud.svg" alt="">
-                              Upload Asset</span>
-                          <span style="font-size:10px;">(JPEG, PNG, JPG).</span>
-                      </div>
-                  </div>
-                  <input type="file" name="thumbnail[]" class="drop-zone__input">
-              </div>
-          </div>
-      `;
+            <div class="drop-zone">
+                <div class="drop-zone__prompt">
+                    <div class="drop-zone_color-txt">
+                        <span><img src="assets/images/Image.png" alt=""></span> <br />
+                        <span style="font-size:14px;"><img src="assets/images/fi_upload-cloud.svg" alt=""> Upload Asset</span>
+                        <span style="font-size:10px;">(JEPG, PNG, JPG, MP4, PDF).</span>
+                    </div>
+                </div>
+                <input type="file" name="additional_images[]" class="drop-zone__input" onchange="handleFileChange(this)">
+            </div>
+            <button type="button" class="btn btn-danger btn-sm mt-2 remove-btn">X</button>
+            <div class="thumbnail-upload" style="display: none;">
+                <label for="thumbnail">Upload Thumbnail (for Video/PDF):</label>
+                <div class="drop-zone">
+                    <div class="drop-zone__prompt">
+                        <div class="drop-zone_color-txt">
+                            <span><img src="assets/images/Image.png" alt=""></span><br />
+                            <span style="font-size:14px;"><img src="assets/images/fi_upload-cloud.svg" alt="">
+                                Upload Asset</span>
+                            <span style="font-size:10px;">(JPEG, PNG, JPG).</span>
+                        </div>
+                    </div>
+                    <input type="file" name="thumbnail[]" class="drop-zone__input">
+                </div>
+            </div>
+        `;
 
     // Append the new section to the container
     container.appendChild(newSection);
@@ -70,12 +70,16 @@ function initializeDropZone(dropZoneElement) {
     if (fileInput.files.length) {
       const file = fileInput.files[0];
       updateThumbnail(dropZoneElement, file);
-      
+
       // Show the custom thumbnail upload for videos and PDFs
       if (file.type === "video/mp4" || file.type === "application/pdf") {
         const thumbnailUpload = dropZoneElement.closest('.upload--col').querySelector('.thumbnail-upload');
         thumbnailUpload.style.display = 'block';
+        // alert();
       }
+      
+      
+
     }
   });
 
@@ -97,7 +101,7 @@ function initializeDropZone(dropZoneElement) {
       fileInput.files = e.dataTransfer.files;
       const file = e.dataTransfer.files[0];
       updateThumbnail(dropZoneElement, file);
-      
+
       // Show the custom thumbnail upload for videos and PDFs
       if (file.type === "video/mp4" || file.type === "application/pdf") {
         const thumbnailUpload = dropZoneElement.closest('.upload--col').querySelector('.thumbnail-upload');
@@ -143,7 +147,7 @@ function updateThumbnail(dropZoneElement, file) {
     if (file.type === "video/mp4") {
       thumbnailElement.style.backgroundImage = `url('assets/images/video.png')`;
     }
-    if(file.type === "application/pdf"){
+    if (file.type === "application/pdf") {
       thumbnailElement.style.backgroundImage = `url('assets/images/document.png')`;
     }
   }
@@ -185,20 +189,6 @@ $(document).ready(function () {
     $datePicker.attr('min', today);
   }
 });
-
-
-// var datePicker = document.getElementById('datepicker');
-// if (datePicker) {
-//   document.addEventListener('DOMContentLoaded', function () {
-//     const datePicker = document.getElementById('datepicker');
-//     const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
-//     datePicker.setAttribute('min', today); // Set the min attribute to today's date
-//     datePicker.setAttribute('placeholder', 'Due Date');
-//   });
-// }
-
-
-
 
 // bottom-navigation navlink active
 const navLinkEls = document.querySelectorAll('.nav-link');
@@ -428,16 +418,16 @@ $(document).ready(function () {
     }
   });
 });
-$(document).ready(function() {
-  $('.read-more').on('click', function() {
-      $(this).hide(); // Hide "Read more"
-      $(this).siblings('.truncated-text').hide(); // Hide truncated text
-      $(this).siblings('.full-text').show(); // Show full text
+$(document).ready(function () {
+  $('.read-more').on('click', function () {
+    $(this).hide(); // Hide "Read more"
+    $(this).siblings('.truncated-text').hide(); // Hide truncated text
+    $(this).siblings('.full-text').show(); // Show full text
   });
 
-  $('.read-less').on('click', function() {
-      $(this).parent('.full-text').hide(); // Hide full text
-      $(this).parent('.full-text').siblings('.truncated-text').show(); // Show truncated text
-      $(this).parent('.full-text').siblings('.read-more').show(); // Show "Read more"
+  $('.read-less').on('click', function () {
+    $(this).parent('.full-text').hide(); // Hide full text
+    $(this).parent('.full-text').siblings('.truncated-text').show(); // Show truncated text
+    $(this).parent('.full-text').siblings('.read-more').show(); // Show "Read more"
   });
 });
