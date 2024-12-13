@@ -43,17 +43,17 @@ Route::post('/email/resend', function (Request $request) {
 Auth::routes(['verify' => true]);
 
 // Custom Route for Email Verification (Optional Custom Logic)
-Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request, $id, $hash) {
-    $user = User::find($id);
-    if ($user && sha1($user->email) === $hash) {
-        // Proceed with verification
-        $request->fulfill();
-        return redirect('/home');
-    } else {
-        // Invalid URL
-        return redirect('/')->withErrors('Invalid verification link.');
-    }
-})->middleware(['signed'])->name('verification.verify');
+// Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request, $id, $hash) {
+//     $user = User::find($id);
+//     if ($user && sha1($user->email) === $hash) {
+//         // Proceed with verification
+//         $request->fulfill();
+//         return redirect('/home');
+//     } else {
+//         // Invalid URL
+//         return redirect('/')->withErrors('Invalid verification link.');
+//     }
+// })->middleware(['signed'])->name('verification.verify');
 
 
 
