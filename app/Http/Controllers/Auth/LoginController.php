@@ -70,38 +70,42 @@ class LoginController extends Controller
     public function login(Request $request)
     {
         $this->validateLogin($request);
-    
+
         // Retrieve user by email
         $user = \App\Models\User::where('email', $request->email)->first();
-    
+
+        if ($user && $user->is_active == 0) {
+            return $this->sendInactiveUserResponse($request);
+        }
+
         // Check if the user exists
         if (!$user) {
             return $this->sendFailedLoginResponse($request);
         }
-    
+
         // Check if the user is blocked
         if ($user->is_blocked) {
             return back()->withErrors(['email' => 'Your account is blocked. Please contact the administrator.']);
         }
-    
+
         // Check if login is successful
         if ($this->attemptLogin($request)) {
             $user->update(['login_attempts' => 0]); // Reset login attempts on successful login
             return $this->sendLoginResponse($request);
         }
-    
+
         // Increment failed attempts
         $user->increment('login_attempts');
-    
+
         // Block user if attempts reach 3
         if ($user->login_attempts >= 3) {
             $user->update(['is_blocked' => 1]);
             return back()->withErrors(['email' => 'Your account has been blocked after 3 failed attempts.Please contact the administrator']);
         }
-    
+
         return $this->sendFailedLoginResponse($request);
     }
-    
+
     /**
      * Send response for inactive users.
      
@@ -123,20 +127,20 @@ class LoginController extends Controller
      * @param Request $request
      * @return void
      */
- 
-    
+
+
     protected function sendFailedLoginResponse(Request $request)
     {
         $maxAttempts = 3; // Maximum allowed attempts
         $key = $this->throttleKey($request); // Throttle key for the user
-       
-    
+
+
         // Check if the user has exceeded their attempts
-        
-    
+
+
         // Check if user exists in the database
         $userExists = User::where($this->username(), $request->input($this->username()))->exists();
-    
+
         if (!$userExists) {
             throw \Illuminate\Validation\ValidationException::withMessages([
                 $this->username() => "No user found for the given {$this->username()}.",
@@ -149,7 +153,7 @@ class LoginController extends Controller
             $this->username() => "These credentials do not match our records. You have {$attemptsLeft} attempts remaining.",
         ]);
     }
-    
+
 
     // protected function authenticated(Request $request, $user)
     // {
@@ -161,6 +165,14 @@ class LoginController extends Controller
     //         ]);
     //     }
     // }
+    protected function authenticated(Request $request, $user)
+    {
+        if (!$user->hasVerifiedEmail()) {
+            return redirect()->route('verification.notice');
+        }
+    }
+
+
 
     public function logout(Request $request)
     {

@@ -1,8 +1,11 @@
 <?php
 
+use App\Http\Controllers\Auth\VerificationController;
 use App\Http\Controllers\CampaignsController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\PostController;
+use App\Models\User;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\RolePermissionController;
@@ -36,13 +39,31 @@ Route::post('/email/resend', function (Request $request) {
     return back()->with('resent', true);
 })->middleware(['auth', 'throttle:6,1'])->name('verification.resend');
 
-// Auth::routes();
+// Auth Routes including email verification
+Auth::routes(['verify' => true]);
+
+// Custom Route for Email Verification (Optional Custom Logic)
+Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request, $id, $hash) {
+    $user = User::find($id);
+    if ($user && sha1($user->email) === $hash) {
+        // Proceed with verification
+        $request->fulfill();
+        return redirect('/home');
+    } else {
+        // Invalid URL
+        return redirect('/')->withErrors('Invalid verification link.');
+    }
+})->middleware(['signed'])->name('verification.verify');
+
+
 
 // Forgot Password and Reset Password Routes
-Auth::routes(['verify' => true]);
+
+
 
 Route::middleware(['auth'])->post('/users/{id}/unblock', [UserController::class, 'unblock'])->name('users.unblock');
 
+// Route::middleware(['web', 'auth', 'verified'])->group(function () {
 Route::middleware(['web', 'auth'])->group(function () {
 
     Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
