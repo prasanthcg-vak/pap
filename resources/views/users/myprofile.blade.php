@@ -239,12 +239,37 @@
                         </div> --}}
                             <div class="col-lg-12 mb-3">
                                 <label for="profile_picture">Profile Picture</label>
-                                <input type="file" id="profile_picture" name="profile_picture" class="form-control">
+                                <div class="img-upload-con ">
+                                    <div class="upload--col w-100">
+                                        @if (Auth::user()->profile_picture)
+                                        <div class="drop-zone"  id="logoPreview">
+        
+                                            <input type="file" name="profile_picture" class="drop-zone__input">
+                                            <div class="drop-zone__thumb" data-label="test.png"
+                                                style="background-image: url({{ asset(Auth::user()->profile_picture) }});">
+                                            </div>
+                                        </div>
+                                        @else
+                                        <div class="drop-zone">
+                                            <div class="drop-zone__prompt">
+                                                <div class="drop-zone_color-txt">
+                                                    <span><img src="assets/images/Image.png" alt=""></span> <br />
+                                                    <span><img src="assets/images/fi_upload-cloud.svg" alt="">
+                                                        Upload
+                                                        Profile</span>
+                                                </div>
+                                                <div class="file-format">
+                                                    {{-- <p>File Format <b>JEPG, PNG, JPG, MP4, PDF</b></p> --}}
+                                                </div>
+                                            </div>
+                                            <input type="file" name="profile_picture" class="drop-zone__input">
+                                        </div>
+                                        @endif
+                                        
+                                    </div>
+                                </div>
+                               
 
-                                @if (Auth::user()->profile_picture)
-                                    <img src="{{ asset(Auth::user()->profile_picture) }}" alt="Profile Picture"
-                                        class="img-thumbnail mt-2" width="100">
-                                @endif
                             </div>
                             {{-- <div class="col-lg-12 mb-3">
                                 <label for="profile_picture">Logo</label>
