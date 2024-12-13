@@ -448,7 +448,7 @@
                                                             <span style="font-size:10px;">(JEPG, PNG, JPG).</span>
                                                         </div>
                                                     </div>
-                                                    <input type="file" name="thumbnail[]" class="drop-zone__input">
+                                                    <input type="file" name="thumbnail[]" class="drop-zone__input" onchange="handleThumbnailFileChange(this)">
                                                 </div>
                                             </div>
                                         </div>
@@ -489,6 +489,31 @@
                     });
                 }
             });
+
+             // Add form validation on submission
+            $('#campaignForm').on('submit', function (e) {
+                let isValid = true;
+
+                $('input[name="additional_images[]"]').each(function () {
+                    const file = this.files[0];
+                    const parentDiv = $(this).closest('.upload--col');
+                    const thumbnailInput = parentDiv.find('input[name="thumbnail[]"]');
+
+                    if (file) {
+                        const fileType = file.type;
+                        const isVideoOrPdf = fileType.includes('video') || fileType === 'application/pdf';
+
+                        if (isVideoOrPdf && (!thumbnailInput.length || !thumbnailInput[0].files.length)) {
+                            isValid = false;
+                            alert(`A thumbnail is required for the file: ${file.name}`);
+                        }
+                    }
+                });
+
+                if (!isValid) {
+                    e.preventDefault(); // Prevent form submission
+                }
+            });
         });
 
         function handleFileChange(inputElement) {
@@ -515,7 +540,7 @@
                                 <span style="font-size:10px;">(JPEG, PNG, JPG).</span>
                             </div>
                         </div>
-                        <input type="file" name="thumbnail[]" class="drop-zone__input">
+                        <input type="file" name="thumbnail[]" class="drop-zone__input" onchange="handleThumbnailFileChange(this)">
                     </div>
                 </div>`;
 
@@ -535,6 +560,18 @@
             }
         }
 
+        function handleThumbnailFileChange(inputElement) {
+            const file = inputElement.files[0];
+            const fileType = file.type; // Get the MIME type of the file
+
+            console.log(fileType);
+
+            // Show thumbnail input if the file is a video or PDF
+            if (fileType.includes('video') || fileType === 'application/pdf') {
+                alert('Please upload only image files (e.g., .jpg, .png, .jpeg) as a thumbnail.');
+                inputElement.value = '';
+            }
+        }
 
         function editCampaign(campaign, imgUrl) {
             // Change form action and method for updating

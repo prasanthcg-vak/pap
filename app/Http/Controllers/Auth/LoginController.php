@@ -82,6 +82,10 @@ class LoginController extends Controller
         if (!$user) {
             return $this->sendFailedLoginResponse($request);
         }
+    
+        if ($user && $user->is_active == 0) {
+            return $this->sendInactiveUserResponse($request);
+        }
 
         // Check if the user is blocked
         if ($user->is_blocked) {
@@ -89,7 +93,14 @@ class LoginController extends Controller
         }
 
         // Check if login is successful
-        if ($this->attemptLogin($request)) {
+        // if ($this->attemptLogin($request)) {
+        //     $user->update(['login_attempts' => 0]); // Reset login attempts on successful login
+        //     return $this->sendLoginResponse($request);
+        // }
+
+        // Check if login is successful
+        $remember = $request->has('remember'); // Check if "Remember Me" is checked
+        if ($this->attemptLogin($request, $remember)) {
             $user->update(['login_attempts' => 0]); // Reset login attempts on successful login
             return $this->sendLoginResponse($request);
         }
@@ -176,18 +187,17 @@ class LoginController extends Controller
 
     public function logout(Request $request)
     {
-        // Perform Laravel's default logout
         Auth::logout();
-
-        // Clear all session data
+    
+        // Clear session and regenerate token
         $request->session()->invalidate();
-
-        // Regenerate session token to prevent session fixation attacks
         $request->session()->regenerateToken();
-
-        // Redirect to login or any other page
-        return redirect('/login')->with('status', 'You have been logged out successfully!');
+    
+        // Optionally clear remember me cookie
+        $cookie = \Cookie::forget('remember_web_' . sha1(config('app.key')));
+        return redirect('/login')->with('status', 'Logged out successfully!')->withCookie($cookie);
     }
+    
 
 
 }

@@ -109,6 +109,23 @@ class CampaignsController extends Controller
             'thumbnail.*' => 'file|mimes:jpeg,png,jpg|max:10240', // 10 MB limit for thumbnails
         ]);
 
+        // Step 2: Validate thumbnails for specific file types
+        if ($request->hasFile('additional_images')) {
+            foreach ($request->file('additional_images') as $key => $file) {
+                $extension = $file->getClientOriginalExtension();
+                $isVideoOrPdf = in_array($extension, ['mp4', 'pdf']);
+
+                // Check if the corresponding thumbnail is provided
+                $thumbnail = $request->file('thumbnail')[$key] ?? null;
+
+                if ($isVideoOrPdf && !$thumbnail) {
+                    return back()->withErrors([
+                        'thumbnail' => "Thumbnails are required for video or PDF files (File: {$file->getClientOriginalName()})."
+                    ])->withInput();
+                }
+            }
+        }
+        
         // Log incoming request
         Log::info('Incoming campaign request', ['request_data' => $request->all()]);
 

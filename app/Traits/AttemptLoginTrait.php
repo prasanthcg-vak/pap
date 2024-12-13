@@ -13,12 +13,17 @@ trait AttemptLoginTrait
      * @param \Illuminate\Http\Request $request
      * @return bool
      */
-    protected function attemptLogin(Request $request)
+    // protected function attemptLogin(Request $request)
+    // {
+    //     return Auth::attempt(
+    //         $this->credentials($request),
+    //         $request->filled('remember') // Handles the "Remember Me" checkbox
+    //     );
+    // }
+
+    public function attemptLogin(Request $request, $remember = false)
     {
-        return Auth::attempt(
-            $this->credentials($request),
-            $request->filled('remember') // Handles the "Remember Me" checkbox
-        );
+        return Auth::attempt($this->credentials($request), $remember);
     }
 
     /**
