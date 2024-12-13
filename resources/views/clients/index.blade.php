@@ -106,11 +106,31 @@
                             </div>
                             <div class="col-lg-12">
                                 <label for="logo" class="common-label">Logo</label>
-                                <input type="file" class="form-control @error('logo') is-invalid @enderror common-input"
-                                    id="logo" name="logo">
+                                <div class="img-upload-con ">
+                                    <div class="upload--col w-100">
+                                        <div class="drop-zone" id="logoPreview">
+                                            <div class="drop-zone__prompt" id="nullInput">
+                                                <div class="drop-zone_color-txt">
+                                                    <span><img src="assets/images/Image.png" alt=""></span> <br />
+                                                    <span><img src="assets/images/fi_upload-cloud.svg" alt="">
+                                                        Upload
+                                                        Logo</span>
+                                                </div>
+                                                <div class="file-format">
+                                                    {{-- <p>File Format <b>JEPG, PNG, JPG, MP4, PDF</b></p> --}}
+                                                </div>
+                                            </div>
+                                            <input type="file" name="logo" class="drop-zone__input">
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                {{-- <input type="file" class="form-control @error('logo') is-invalid @enderror common-input"
+                                    id="logo" name="logo"> --}}
                                 {{-- @if (isset($data) && $data->logo) --}}
 
-                                <div class="mt-2" id="logoPreview"></div>
+                                <div class="mt-2"></div>
 
                                 {{-- @endif --}}
                                 @error('logo')
@@ -258,7 +278,20 @@
 
             // Manage specific elements for "Add" mode
             $('#client_details').removeClass('d-none'); // Show client details
-            $('#logoPreview').addClass('d-none'); // Hide logo preview (specific to add)
+            // $('#logoPreview').addClass('d-none'); // Hide logo preview (specific to add)
+            if (!$('#nullInput').length) {
+                    // Add the #nullInput section if it doesn't exist
+                    $('#logoPreview').html(`
+            <div class="drop-zone__prompt" id="nullInput">
+                <div class="drop-zone_color-txt">
+                    <span><img src="assets/images/Image.png" alt=""></span> <br />
+                    <span><img src="assets/images/fi_upload-cloud.svg" alt="">
+                        Upload Logo</span>
+                </div>
+                <div class="file-format">
+                </div>
+            </div>
+        `);}
         }
 
         $(document).off('submit', '#clientForm').on('submit', '#clientForm', function(e) {
@@ -339,12 +372,31 @@
 
             // Handle logo preview
             if (client.logo) {
+                $('#nullInput').remove(); // Use .hide() if you want to keep it hidden instead of removing it completely
+
                 const logoPath = `${base_url}/${client.logo}`; // Ensure `base_url` is set correctly
+                const imageName = client.logo.split('/').pop(); // Extract image name from path
+                // alert(client.logo);
                 $('#logoPreview').html(`
-            <img src="${logoPath}" alt="Logo Preview" class="img-thumbnail" style="width: 100px; height: 100px;">
+                     <div class="drop-zone__thumb" data-label="${imageName}" style="background-image: url(${logoPath});">
+            </div>
         `);
             } else {
-                $('#logoPreview').html('No logo available');
+                if (!$('#nullInput').length) {
+                    // Add the #nullInput section if it doesn't exist
+                    $('#logoPreview').html(`
+            <div class="drop-zone__prompt" id="nullInput">
+                <div class="drop-zone_color-txt">
+                    <span><img src="assets/images/Image.png" alt=""></span> <br />
+                    <span><img src="assets/images/fi_upload-cloud.svg" alt="">
+                        Upload Logo</span>
+                </div>
+                <div class="file-format">
+                </div>
+            </div>
+        `);
+                }
+                // $('#logoPreview').html('No logo available');
             }
 
             // Toggle Add/Edit labels
