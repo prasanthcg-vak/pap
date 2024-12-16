@@ -1194,6 +1194,10 @@ button.btn.btn-danger.btn-sm.mt-2.remove-btn {
 
 .owl-carousel .owl-item img {
     height: 200px;
+    object-fit: contain;
+    /* width: auto !important; */
+    margin: auto;
+
 }
 
 .campaign-card-contents .owl-carousel .owl-nav.disabled {
@@ -1202,7 +1206,7 @@ button.btn.btn-danger.btn-sm.mt-2.remove-btn {
 
 .campaign-card-contents .Detail-card-image img {
     border-radius: 6px;
-    box-shadow: 2px 6px 8px 0px rgba(163, 161, 255, 25%);
+    /* box-shadow: 2px 6px 8px 0px rgba(163, 161, 255, 25%); */
 }
 
 .campaign-card-contents .owl-carousel .owl-nav button.owl-next {
