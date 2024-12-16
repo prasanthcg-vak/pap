@@ -15,14 +15,10 @@
         }
     </style>
     <!-- Table -->
-
-
-
     <div class="CM-main-content">
         <div class="container-fluid p-0">
             <!-- Table -->
             <div class=" pb-3">
-
                 <!-- campaigns-contents -->
                 <div class="col-lg-12 task campaigns-contents">
                     <div class="campaigns-title">
@@ -48,14 +44,11 @@
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                 @endif
-
                 <!-- campaigns-contents -->
-
                 <div class="table-wrapper">
                     <table id="datatable" class="table table-bordered table-striped">
                         <thead>
                             <tr>
-
                                 <th>
                                     <span>S.No</span>
                                 </th>
@@ -66,10 +59,10 @@
                                     <span>Description</span>
                                 </th>
                                 <th>
-                                    Client
+                                    <span>Client</span>
                                 </th>
                                 <th>
-                                    Client Group
+                                    <span>Client Group</span>
                                 </th>
                                 <th>
                                     <span>Due Date</span>
@@ -127,39 +120,6 @@
                                             </span>
                                         @endif
                                     </td>
-
-
-                                    {{-- <style>
-                                        
-                                        .description-tooltip {
-                                            position: relative;
-                                            cursor: pointer;
-                                        }
-
-                                        .description-tooltip::after {
-                                            content: attr(title);
-                                            /* Show the full description from the title attribute */
-                                            position: absolute;
-                                            top: 100%;
-                                            left: 0;
-                                            background: rgba(0, 0, 0, 0.8);
-                                            color: #fff;
-                                            padding: 10px;
-                                            border-radius: 5px;
-                                            white-space: pre-wrap;
-                                            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-                                            display: none;
-                                            /* Initially hide */
-                                            z-index: 10;
-                                            width: 400px;
-                                            /* Adjust width as needed */
-                                        }
-
-                                        .description-tooltip:hover::after {
-                                            display: block;
-                                            /* Show tooltip on hover */
-                                        }
-                                    </style> --}}
                                     <td>
                                         {{ $campaign->client ? $campaign->client->name : '-' }} </td>
                                     <td>
@@ -178,7 +138,6 @@
                                             0
                                         @endif
                                     </td>
-
                                     {{-- Asset count column --}}
                                     <td>
                                         @if ($campaign->images->isNotEmpty())
@@ -221,7 +180,7 @@
                                                 @if ($editButton)
                                                     <button type="button" class="btn search" data-bs-toggle="modal"
                                                         data-bs-target="#createcampaign"
-                                                        onclick="editCampaign({{ $campaign }},'{{ $image_url }}')">
+                                                        onclick="editCampaign('{{ Crypt::encryptString($campaign->id) }}')">
                                                         <i class="bx bx-edit"></i>
                                                     </button>
                                                 @endif
@@ -275,19 +234,16 @@
                         <input type="hidden" name="_method" value="POST" id="campaignMethod">
                         <div class="row m-0">
                             <div class="col-xl-4 mb-3">
-
                                 <label for="">Campaign Name</label>
                                 <input type="text" name="name" id="campaign_name" class="form-control"
                                     placeholder="Campaign Name" required>
                             </div>
                             <div class="col-xl-4 mb-3">
-
                                 <label for="">Due Date</label>
                                 <input type="date" name="due_date" id="datepicker" class="form-control"
                                     placeholder="Date">
                             </div>
                         </div>
-
                         <div class="row m-0">
                             <!-- Client Dropdown -->
                             @if ($role_level < 3)
@@ -303,7 +259,6 @@
                             @else
                                 <input type="hidden" name="client" value="{{ $client_id }}">
                             @endif
-
                             <!-- Client Group Dropdown -->
                             @if ($role_level < 3)
                                 <div class="col-xl-4 mb-3">
@@ -338,16 +293,13 @@
                             </div>
 
                         </div>
-
                         <div class="row m-0">
                             <div class="col-md-12 mb-3">
-
                                 <label for="description">Campaign Brief</label>
                                 <textarea name="description" id="editor" class="form-control" rows="3"
                                     placeholder="Add a description for your campaign"></textarea>
                             </div>
                         </div>
-
                         <div class="row m-0 ">
                             <div class="col-3" id="active_block" style="display: none;">
                                 <div class="profile-con add-partner-status">
@@ -364,7 +316,6 @@
                                     </div>
                                 </div>
                             </div>
-
                             <div class="row">
                                 <div class="col-12" id="existingImageDiv" style="display: none;">
                                     <div class="profile-con add-partner-status">
@@ -466,201 +417,236 @@
 @endsection
 
 @section('script')
-    <script>
-        $(document).ready(function() {
-            $('#datatable').DataTable().destroy();
-            $('#datatable').DataTable({
-                responsive: true,
-                pageLength: 10,
-                columnDefs: [{
-                    searchable: false,
-                    orderable: false,
-                    targets: 0
-                }],
-                order: [
-                    [1, 'asc']
-                ], // Initial sort by name
-                drawCallback: function(settings) {
-                    var api = this.api();
-                    api.column(0, {
-                        order: 'applied'
-                    }).nodes().each(function(cell, i) {
-                        cell.innerHTML = i + 1; // Number rows dynamically
-                    });
-                }
-            });
-
-             // Add form validation on submission
-            $('#campaignForm').on('submit', function (e) {
-                let isValid = true;
-
-                $('input[name="additional_images[]"]').each(function () {
-                    const file = this.files[0];
-                    const parentDiv = $(this).closest('.upload--col');
-                    const thumbnailInput = parentDiv.find('input[name="thumbnail[]"]');
-
-                    if (file) {
-                        const fileType = file.type;
-                        const isVideoOrPdf = fileType.includes('video') || fileType === 'application/pdf';
-
-                        if (isVideoOrPdf && (!thumbnailInput.length || !thumbnailInput[0].files.length)) {
-                            isValid = false;
-                            alert(`A thumbnail is required for the file: ${file.name}`);
-                        }
-                    }
+<script>
+    $(document).ready(function() {
+        $('#datatable').DataTable().destroy();
+        $('#datatable').DataTable({
+            responsive: true,
+            pageLength: 10,
+            columnDefs: [{
+                searchable: false,
+                orderable: false,
+                targets: 0
+            }],
+            order: [
+                [1, 'asc']
+            ], // Initial sort by name
+            drawCallback: function(settings) {
+                var api = this.api();
+                api.column(0, {
+                    order: 'applied'
+                }).nodes().each(function(cell, i) {
+                    cell.innerHTML = i + 1; // Number rows dynamically
                 });
-
-                if (!isValid) {
-                    e.preventDefault(); // Prevent form submission
-                }
-            });
+            }
         });
 
-        function handleFileChange(inputElement) {
-            const file = inputElement.files[0];
-            const fileType = file.type; // Get the MIME type of the file
-            const uploadColDiv = inputElement.closest('.upload--col'); // Find the corresponding parent
-            let thumbnailDiv = uploadColDiv.querySelector('.thumbnail-upload'); // Look for an existing thumbnail div
+            // Add form validation on submission
+        $('#campaignForm').on('submit', function (e) {
+            let isValid = true;
 
-            console.log(fileType);
+            $('input[name="additional_images[]"]').each(function () {
+                const file = this.files[0];
+                const parentDiv = $(this).closest('.upload--col');
+                const thumbnailInput = parentDiv.find('input[name="thumbnail[]"]');
 
-            // Show thumbnail input if the file is a video or PDF
-            if (fileType.includes('video') || fileType === 'application/pdf') {
-                if (!thumbnailDiv) {
-                    // If thumbnail div doesn't exist, create and append it
-                    const thumbnailUploadSection = `
-                <div class="thumbnail-upload" >
-                    <label for="thumbnail">Upload Thumbnail (for Video/PDF):</label>
-                    <div class="drop-zone">
-                        <div class="drop-zone__prompt">
-                            <div class="drop-zone_color-txt">
-                                <span><img src="assets/images/Image.png" alt=""></span><br />
-                                <span style="font-size:14px;"><img src="assets/images/fi_upload-cloud.svg" alt="">
-                                    Upload Asset</span>
-                                <span style="font-size:10px;">(JPEG, PNG, JPG).</span>
-                            </div>
-                        </div>
-                        <input type="file" name="thumbnail[]" class="drop-zone__input" onchange="handleThumbnailFileChange(this)">
-                    </div>
-                </div>`;
+                if (file) {
+                    const fileType = file.type;
+                    const isVideoOrPdf = fileType.includes('video') || fileType === 'application/pdf';
 
-                    $(uploadColDiv).append(thumbnailUploadSection); // Append to the corresponding upload--col
-                    thumbnailDiv = uploadColDiv.querySelector('.thumbnail-upload .drop-zone'); // Update reference
-                    if (thumbnailDiv) {
-                        initializeDropZone(thumbnailDiv);
+                    if (isVideoOrPdf && (!thumbnailInput.length || !thumbnailInput[0].files.length)) {
+                        isValid = false;
+                        alert(`A thumbnail is required for the file: ${file.name}`);
                     }
                 }
+            });
 
-                // thumbnailDiv.style.display = 'block'; // Make sure the thumbnail div is visible
-            } else {
-                // If the file is not a video or PDF, remove the thumbnail div if it exists
+            if (!isValid) {
+                e.preventDefault(); // Prevent form submission
+            }
+        });
+    });
+
+    function handleFileChange(inputElement) {
+        const file = inputElement.files[0];
+        const fileType = file.type; // Get the MIME type of the file
+        const uploadColDiv = inputElement.closest('.upload--col'); // Find the corresponding parent
+        let thumbnailDiv = uploadColDiv.querySelector('.thumbnail-upload'); // Look for an existing thumbnail div
+
+        console.log(fileType);
+
+        // Show thumbnail input if the file is a video or PDF
+        if (fileType.includes('video') || fileType === 'application/pdf') {
+            if (!thumbnailDiv) {
+                // If thumbnail div doesn't exist, create and append it
+                const thumbnailUploadSection = `
+            <div class="thumbnail-upload" >
+                <label for="thumbnail">Upload Thumbnail (for Video/PDF):</label>
+                <div class="drop-zone">
+                    <div class="drop-zone__prompt">
+                        <div class="drop-zone_color-txt">
+                            <span><img src="assets/images/Image.png" alt=""></span><br />
+                            <span style="font-size:14px;"><img src="assets/images/fi_upload-cloud.svg" alt="">
+                                Upload Asset</span>
+                            <span style="font-size:10px;">(JPEG, PNG, JPG).</span>
+                        </div>
+                    </div>
+                    <input type="file" name="thumbnail[]" class="drop-zone__input" onchange="handleThumbnailFileChange(this)">
+                </div>
+            </div>`;
+
+                $(uploadColDiv).append(thumbnailUploadSection); // Append to the corresponding upload--col
+                thumbnailDiv = uploadColDiv.querySelector('.thumbnail-upload .drop-zone'); // Update reference
                 if (thumbnailDiv) {
-                    thumbnailDiv.remove();
+                    initializeDropZone(thumbnailDiv);
                 }
             }
-        }
 
-        function handleThumbnailFileChange(inputElement) {
-            const file = inputElement.files[0];
-            const fileType = file.type; // Get the MIME type of the file
-
-            console.log(fileType);
-
-            // Show thumbnail input if the file is a video or PDF
-            if (fileType.includes('video') || fileType === 'application/pdf') {
-                alert('Please upload only image files (e.g., .jpg, .png, .jpeg) as a thumbnail.');
-                inputElement.value = '';
+            // thumbnailDiv.style.display = 'block'; // Make sure the thumbnail div is visible
+        } else {
+            // If the file is not a video or PDF, remove the thumbnail div if it exists
+            if (thumbnailDiv) {
+                thumbnailDiv.remove();
             }
         }
+    }
 
-        function editCampaign(campaign, imgUrl) {
-            // Change form action and method for updating
-            const $form = $('#campaignForm');
-            $form.attr('action', `/campaigns/${campaign.id}`);
-            $('#campaignMethod').val('PUT');
+    function handleThumbnailFileChange(inputElement) {
+        const file = inputElement.files[0];
+        const fileType = file.type; // Get the MIME type of the file
 
-            // Populate form fields with campaign data
-            $('#campaign_name').val(campaign.name);
+        console.log(fileType);
 
-            // Extract date portion from due_date (YYYY-MM-DD)
-            const formattedDate = campaign.due_date.split(' ')[0];
-            $('#datepicker').val(formattedDate);
+        // Show thumbnail input if the file is a video or PDF
+        if (fileType.includes('video') || fileType === 'application/pdf') {
+            alert('Please upload only image files (e.g., .jpg, .png, .jpeg) as a thumbnail.');
+            inputElement.value = '';
+        }
+    }
 
-            $('#related_partner').val(campaign.related_partner);
-            // $('.description').val(campaign.description);
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
 
-            // Handle active checkbox
-            const $activeCheckbox = $('#active');
-            $activeCheckbox.prop('checked', campaign.is_active === 1);
-
-            // Show active checkbox visibility blocks
-            $('#active_block').show();
-            $('#active_header_block').show();
-
-            console.log(campaign);
-
-            // Handle client dropdown selection
-            const $clientDropdown = $('#client');
-            $clientDropdown.val(campaign.client_id);
-
-            // Handle group dropdown selection
-            const $groupDropdown = $('#clientGroup');
-            $groupDropdown.val(campaign.Client_group_id);
-
-            // If the client ID or group ID is not in the dropdown list, add it dynamically
-            if (!$clientDropdown.find(`option[value="${campaign.client_id}"]`).length) {
-                $clientDropdown.append(
-                    $('<option>', {
-                        value: campaign.client_id,
-                        text: `Client ${campaign.client_id}`, // Customize based on your data
-                    })
-                ).val(campaign.client_id);
+    function editCampaign(encryptedCampaignId) {
+        $('body').addClass('loading'); // Show loader
+        $.ajax({
+            url: `/campaigns/edit/${encryptedCampaignId}`,
+            type: 'GET',
+            success: function (response) {
+                editCampaign123(response);
+            },
+            error: function (xhr) {
+                $('body').removeClass('loading');
+                console.error(xhr.responseText);
+                alert('An error occurred. Please try again.');
             }
+        });
+    }
 
-            $groupDropdown.empty(); // Clear all existing options
+    function editCampaign123(campaignData) {
+        let campaign = campaignData.campaign;
+        let clientGroups = campaignData.clientGroups;
+        let groupPartners = campaignData.groupPartners;
+        let partners = campaign.partner;
 
-            if (!$groupDropdown.find(`option[value="${campaign.Client_group_id}"]`).length) {
-                $groupDropdown.append(
-                    $('<option>', {
-                        value: '',
-                        text: 'Select Client Group',
-                        disabled: true,
-                        selected: true,
-                    })
+        // Change form action and method for updating
+        const $form = $('#campaignForm');
+        $form.attr('action', `/campaigns/${campaign.id}`);
+        $('#campaignMethod').val('PUT');
+
+        // Populate form fields with campaign data
+        $('#campaign_name').val(campaign.name);
+
+        // Extract date portion from due_date (YYYY-MM-DD)
+        const formattedDate = campaign.due_date.split(' ')[0];
+        $('#datepicker').val(formattedDate);
+
+        // Handle active checkbox
+        const $activeCheckbox = $('#active');
+        $activeCheckbox.prop('checked', campaign.is_active === 1);
+
+        // Show active checkbox visibility blocks
+        $('#active_block').show();
+        $('#active_header_block').show();
+
+        // Handle client dropdown selection
+        const $clientDropdown = $('#client');
+        $clientDropdown.val(campaign.client_id);
+
+        // Handle client group dropdown dynamically
+        const $groupDropdown = $('#clientGroup');
+        $groupDropdown.empty(); // Clear all existing options
+
+        $groupDropdown.append(
+            $('<option>', {
+                value: '',
+                text: 'Select Client Group',
+                disabled: true,
+            })
+        );
+
+        clientGroups.forEach(group => {
+            $groupDropdown.append(
+                $('<option>', {
+                    value: group.id,
+                    text: group.name,
+                })
+            );
+        });
+
+        // Mark the campaign's client group as selected
+        $groupDropdown.val(campaign.Client_group_id);
+
+        let partnerDropdown = $('#related_partner');
+        partnerDropdown.empty(); // Clear all existing options
+        partnerDropdown.prop('disabled', false);
+        $('.selectpicker').selectpicker('refresh');
+
+        // Check if groupPartners is an array and has data
+        if (Array.isArray(groupPartners) && groupPartners.length > 0) {
+            groupPartners.forEach(function (partner) {
+                partnerDropdown.append(
+                    `<option value="${partner.user.id}">${partner.user.name}</option>`
                 );
-                $groupDropdown.append(
-                    $('<option>', {
-                        value: campaign.Client_group_id,
-                        text: `Group ${campaign.group.name}`, // Customize based on your data
-                    })
-                ).val(campaign.Client_group_id);
-            }
+            });
 
-            // Toggle active/inactive header blocks
-            if (campaign.is_active === 1) {
-                $('#active_header_block').show();
-                $('#inactive_header_block').hide();
-            } else {
-                $('#inactive_header_block').show();
-                $('#active_header_block').hide();
-            }
-            // Display existing cover image if available
-            const $existingImageDiv = $('#existingImageDiv');
-            const $existingImage = $('#existingImage');
-            if (imgUrl) {
-                $existingImage.attr('src', imgUrl); // Set the image source to the URL passed from the backend
-                $existingImageDiv.show();
-            } else {
-                $existingImageDiv.hide();
-            }
-
-            if (window.editor) {
-                window.editor.setData(campaign.description); // Set data to CKEditor
-            }
-
-
-            // Display the modal
-            $('#createcampaign').modal('show');
+            $('.selectpicker').selectpicker('refresh'); // Refresh the dropdown
+        } else {
+            partnerDropdown.append(`<option value="">No Partners</option>`);
+            $('.selectpicker').selectpicker('refresh'); // Refresh even if no partners
         }
-    </script>
+
+        // Set selected values for multi-select
+        if (Array.isArray(partners) && partners.length > 0) {
+            let selectedPartnerIds = partners.map(partner => partner.partner_id); // Collect all partner IDs
+            partnerDropdown.val(selectedPartnerIds); // Set all selected options at once
+            $('.selectpicker').selectpicker('refresh'); // Refresh to reflect selections
+        } else {
+            console.log('No partners selected.');
+        }
+
+        
+        // Toggle active/inactive header blocks
+        if (campaign.is_active === 1) {
+            $('#active_header_block').show();
+            $('#inactive_header_block').hide();
+        } else {
+            $('#inactive_header_block').show();
+            $('#active_header_block').hide();
+        }
+
+        // Handle CKEditor for description
+        if (window.editor) {
+            window.editor.setData(campaign.description); // Set data to CKEditor
+        }
+
+        // Display the modal
+        $('#createcampaign').modal('show');
+        $('body').removeClass('loading'); // Remove loader
+    }
+
+</script>
 @endsection

@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Str;
 use Aws\S3\S3Client;
 use Exception;
@@ -34,7 +35,6 @@ class CampaignsController extends Controller
     public function index()
     {
         $authId = Auth::id();
-
         $role_level = Auth::user()->roles->first()->role_level;
         $client_id = Auth::user()->client_id;
         $group_id = Auth::user()->group_id;
@@ -396,6 +396,7 @@ class CampaignsController extends Controller
         $partners = ClientPartner::all(); // Assuming you have a Partner model
         return view('campaigns.show', compact('campaign', 'partners', 'tasks', 'imageUrls'));
     }
+    
     public function showTasks($id)
     {
         $campaign = Campaigns::findOrFail($id);
@@ -444,12 +445,36 @@ class CampaignsController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit($id)
+    public function edit($encryptedId)
     {
-        $campaign = Campaigns::findOrFail($id);
-        $partners = ClientPartner::all(); // Assuming you have a Partner model
-        return view('campaigns.edit', compact('campaign', 'partners'));
+        try {
+            // Decrypt the incoming campaign ID
+            $campaignId = Crypt::decryptString($encryptedId);
+
+            // Fetch the campaign details with necessary relationships
+            $campaign = Campaigns::with(['images', 'client', 'group', 'tasks','partner'])
+                ->findOrFail($campaignId);
+    
+            // Get groups belonging to the client of this campaign
+            $clientGroups = ClientGroup::where('client_id', $campaign->client_id)->get();
+
+            // Get partners for the campaign group
+            $groupPartners = ClientGroupPartners::with('user')->where('group_id', $campaign->Client_group_id)->get();
+
+            // Encrypt the campaign ID for secure usage in the response
+            $campaign->id = Crypt::encryptString($campaign->id);
+    
+            // Return response
+            return response()->json([
+                'campaign' => $campaign,
+                'clientGroups' => $clientGroups,
+                'groupPartners' => $groupPartners,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Invalid campaign ID'], 400);
+        }
     }
+    
 
     /**
      * Update the specified resource in storage.
@@ -597,7 +622,6 @@ class CampaignsController extends Controller
         return redirect()->route('campaigns.index')->with('success', 'Campaign updated successfully.');
     }
 
-
     /**
      * Remove the specified resource from storage.
      */
@@ -705,7 +729,6 @@ class CampaignsController extends Controller
         return $twitterShareUrl;
     }
 
-
     public function getClientGroups($clientId)
     {
         $clientGroups = ClientGroup::where('client_id', $clientId)->get();
@@ -727,6 +750,7 @@ class CampaignsController extends Controller
             ->header('Content-Type', 'application/pdf')
             ->header('Content-Disposition', 'inline'); // Forces the browser to display in an inline viewer
     }
+
     public function fetchImages(Campaigns $campaign)
     {
         $images = $campaign->image->map(function ($image) {
@@ -740,7 +764,5 @@ class CampaignsController extends Controller
 
         return response()->json($images);
     }
-
-
 
 }
