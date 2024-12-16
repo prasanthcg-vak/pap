@@ -77,8 +77,8 @@ function initializeDropZone(dropZoneElement) {
         thumbnailUpload.style.display = 'block';
         // alert();
       }
-      
-      
+
+
 
     }
   });
@@ -153,6 +153,17 @@ function updateThumbnail(dropZoneElement, file) {
   }
 }
 
+let totalItems = $('.owl-carousel .item').length;
+
+// Determine the number of items to display based on the total number of items
+let itemsToShow;
+if (totalItems === 1) {
+  itemsToShow = 1; // Show 1 card if there is only 1 image
+} else if (totalItems === 2) {
+  itemsToShow = 2; // Show 2 cards if there are 2 images
+} else {
+  itemsToShow = 3; // Show 3 cards for 3 or more images
+}
 
 
 $('.owl-carousel').owlCarousel({
@@ -172,10 +183,10 @@ $('.owl-carousel').owlCarousel({
       items: 1
     },
     600: {
-      items: 2
+      items: totalItems === 1 ? 1 : 2 // Show 2 cards at 600px unless there's only 1 item
     },
     1000: {
-      items: 3
+      items: itemsToShow
     }
   }
 })
