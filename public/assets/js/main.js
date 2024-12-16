@@ -30,7 +30,7 @@ if (addMoreBtn) {
                             <span style="font-size:10px;">(JPEG, PNG, JPG).</span>
                         </div>
                     </div>
-                    <input type="file" name="thumbnail[]" class="drop-zone__input">
+                    <input type="file" name="thumbnail[]" class="drop-zone__input" onchange="handleThumbnailFileChange(this)">
                 </div>
             </div>
         `;

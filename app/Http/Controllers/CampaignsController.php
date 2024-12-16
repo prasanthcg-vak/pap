@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Aws\S3\S3Client;
 use Exception;
@@ -38,40 +39,37 @@ class CampaignsController extends Controller
         $client_id = Auth::user()->client_id;
         $group_id = Auth::user()->group_id;
 
-        // dd($client_id);
         $groups = [];
-        // if ($role_level > 3) {
         $groups = ClientGroup::where("client_id", $client_id)->get();
-        // dd($groups);
-        // }
-        // $campaigns = Campaigns::with('image')->where('is_active', 1)->get();
         if ($role_level < 4) {
-            $campaigns = Campaigns::with('images', 'client', 'group', 'tasks')->get();
-            // dd($campaigns[0]->images);
-
+            $campaigns = Campaigns::with('images', 'client', 'group', 'tasks')
+                ->orderBy('id', 'asc') 
+                ->get();
         } elseif ($role_level == 4) {
-            $campaigns = Campaigns::with('images', 'client', 'group')->where("client_id", $client_id)->get();
+            $campaigns = Campaigns::with('images', 'client', 'group')
+                ->where("client_id", $client_id)
+                ->orderBy('id', 'asc') 
+                ->get();
         } elseif ($role_level == 5) {
-            $campaigns = Campaigns::with('images', 'client', 'group')->where("client_id", $client_id)->where("Client_group_id", $group_id)->get();
-
+            $campaigns = Campaigns::with('images', 'client', 'group')
+                ->where("client_id", $client_id)
+                ->where("client_group_id", $group_id)
+                ->orderBy('id', 'asc') 
+                ->get();
         } elseif ($role_level == 6) {
             $campaigns = Campaigns::with('images', 'client', 'group', 'partner')
                 ->whereHas('partner', function ($query) use ($authId) {
                     $query->where('partner_id', $authId);
                 })
+                ->orderBy('id', 'asc') 
                 ->get();
-            // dd($campaigns);
         }
-        // $campaigns = Campaigns::with('image', 'client', 'group')->get();
-
-        // dd($campaigns[3]->group->name);
+        
         $partners = ClientPartner::with(['client', 'partner'])
             ->where('client_id', $authId)
             ->get();
 
-
         $clients = Client::get();
-        // dd($partners);
         $sideBar = 'dashboard';
         $title = 'dashboard';
         return view('campaigns.index', compact('campaigns', 'partners', 'clients', 'role_level', 'groups', 'client_id'));
@@ -109,19 +107,36 @@ class CampaignsController extends Controller
             'thumbnail.*' => 'file|mimes:jpeg,png,jpg|max:10240', // 10 MB limit for thumbnails
         ]);
 
-        // Step 2: Validate thumbnails for specific file types
         if ($request->hasFile('additional_images')) {
+            $thumbnails = $request->file('thumbnail') ?? [];
+            $thumbnailIndex = 0; // Keep track of thumbnail index
+        
             foreach ($request->file('additional_images') as $key => $file) {
                 $extension = $file->getClientOriginalExtension();
                 $isVideoOrPdf = in_array($extension, ['mp4', 'pdf']);
-
-                // Check if the corresponding thumbnail is provided
-                $thumbnail = $request->file('thumbnail')[$key] ?? null;
-
-                if ($isVideoOrPdf && !$thumbnail) {
-                    return back()->withErrors([
-                        'thumbnail' => "Thumbnails are required for video or PDF files (File: {$file->getClientOriginalName()})."
-                    ])->withInput();
+        
+                if ($isVideoOrPdf) {
+                    // Check if a thumbnail exists for this video/PDF file
+                    $thumbnail = $thumbnails[$thumbnailIndex] ?? null;
+        
+                    if (!$thumbnail) {
+                        return back()->withErrors([
+                            'thumbnail' => "Thumbnails are required for video or PDF files (File: {$file->getClientOriginalName()})."
+                        ])->withInput();
+                    }
+        
+                    // Validate the thumbnail file
+                    $thumbnailValidation = Validator::make(
+                        ['thumbnail' => $thumbnail],
+                        ['thumbnail' => 'required|mimes:jpeg,png,jpg|max:10240']
+                    );
+        
+                    if ($thumbnailValidation->fails()) {
+                        return back()->withErrors($thumbnailValidation->errors())->withInput();
+                    }
+        
+                    // Increment thumbnail index only after successful validation
+                    $thumbnailIndex++;
                 }
             }
         }
@@ -142,10 +157,17 @@ class CampaignsController extends Controller
 
         // Upload additional images and thumbnails
         if ($request->hasFile('additional_images')) {
-            foreach ($request->file('additional_images') as $key => $file) {
-                $thumbnail = $request->file('thumbnail')[$key] ?? null;
+            $thumbnails = $request->file('thumbnail') ?? [];
+            $thumbnailIndex = 0; // Keep track of thumbnail index
 
+            foreach ($request->file('additional_images') as $key => $file) {
                 try {
+                    $extension = $file->getClientOriginalExtension();
+                    $isVideoOrPdf = in_array($extension, ['mp4', 'pdf']);
+            
+                    // Check if a thumbnail exists for this video/PDF file
+                     $thumbnail = $thumbnails[$thumbnailIndex] ?? null;
+
                     $image = new Image();
 
                     // Upload main file
@@ -159,13 +181,15 @@ class CampaignsController extends Controller
                     $extension = $file->getClientOriginalExtension();
                     $file_type = in_array($extension, ['jpg', 'jpeg', 'png']) ? 'image' :
                         ($extension === 'pdf' ? 'document' : 'video');
-
+                    
                     // Upload thumbnail if provided
                     $thumbnailPath = null;
-                    if ($thumbnail) {
-                        $thumbnailName = 'thumb_' . Str::random(10) . '.' . $thumbnail->getClientOriginalExtension();
-                        $thumbnailPath = 'images/' . $thumbnailName;
-                        $this->uploadToS3($thumbnail, $thumbnailPath);
+                    if ($isVideoOrPdf) {
+                        if ($thumbnail) {
+                            $thumbnailName = 'thumb_' . Str::random(10) . '.' . $thumbnail->getClientOriginalExtension();
+                            $thumbnailPath = 'images/' . $thumbnailName;
+                            $this->uploadToS3($thumbnail, $thumbnailPath);
+                        }
                     }
 
                     // Save file details in the database
@@ -414,7 +438,7 @@ class CampaignsController extends Controller
             ];
         });
 
-    return view('campaigns.list', compact('assets','campaign'));
+        return view('campaigns.list', compact('assets','campaign'));
     }
 
     /**
@@ -436,127 +460,143 @@ class CampaignsController extends Controller
             'name' => 'required',
             'due_date' => 'required|date',
             'campaign_brief' => 'nullable|string',
-            'additional_images.*' => 'nullable|mimes:jpeg,png,jpg,mp4,pdf|max:51200',
-            'additional_images' => 'nullable|mimes:jpeg,png,jpg,mp4,pdf|max:51200', // 50 MB limit
-
+            'additional_images.*' => 'nullable|mimes:jpeg,png,jpg,mp4,pdf|max:51200', // 50 MB limit
+            'additional_images' => 'nullable|array',
+            'thumbnail' => 'nullable|array',
+            'thumbnail.*' => 'nullable|mimes:jpeg,png,jpg|max:10240', // 10 MB limit for thumbnails
         ]);
 
-        Log::info('Incoming request for image upload', [
-            'request_data' => $request->all(),
-        ]);
-        $image = new Image();
-        // Store the uploaded file in Backblaze B2
+        // Validate thumbnails for specific file types
         if ($request->hasFile('additional_images')) {
-
-            try {
-                $file = $request->file('additional_images');
-
-                // Log the file details
-                Log::info('File details', [
-                    'original_name' => $file->getClientOriginalName(),
-                    'mime_type' => $file->getMimeType(),
-                    'size' => $file->getSize(),
-                ]);
-
-                $randomName = Str::random(10) . '.' . $file->getClientOriginalExtension();
-                $filePath = 'images/' . $randomName;
-
-                // Log the file path and attempt storage
-                Log::info('Attempting to upload file to Backblaze', ['file_path' => $filePath]);
-
-                try {
-                    $s3Client = new S3Client([
-                        'version' => 'latest',
-                        'region' => 'us-east-005',
-                        'endpoint' => 'https://s3.us-east-005.backblazeb2.com',
-                        'credentials' => [
-                            'key' => env('BACKBLAZE_KEY_ID'),
-                            'secret' => env('BACKBLAZE_APPLICATION_KEY'),
-                        ],
-                    ]);
-
-                    $result = $s3Client->putObject([
-                        'Bucket' => 'cm-pap01',
-                        'Key' => $filePath,
-                        'Body' => file_get_contents($file),
-                        'ACL' => 'public-read',
-                    ]);
-
-                    // Store the image details in the database
-
-                    $image->path = $filePath; // Assuming you have a 'path' column in your 'images' table
-                    $image->file_name = $randomName; // Store the random name if needed
-                    $image->save();
-
-
-                    // Log successful storage
-                    Log::info('Image uploaded successfully', [
-                        'database_image_id' => $image->id,
-                    ]);
-
-                    // Redirect back to index with success message
-
-
-                } catch (Aws\Exception\AwsException $e) {
-
-                    // Catch any AWS SDK errors
-                    return response()->json(['error' => 'Backblaze upload failed: ' . $e->getAwsErrorMessage()], 500);
-                } catch (Exception $e) {
-
-                    return response()->json(['error' => 'File upload failed: ' . $e->getMessage()], 500);
+            $thumbnails = $request->file('thumbnail') ?? [];
+            $thumbnailIndex = 0; // Keep track of thumbnail index
+        
+            foreach ($request->file('additional_images') as $key => $file) {
+                $extension = $file->getClientOriginalExtension();
+                $isVideoOrPdf = in_array($extension, ['mp4', 'pdf']);
+        
+                if ($isVideoOrPdf) {
+                    // Check if a thumbnail exists for this video/PDF file
+                    $thumbnail = $thumbnails[$thumbnailIndex] ?? null;
+        
+                    if (!$thumbnail) {
+                        return back()->withErrors([
+                            'thumbnail' => "Thumbnails are required for video or PDF files (File: {$file->getClientOriginalName()})."
+                        ])->withInput();
+                    }
+        
+                    // Validate the thumbnail file
+                    $thumbnailValidation = Validator::make(
+                        ['thumbnail' => $thumbnail],
+                        ['thumbnail' => 'required|mimes:jpeg,png,jpg|max:10240']
+                    );
+        
+                    if ($thumbnailValidation->fails()) {
+                        return back()->withErrors($thumbnailValidation->errors())->withInput();
+                    }
+        
+                    // Increment thumbnail index only after successful validation
+                    $thumbnailIndex++;
                 }
-
-            } catch (\Exception $e) {
-                // Log the error
-                Log::error('Image upload error', [
-                    'error_message' => $e->getMessage(),
-                    'request_data' => $request->all(),
-                ]);
-                return redirect()->back()->withErrors(['error' => 'File upload failed: ' . $e->getMessage()]);
             }
         }
 
+        Log::info('Incoming request for image update', [
+            'request_data' => $request->all(),
+        ]);
+
+        // Retrieve the campaign
         $campaign = Campaigns::findOrFail($id);
+               
+        // Upload additional images and thumbnails
+        if ($request->hasFile('additional_images')) {
+
+            // Delete existing images associated with the campaign
+            $existingImages = Image::where('campaign_id', $campaign->id)->get();
+            foreach ($existingImages as $image) {
+                // Optionally delete the file from storage
+                // $this->deleteFromS3($image->path);
+                $image->delete();
+            }
+
+            $thumbnails = $request->file('thumbnail') ?? [];
+            $thumbnailIndex = 0; // Keep track of thumbnail index
+
+            foreach ($request->file('additional_images') as $key => $file) {
+                try {
+                    $extension = $file->getClientOriginalExtension();
+                    $isVideoOrPdf = in_array($extension, ['mp4', 'pdf']);
+            
+                    // Check if a thumbnail exists for this video/PDF file
+                     $thumbnail = $thumbnails[$thumbnailIndex] ?? null;
+
+                    $image = new Image();
+
+                    // Upload main file
+                    $randomName = Str::random(10) . '.' . $file->getClientOriginalExtension();
+                    $filePath = 'images/' . $randomName;
+
+                    // Upload file to Backblaze
+                    $this->uploadToS3($file, $filePath);
+
+                    // Determine file type
+                    $extension = $file->getClientOriginalExtension();
+                    $file_type = in_array($extension, ['jpg', 'jpeg', 'png']) ? 'image' :
+                        ($extension === 'pdf' ? 'document' : 'video');
+                    
+                    // Upload thumbnail if provided
+                    $thumbnailPath = null;
+                    if ($isVideoOrPdf) {
+                        if ($thumbnail) {
+                            $thumbnailName = 'thumb_' . Str::random(10) . '.' . $thumbnail->getClientOriginalExtension();
+                            $thumbnailPath = 'images/' . $thumbnailName;
+                            $this->uploadToS3($thumbnail, $thumbnailPath);
+                        }
+                    }
+
+                    // Save file details in the database
+                    $image->path = $filePath;
+                    $image->campaign_id = $campaign->id;
+                    $image->file_name = $randomName;
+                    $image->file_type = $file_type;
+                    $image->thumbnail_path = $thumbnailPath; // Save thumbnail path
+                    $image->save();
+
+                    Log::info('File uploaded successfully', ['file_id' => $image->id]);
+                } catch (\Exception $e) {
+                    Log::error('File upload error', ['error_message' => $e->getMessage()]);
+                    return response()->json(['error' => 'File upload failed: ' . $e->getMessage()], 500);
+                }
+            }
+        }
+
+        // Update campaign details
         $campaign->name = $request->name;
         $campaign->description = $request->description;
         $campaign->due_date = $request->due_date;
-        $campaign->client_id = (int) $request->client;
-        $campaign->client_group_id = (int) $request->clientGroup;
-        // $data->image_id = $image->id;
+        $campaign->client_id = (int)$request->client;
+        $campaign->client_group_id = (int)$request->clientGroup;
         $campaign->is_active = $request->has('active') ? 1 : 0;
-
         $campaign->update($request->all());
 
-        if ($request->hasFile('additional_images')) {
-
-            $campaign->image_id = $image->id;
-            $campaign->save();
-        }
-
+        // Update related partners
         if (isset($request->related_partner)) {
             foreach ($request->related_partner as $partner) {
                 CampaignPartner::updateOrCreate(
                     [
                         'campaigns_id' => $id, // Matching condition
-                        'partner_id' => (int) $partner,
+                        'partner_id' => (int)$partner,
                     ],
                     [
-                        // Any additional data to update
                         'updated_at' => now(),
                     ]
                 );
             }
         }
 
-        if ($request->hasFile('additional_images')) {
-            foreach ($request->file('additional_images') as $additionalImage) {
-                $additionalImagePath = $additionalImage->store('additional_images');
-                $campaign->additional_images()->create(['path' => $additionalImagePath]);
-            }
-        }
-
         return redirect()->route('campaigns.index')->with('success', 'Campaign updated successfully.');
     }
+
 
     /**
      * Remove the specified resource from storage.
