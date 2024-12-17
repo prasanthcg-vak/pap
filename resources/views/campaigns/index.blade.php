@@ -315,25 +315,9 @@
                                         </div>
                                     </div>
                                 </div>
+                            </div>             
+                            <div class="row row-cols-1 row-cols-md-2 g-4 d-none" id="existingImageDiv">
                             </div>
-                            <div class="row">
-                                <div class="col-12" id="existingImageDiv" style="display: none;">
-                                    <div class="profile-con add-partner-status">
-                                        <div class="row">
-                                            <div class="col-sm-4">
-                                                <label for="cover_image" class="form-label">Existing Cover Image:</label>
-                                            </div>
-                                            <div class="col-sm-8">
-                                                <div>
-                                                    <img id="existingImage" src="" alt="Cover Image"
-                                                        class="img-thumbnail mb-3 w-25">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
                             <div class="sic-action-btns d-flex justify-content-lg-end  flex-wrap">
                                 <div class="sic-btn">
                                     <button type="button" class="btn download" id="uploadAsset">Upload Assets</button>
@@ -342,7 +326,6 @@
                                         data-bs-dismiss="modal">Cancel</button>
                                 </div>
                             </div>
-
                             <div class="img-upload-con d-none">
                                 <div class="sic-action-btns justify-content-center flex-wrap">
                                     <div class="addmore"><button type="button" id="add-more-btn"
@@ -536,7 +519,7 @@
             url: `/campaigns/edit/${encryptedCampaignId}`,
             type: 'GET',
             success: function (response) {
-                editCampaign123(response);
+                updateModalData(response);
             },
             error: function (xhr) {
                 $('body').removeClass('loading');
@@ -546,107 +529,129 @@
         });
     }
 
-    function editCampaign123(campaignData) {
-        let campaign = campaignData.campaign;
-        let clientGroups = campaignData.clientGroups;
-        let groupPartners = campaignData.groupPartners;
-        let partners = campaign.partner;
+    function updateModalData(campaignData) {
+        const { campaign, clientGroups, groupPartners, images, partner: partners } = campaignData;
 
-        // Change form action and method for updating
+        // Update form action and method
         const $form = $('#campaignForm');
         $form.attr('action', `/campaigns/${campaign.id}`);
         $('#campaignMethod').val('PUT');
 
-        // Populate form fields with campaign data
+        // Populate form fields
         $('#campaign_name').val(campaign.name);
-
-        // Extract date portion from due_date (YYYY-MM-DD)
-        const formattedDate = campaign.due_date.split(' ')[0];
-        $('#datepicker').val(formattedDate);
+        $('#datepicker').val(campaign.due_date.split(' ')[0]); // Extract date (YYYY-MM-DD)
 
         // Handle active checkbox
-        const $activeCheckbox = $('#active');
-        $activeCheckbox.prop('checked', campaign.is_active === 1);
+        const isActive = campaign.is_active === 1;
+        $('#active').prop('checked', isActive);
+        $('#active_block, #active_header_block').toggle(isActive);
+        $('#inactive_header_block').toggle(!isActive);
 
-        // Show active checkbox visibility blocks
-        $('#active_block').show();
-        $('#active_header_block').show();
+        // Set client dropdown value
+        $('#client').val(campaign.client_id);
 
-        // Handle client dropdown selection
-        const $clientDropdown = $('#client');
-        $clientDropdown.val(campaign.client_id);
-
-        // Handle client group dropdown dynamically
-        const $groupDropdown = $('#clientGroup');
-        $groupDropdown.empty(); // Clear all existing options
-
-        $groupDropdown.append(
-            $('<option>', {
-                value: '',
-                text: 'Select Client Group',
-                disabled: true,
-            })
+        // Populate client group dropdown
+        const $groupDropdown = $('#clientGroup').empty().append(
+            $('<option>', { value: '', text: 'Select Client Group', disabled: true })
         );
-
         clientGroups.forEach(group => {
             $groupDropdown.append(
-                $('<option>', {
-                    value: group.id,
-                    text: group.name,
-                })
+                $('<option>', { value: group.id, text: group.name })
             );
         });
-
-        // Mark the campaign's client group as selected
         $groupDropdown.val(campaign.Client_group_id);
 
-        let partnerDropdown = $('#related_partner');
-        partnerDropdown.empty(); // Clear all existing options
-        partnerDropdown.prop('disabled', false);
-        $('.selectpicker').selectpicker('refresh');
-
-        // Check if groupPartners is an array and has data
+        // Populate related partner dropdown
+        const $partnerDropdown = $('#related_partner').empty().prop('disabled', false);
         if (Array.isArray(groupPartners) && groupPartners.length > 0) {
-            groupPartners.forEach(function (partner) {
-                partnerDropdown.append(
+            groupPartners.forEach(partner => {
+                $partnerDropdown.append(
                     `<option value="${partner.user.id}">${partner.user.name}</option>`
                 );
             });
-
-            $('.selectpicker').selectpicker('refresh'); // Refresh the dropdown
         } else {
-            partnerDropdown.append(`<option value="">No Partners</option>`);
-            $('.selectpicker').selectpicker('refresh'); // Refresh even if no partners
+            $partnerDropdown.append(`<option value="">No Partners</option>`);
         }
+        $('.selectpicker').selectpicker('refresh'); // Refresh dropdown UI
 
-        // Set selected values for multi-select
+        // Set selected values for partners
         if (Array.isArray(partners) && partners.length > 0) {
-            let selectedPartnerIds = partners.map(partner => partner.partner_id); // Collect all partner IDs
-            partnerDropdown.val(selectedPartnerIds); // Set all selected options at once
-            $('.selectpicker').selectpicker('refresh'); // Refresh to reflect selections
-        } else {
-            console.log('No partners selected.');
+            const selectedPartnerIds = partners.map(partner => partner.partner_id);
+            $partnerDropdown.val(selectedPartnerIds);
         }
+        $('.selectpicker').selectpicker('refresh');
 
-        
-        // Toggle active/inactive header blocks
-        if (campaign.is_active === 1) {
-            $('#active_header_block').show();
-            $('#inactive_header_block').hide();
-        } else {
-            $('#inactive_header_block').show();
-            $('#active_header_block').hide();
-        }
-
-        // Handle CKEditor for description
+        // Set campaign description in CKEditor
         if (window.editor) {
-            window.editor.setData(campaign.description); // Set data to CKEditor
+            window.editor.setData(campaign.description);
         }
 
-        // Display the modal
+        // Handle existing images display
+        const bucketUrl = "https://cm-pap01.s3.us-east-005.backblazeb2.com";
+        const $existingImageDiv = $("#existingImageDiv").empty(); // Clear existing images
+
+        if (Array.isArray(images) && images.length > 0) {
+            images.forEach(asset => {
+                const thumbnailUrl = asset.thumbnail
+                    ? `${asset.thumbnail}`
+                    : `${asset.image}`;
+
+                $existingImageDiv.append(`
+                    <div class="col" style="width:25%">
+                        <div class="card">
+                            <button type="button" class="btn btn-danger btn-sm mt-2 remove-asset remove-btn" data-id="${asset.id}">X</button>
+                            <img src="${thumbnailUrl}" alt="${asset.file_name}" class="card-img-top">
+                        </div>
+                    </div>
+                `);
+            });
+        }
+        $existingImageDiv.toggleClass("d-none", campaign.images.length === 0); // Hide if no images
+
+        // Display the modal and remove loading indicator
         $('#createcampaign').modal('show');
-        $('body').removeClass('loading'); // Remove loader
+        $('body').removeClass('loading');
     }
+
+
+    $(document).on("click", ".remove-btn", function (e) {
+        e.preventDefault();
+        const $button = $(this);
+        const $assetCard = $button.closest(".col");
+        const assetId = $button.data("id");
+        if (!assetId) {
+            console.error("Asset ID is missing.");
+            alert("Invalid asset. Unable to remove.");
+            return;
+        }
+        if (confirm("Are you sure you want to remove this asset?")) {
+            $('#modalLoader').show();
+            $.ajax({
+                url: `/campaigns/assets/${assetId}`,
+                type: "DELETE",
+                contentType: "application/json",
+                success: function (response) {
+                    $('#modalLoader').hide();
+                    if (response.success) {
+                        $assetCard.remove();
+                        alert("Asset removed successfully!");
+                    } else {
+                        console.warn("Failed to remove asset. Response:", response);
+                        alert("Failed to remove asset. Please try again.");
+                    }
+                },
+                error: function (xhr, status, error) {
+                    $('#modalLoader').hide();
+                    console.error("Error occurred while removing asset:", {
+                        status: xhr.status,
+                        error: error,
+                        response: xhr.responseText,
+                    });
+                    alert("An error occurred while removing the asset. Please try again.");
+                },
+            });
+        }
+    });
 
 </script>
 @endsection

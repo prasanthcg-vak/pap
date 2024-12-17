@@ -16,6 +16,7 @@ use App\Models\Image;
 use App\Models\UserPermissions;
 use App\Models\CampaignPartner;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -29,6 +30,7 @@ use Exception;
 
 class CampaignsController extends Controller
 {
+
     /**
      * Display a listing of the resource. 
      */
@@ -455,6 +457,18 @@ class CampaignsController extends Controller
             $campaign = Campaigns::with(['images', 'client', 'group', 'tasks','partner'])
                 ->findOrFail($campaignId);
     
+            // Map the images to include the full URL for both image and thumbnail
+            $images = $campaign->images->map(function ($image) {
+                return [
+                    'id' => $image->id,
+                    'file_name' => $image->file_name,
+                    'image' => Storage::disk('backblaze')->url($image->path) ?? null,
+                    'thumbnail' => $image->thumbnail_path 
+                        ? Storage::disk('backblaze')->url($image->thumbnail_path) 
+                        : null,
+                ];
+            });
+
             // Get groups belonging to the client of this campaign
             $clientGroups = ClientGroup::where('client_id', $campaign->client_id)->get();
 
@@ -462,11 +476,12 @@ class CampaignsController extends Controller
             $groupPartners = ClientGroupPartners::with('user')->where('group_id', $campaign->Client_group_id)->get();
 
             // Encrypt the campaign ID for secure usage in the response
-            $campaign->id = Crypt::encryptString($campaign->id);
-    
+            // $campaign->id = Crypt::encryptString($campaign->id);
+
             // Return response
             return response()->json([
                 'campaign' => $campaign,
+                'images' => $images,
                 'clientGroups' => $clientGroups,
                 'groupPartners' => $groupPartners,
             ]);
@@ -474,7 +489,6 @@ class CampaignsController extends Controller
             return response()->json(['error' => 'Invalid campaign ID'], 400);
         }
     }
-    
 
     /**
      * Update the specified resource in storage.
@@ -485,91 +499,54 @@ class CampaignsController extends Controller
             'name' => 'required',
             'due_date' => 'required|date',
             'campaign_brief' => 'nullable|string',
-            'additional_images.*' => 'nullable|mimes:jpeg,png,jpg,mp4,pdf|max:51200', // 50 MB limit
+            'additional_images.*' => 'nullable|mimes:jpeg,png,jpg,mp4,pdf|max:51200',
             'additional_images' => 'nullable|array',
             'thumbnail' => 'nullable|array',
-            'thumbnail.*' => 'nullable|mimes:jpeg,png,jpg|max:10240', // 10 MB limit for thumbnails
+            'thumbnail.*' => 'nullable|mimes:jpeg,png,jpg|max:10240',
         ]);
 
-        // Validate thumbnails for specific file types
         if ($request->hasFile('additional_images')) {
             $thumbnails = $request->file('thumbnail') ?? [];
-            $thumbnailIndex = 0; // Keep track of thumbnail index
-        
+            $thumbnailIndex = 0;        
             foreach ($request->file('additional_images') as $key => $file) {
                 $extension = $file->getClientOriginalExtension();
                 $isVideoOrPdf = in_array($extension, ['mp4', 'pdf']);
-        
                 if ($isVideoOrPdf) {
-                    // Check if a thumbnail exists for this video/PDF file
                     $thumbnail = $thumbnails[$thumbnailIndex] ?? null;
-        
                     if (!$thumbnail) {
                         return back()->withErrors([
                             'thumbnail' => "Thumbnails are required for video or PDF files (File: {$file->getClientOriginalName()})."
                         ])->withInput();
                     }
-        
-                    // Validate the thumbnail file
                     $thumbnailValidation = Validator::make(
                         ['thumbnail' => $thumbnail],
                         ['thumbnail' => 'required|mimes:jpeg,png,jpg|max:10240']
                     );
-        
                     if ($thumbnailValidation->fails()) {
                         return back()->withErrors($thumbnailValidation->errors())->withInput();
                     }
-        
-                    // Increment thumbnail index only after successful validation
                     $thumbnailIndex++;
                 }
             }
         }
 
-        Log::info('Incoming request for image update', [
-            'request_data' => $request->all(),
-        ]);
+        Log::info('Incoming request for image update', ['request_data' => $request->all(),]);
 
-        // Retrieve the campaign
         $campaign = Campaigns::findOrFail($id);
-               
-        // Upload additional images and thumbnails
         if ($request->hasFile('additional_images')) {
-
-            // Delete existing images associated with the campaign
-            $existingImages = Image::where('campaign_id', $campaign->id)->get();
-            foreach ($existingImages as $image) {
-                // Optionally delete the file from storage
-                // $this->deleteFromS3($image->path);
-                $image->delete();
-            }
-
             $thumbnails = $request->file('thumbnail') ?? [];
-            $thumbnailIndex = 0; // Keep track of thumbnail index
-
+            $thumbnailIndex = 0; 
             foreach ($request->file('additional_images') as $key => $file) {
                 try {
                     $extension = $file->getClientOriginalExtension();
                     $isVideoOrPdf = in_array($extension, ['mp4', 'pdf']);
-            
-                    // Check if a thumbnail exists for this video/PDF file
                      $thumbnail = $thumbnails[$thumbnailIndex] ?? null;
-
                     $image = new Image();
-
-                    // Upload main file
                     $randomName = Str::random(10) . '.' . $file->getClientOriginalExtension();
                     $filePath = 'images/' . $randomName;
-
-                    // Upload file to Backblaze
                     $this->uploadToS3($file, $filePath);
-
-                    // Determine file type
                     $extension = $file->getClientOriginalExtension();
-                    $file_type = in_array($extension, ['jpg', 'jpeg', 'png']) ? 'image' :
-                        ($extension === 'pdf' ? 'document' : 'video');
-                    
-                    // Upload thumbnail if provided
+                    $file_type = in_array($extension, ['jpg', 'jpeg', 'png']) ? 'image' : ($extension === 'pdf' ? 'document' : 'video');
                     $thumbnailPath = null;
                     if ($isVideoOrPdf) {
                         if ($thumbnail) {
@@ -578,15 +555,12 @@ class CampaignsController extends Controller
                             $this->uploadToS3($thumbnail, $thumbnailPath);
                         }
                     }
-
-                    // Save file details in the database
                     $image->path = $filePath;
                     $image->campaign_id = $campaign->id;
                     $image->file_name = $randomName;
                     $image->file_type = $file_type;
-                    $image->thumbnail_path = $thumbnailPath; // Save thumbnail path
+                    $image->thumbnail_path = $thumbnailPath; 
                     $image->save();
-
                     Log::info('File uploaded successfully', ['file_id' => $image->id]);
                 } catch (\Exception $e) {
                     Log::error('File upload error', ['error_message' => $e->getMessage()]);
@@ -595,7 +569,6 @@ class CampaignsController extends Controller
             }
         }
 
-        // Update campaign details
         $campaign->name = $request->name;
         $campaign->description = $request->description;
         $campaign->due_date = $request->due_date;
@@ -603,13 +576,11 @@ class CampaignsController extends Controller
         $campaign->client_group_id = (int)$request->clientGroup;
         $campaign->is_active = $request->has('active') ? 1 : 0;
         $campaign->update($request->all());
-
-        // Update related partners
         if (isset($request->related_partner)) {
             foreach ($request->related_partner as $partner) {
                 CampaignPartner::updateOrCreate(
                     [
-                        'campaigns_id' => $id, // Matching condition
+                        'campaigns_id' => $id,
                         'partner_id' => (int)$partner,
                     ],
                     [
@@ -635,6 +606,43 @@ class CampaignsController extends Controller
 
 
         // return view('campaigns.index', compact('title', 'sideBar'));
+    }
+
+    public function destroyAsset($id)
+    {
+        try {
+            $asset = Image::find($id);
+            if (!$asset) {
+                Log::warning("Asset deletion attempted for non-existent ID: {$id}");
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Asset not found.'
+                ], 404);
+            }
+            if (Storage::disk('backblaze')->exists($asset->path)) {
+                if (!Storage::disk('backblaze')->delete($asset->path)) {
+                    Log::error("Failed to delete asset file: {$asset->path} for Asset ID: {$id}");
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Failed to delete asset file from storage.'
+                    ], 500);
+                }
+            } else {
+                Log::warning("Asset file not found in storage: {$asset->path} for Asset ID: {$id}");
+            }
+            $asset->delete();
+            Log::info("Asset deleted successfully: Asset ID: {$id}, Path: {$asset->path}");
+            return response()->json([
+                'success' => true,
+                'message' => 'Asset deleted successfully.'
+            ], 200);
+        } catch (Exception $e) {
+            Log::error("Error deleting asset: Asset ID: {$id}. Exception: {$e->getMessage()}");
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while deleting the asset. Please try again later.'
+            ], 500);
+        }
     }
 
     public function assetsView(string $id)
