@@ -316,9 +316,9 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="row row-cols-1 row-cols-md-2 g-4 d-none" id="existingImageDiv">
+                            <div class="row row-cols-1 row-cols-md-3 g-4 d-none" id="existingImageDiv">
                             </div>
-                            <div class="sic-action-btns d-flex justify-content-lg-end  flex-wrap">
+                            <div class="sic-action-btns d-flex justify-content-lg-end  flex-wrap mt-4">
                                 <div class="sic-btn">
                                     <button type="button" class="btn download" id="uploadAsset">Upload Assets</button>
                                     <button type="submit" class="btn create-task">Save</button>
@@ -619,10 +619,11 @@
                         `${asset.image}`;
 
                     $existingImageDiv.append(`
-                    <div class="col" style="width:25%">
-                        <div class="card">
-                            <button type="button" class="btn btn-danger btn-sm mt-2 remove-asset remove-btn" data-id="${asset.id}">X</button>
-                            <img src="${thumbnailUrl}" alt="${asset.file_name}" class="card-img-top">
+                    <div class="col-md-3" >
+                        <div class="card existing-image-card">
+                            <button type="button" class="btn btn-danger btn-sm mt-2 remove-asset existing-remove-btn" data-id="${asset.id}">X</button>
+                            <div class="drop-zone__thumb" data-label="${asset.file_name}" style="background-image: url(${thumbnailUrl});">
+                            </div>
                         </div>
                     </div>
                 `);
@@ -636,7 +637,7 @@
         }
 
 
-        $(document).on("click", ".remove-btn", function(e) {
+        $(document).on("click", ".existing-remove-btn", function(e) {
             e.preventDefault();
             const $button = $(this);
             const $assetCard = $button.closest(".col");

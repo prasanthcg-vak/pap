@@ -839,7 +839,7 @@ div#Edit-My-Profile .row .col-lg-12 {
 
 }
 
-button.btn.btn-danger.btn-sm.mt-2.remove-btn {
+button.btn.btn-danger.btn-sm.mt-2.remove-btn ,.existing-remove-btn {
     position: absolute;
     top: 0;
     right: 5px;
@@ -3421,4 +3421,12 @@ a.btn.btn-sm.edit svg path {
 .btn.edit:hover svg path {
     fill: #fff;
 
+}
+.existing-image-card{
+    height: 200px;
+    border: none;
+}
+
+.existing-image-card button.remove-asset {
+    z-index: 99;
 }
