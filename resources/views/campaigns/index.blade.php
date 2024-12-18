@@ -220,7 +220,7 @@
                     <p class="status green active_header_block" id="active_header_block" style="display: none;">Active</p>
                     <p class="status red inactive_header_block" id="inactive_header_block" style="display: none;">Inactive
                     </p>
-                    <button type="button" class="btn-close" id="model-close" data-bs-dismiss="modal"
+                    <button type="button" class="btn-close" id="campaign-close" data-bs-dismiss="modal"
                         aria-label="Close"></button>
                 </div>
                 <div id="modalLoader" class="modal-loader" style="display: none;">
@@ -315,14 +315,14 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>             
+                            </div>
                             <div class="row row-cols-1 row-cols-md-2 g-4 d-none" id="existingImageDiv">
                             </div>
                             <div class="sic-action-btns d-flex justify-content-lg-end  flex-wrap">
                                 <div class="sic-btn">
                                     <button type="button" class="btn download" id="uploadAsset">Upload Assets</button>
                                     <button type="submit" class="btn create-task">Save</button>
-                                    <button type="button" class="btn cancel" id="cancel"
+                                    <button type="button" class="btn cancel" id="campaign-cancel"
                                         data-bs-dismiss="modal">Cancel</button>
                                 </div>
                             </div>
@@ -382,7 +382,8 @@
                                                             <span style="font-size:10px;">(JEPG, PNG, JPG).</span>
                                                         </div>
                                                     </div>
-                                                    <input type="file" name="thumbnail[]" class="drop-zone__input" onchange="handleThumbnailFileChange(this)">
+                                                    <input type="file" name="thumbnail[]" class="drop-zone__input"
+                                                        onchange="handleThumbnailFileChange(this)">
                                                 </div>
                                             </div>
                                         </div>
@@ -400,69 +401,71 @@
 @endsection
 
 @section('script')
-<script>
-    $(document).ready(function() {
-        $('#datatable').DataTable().destroy();
-        $('#datatable').DataTable({
-            responsive: true,
-            pageLength: 10,
-            columnDefs: [{
-                searchable: false,
-                orderable: false,
-                targets: 0
-            }],
-            order: [
-                [1, 'asc']
-            ], // Initial sort by name
-            drawCallback: function(settings) {
-                var api = this.api();
-                api.column(0, {
-                    order: 'applied'
-                }).nodes().each(function(cell, i) {
-                    cell.innerHTML = i + 1; // Number rows dynamically
-                });
-            }
-        });
-
-            // Add form validation on submission
-        $('#campaignForm').on('submit', function (e) {
-            let isValid = true;
-
-            $('input[name="additional_images[]"]').each(function () {
-                const file = this.files[0];
-                const parentDiv = $(this).closest('.upload--col');
-                const thumbnailInput = parentDiv.find('input[name="thumbnail[]"]');
-
-                if (file) {
-                    const fileType = file.type;
-                    const isVideoOrPdf = fileType.includes('video') || fileType === 'application/pdf';
-
-                    if (isVideoOrPdf && (!thumbnailInput.length || !thumbnailInput[0].files.length)) {
-                        isValid = false;
-                        alert(`A thumbnail is required for the file: ${file.name}`);
-                    }
+    <script>
+        $(document).ready(function() {
+            $('#datatable').DataTable().destroy();
+            $('#datatable').DataTable({
+                responsive: true,
+                pageLength: 10,
+                columnDefs: [{
+                    searchable: false,
+                    orderable: false,
+                    targets: 0
+                }],
+                order: [
+                    [1, 'asc']
+                ], // Initial sort by name
+                drawCallback: function(settings) {
+                    var api = this.api();
+                    api.column(0, {
+                        order: 'applied'
+                    }).nodes().each(function(cell, i) {
+                        cell.innerHTML = i + 1; // Number rows dynamically
+                    });
                 }
             });
 
-            if (!isValid) {
-                e.preventDefault(); // Prevent form submission
-            }
+            // Add form validation on submission
+            $('#campaignForm').on('submit', function(e) {
+                let isValid = true;
+
+                $('input[name="additional_images[]"]').each(function() {
+                    const file = this.files[0];
+                    const parentDiv = $(this).closest('.upload--col');
+                    const thumbnailInput = parentDiv.find('input[name="thumbnail[]"]');
+
+                    if (file) {
+                        const fileType = file.type;
+                        const isVideoOrPdf = fileType.includes('video') || fileType ===
+                            'application/pdf';
+
+                        if (isVideoOrPdf && (!thumbnailInput.length || !thumbnailInput[0].files
+                                .length)) {
+                            isValid = false;
+                            alert(`A thumbnail is required for the file: ${file.name}`);
+                        }
+                    }
+                });
+
+                if (!isValid) {
+                    e.preventDefault(); // Prevent form submission
+                }
+            });
         });
-    });
 
-    function handleFileChange(inputElement) {
-        const file = inputElement.files[0];
-        const fileType = file.type; // Get the MIME type of the file
-        const uploadColDiv = inputElement.closest('.upload--col'); // Find the corresponding parent
-        let thumbnailDiv = uploadColDiv.querySelector('.thumbnail-upload'); // Look for an existing thumbnail div
+        function handleFileChange(inputElement) {
+            const file = inputElement.files[0];
+            const fileType = file.type; // Get the MIME type of the file
+            const uploadColDiv = inputElement.closest('.upload--col'); // Find the corresponding parent
+            let thumbnailDiv = uploadColDiv.querySelector('.thumbnail-upload'); // Look for an existing thumbnail div
 
-        console.log(fileType);
+            console.log(fileType);
 
-        // Show thumbnail input if the file is a video or PDF
-        if (fileType.includes('video') || fileType === 'application/pdf') {
-            if (!thumbnailDiv) {
-                // If thumbnail div doesn't exist, create and append it
-                const thumbnailUploadSection = `
+            // Show thumbnail input if the file is a video or PDF
+            if (fileType.includes('video') || fileType === 'application/pdf') {
+                if (!thumbnailDiv) {
+                    // If thumbnail div doesn't exist, create and append it
+                    const thumbnailUploadSection = `
             <div class="thumbnail-upload" >
                 <label for="thumbnail">Upload Thumbnail (for Video/PDF):</label>
                 <div class="drop-zone">
@@ -478,125 +481,144 @@
                 </div>
             </div>`;
 
-                $(uploadColDiv).append(thumbnailUploadSection); // Append to the corresponding upload--col
-                thumbnailDiv = uploadColDiv.querySelector('.thumbnail-upload .drop-zone'); // Update reference
+                    $(uploadColDiv).append(thumbnailUploadSection); // Append to the corresponding upload--col
+                    thumbnailDiv = uploadColDiv.querySelector('.thumbnail-upload .drop-zone'); // Update reference
+                    if (thumbnailDiv) {
+                        initializeDropZone(thumbnailDiv);
+                    }
+                }
+
+                // thumbnailDiv.style.display = 'block'; // Make sure the thumbnail div is visible
+            } else {
+                // If the file is not a video or PDF, remove the thumbnail div if it exists
                 if (thumbnailDiv) {
-                    initializeDropZone(thumbnailDiv);
+                    thumbnailDiv.remove();
                 }
             }
+        }
 
-            // thumbnailDiv.style.display = 'block'; // Make sure the thumbnail div is visible
-        } else {
-            // If the file is not a video or PDF, remove the thumbnail div if it exists
-            if (thumbnailDiv) {
-                thumbnailDiv.remove();
+        function handleThumbnailFileChange(inputElement) {
+            const file = inputElement.files[0];
+            const fileType = file.type; // Get the MIME type of the file
+
+            console.log(fileType);
+
+            // Show thumbnail input if the file is a video or PDF
+            if (fileType.includes('video') || fileType === 'application/pdf') {
+                alert('Please upload only image files (e.g., .jpg, .png, .jpeg) as a thumbnail.');
+                inputElement.value = '';
             }
         }
-    }
 
-    function handleThumbnailFileChange(inputElement) {
-        const file = inputElement.files[0];
-        const fileType = file.type; // Get the MIME type of the file
-
-        console.log(fileType);
-
-        // Show thumbnail input if the file is a video or PDF
-        if (fileType.includes('video') || fileType === 'application/pdf') {
-            alert('Please upload only image files (e.g., .jpg, .png, .jpeg) as a thumbnail.');
-            inputElement.value = '';
-        }
-    }
-
-    $.ajaxSetup({
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        }
-    });
-
-    function editCampaign(encryptedCampaignId) {
-        $('body').addClass('loading'); // Show loader
-        $.ajax({
-            url: `/campaigns/edit/${encryptedCampaignId}`,
-            type: 'GET',
-            success: function (response) {
-                updateModalData(response);
-            },
-            error: function (xhr) {
-                $('body').removeClass('loading');
-                console.error(xhr.responseText);
-                alert('An error occurred. Please try again.');
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             }
         });
-    }
 
-    function updateModalData(campaignData) {
-        const { campaign, clientGroups, groupPartners, images, partner: partners } = campaignData;
+        function editCampaign(encryptedCampaignId) {
+            $('body').addClass('loading'); // Show loader
+            $('#modalLoader').show();
 
-        // Update form action and method
-        const $form = $('#campaignForm');
-        $form.attr('action', `/campaigns/${campaign.id}`);
-        $('#campaignMethod').val('PUT');
+            $.ajax({
+                url: `/campaigns/edit/${encryptedCampaignId}`,
+                type: 'GET',
+                success: function(response) {
+                    updateModalData(response);
+                    $('#modalLoader').hide();
 
-        // Populate form fields
-        $('#campaign_name').val(campaign.name);
-        $('#datepicker').val(campaign.due_date.split(' ')[0]); // Extract date (YYYY-MM-DD)
+                },
+                error: function(xhr) {
+                    $('body').removeClass('loading');
+                    console.error(xhr.responseText);
+                    alert('An error occurred. Please try again.');
+                    $('#modalLoader').hide();
 
-        // Handle active checkbox
-        const isActive = campaign.is_active === 1;
-        $('#active').prop('checked', isActive);
-        $('#active_block, #active_header_block').toggle(isActive);
-        $('#inactive_header_block').toggle(!isActive);
+                }
+            });
+        }
 
-        // Set client dropdown value
-        $('#client').val(campaign.client_id);
+        function updateModalData(campaignData) {
+            const {
+                campaign,
+                clientGroups,
+                groupPartners,
+                images,
+                partner: partners
+            } = campaignData;
 
-        // Populate client group dropdown
-        const $groupDropdown = $('#clientGroup').empty().append(
-            $('<option>', { value: '', text: 'Select Client Group', disabled: true })
-        );
-        clientGroups.forEach(group => {
-            $groupDropdown.append(
-                $('<option>', { value: group.id, text: group.name })
+            // Update form action and method
+            const $form = $('#campaignForm');
+            $form.attr('action', `/campaigns/${campaign.id}`);
+            $('#campaignMethod').val('PUT');
+
+            // Populate form fields
+            $('#campaign_name').val(campaign.name);
+            $('#datepicker').val(campaign.due_date.split(' ')[0]); // Extract date (YYYY-MM-DD)
+
+            // Handle active checkbox
+            const isActive = campaign.is_active === 1;
+            $('#active').prop('checked', isActive);
+            $('#active_block, #active_header_block').toggle(isActive);
+            $('#inactive_header_block').toggle(!isActive);
+
+            // Set client dropdown value
+            $('#client').val(campaign.client_id);
+
+            // Populate client group dropdown
+            const $groupDropdown = $('#clientGroup').empty().append(
+                $('<option>', {
+                    value: '',
+                    text: 'Select Client Group',
+                    disabled: true
+                })
             );
-        });
-        $groupDropdown.val(campaign.Client_group_id);
-
-        // Populate related partner dropdown
-        const $partnerDropdown = $('#related_partner').empty().prop('disabled', false);
-        if (Array.isArray(groupPartners) && groupPartners.length > 0) {
-            groupPartners.forEach(partner => {
-                $partnerDropdown.append(
-                    `<option value="${partner.user.id}">${partner.user.name}</option>`
+            clientGroups.forEach(group => {
+                $groupDropdown.append(
+                    $('<option>', {
+                        value: group.id,
+                        text: group.name
+                    })
                 );
             });
-        } else {
-            $partnerDropdown.append(`<option value="">No Partners</option>`);
-        }
-        $('.selectpicker').selectpicker('refresh'); // Refresh dropdown UI
+            $groupDropdown.val(campaign.Client_group_id);
 
-        // Set selected values for partners
-        if (Array.isArray(partners) && partners.length > 0) {
-            const selectedPartnerIds = partners.map(partner => partner.partner_id);
-            $partnerDropdown.val(selectedPartnerIds);
-        }
-        $('.selectpicker').selectpicker('refresh');
+            // Populate related partner dropdown
+            const $partnerDropdown = $('#related_partner').empty().prop('disabled', false);
+            if (Array.isArray(groupPartners) && groupPartners.length > 0) {
+                groupPartners.forEach(partner => {
+                    $partnerDropdown.append(
+                        `<option value="${partner.user.id}">${partner.user.name}</option>`
+                    );
+                });
+            } else {
+                $partnerDropdown.append(`<option value="">No Partners</option>`);
+            }
+            $('.selectpicker').selectpicker('refresh'); // Refresh dropdown UI
 
-        // Set campaign description in CKEditor
-        if (window.editor) {
-            window.editor.setData(campaign.description);
-        }
+            // Set selected values for partners
+            if (Array.isArray(partners) && partners.length > 0) {
+                const selectedPartnerIds = partners.map(partner => partner.partner_id);
+                $partnerDropdown.val(selectedPartnerIds);
+            }
+            $('.selectpicker').selectpicker('refresh');
 
-        // Handle existing images display
-        const bucketUrl = "https://cm-pap01.s3.us-east-005.backblazeb2.com";
-        const $existingImageDiv = $("#existingImageDiv").empty(); // Clear existing images
+            // Set campaign description in CKEditor
+            if (window.editor) {
+                window.editor.setData(campaign.description);
+            }
 
-        if (Array.isArray(images) && images.length > 0) {
-            images.forEach(asset => {
-                const thumbnailUrl = asset.thumbnail
-                    ? `${asset.thumbnail}`
-                    : `${asset.image}`;
+            // Handle existing images display
+            const bucketUrl = "https://cm-pap01.s3.us-east-005.backblazeb2.com";
+            const $existingImageDiv = $("#existingImageDiv").empty(); // Clear existing images
 
-                $existingImageDiv.append(`
+            if (Array.isArray(images) && images.length > 0) {
+                images.forEach(asset => {
+                    const thumbnailUrl = asset.thumbnail ?
+                        `${asset.thumbnail}` :
+                        `${asset.image}`;
+
+                    $existingImageDiv.append(`
                     <div class="col" style="width:25%">
                         <div class="card">
                             <button type="button" class="btn btn-danger btn-sm mt-2 remove-asset remove-btn" data-id="${asset.id}">X</button>
@@ -604,54 +626,53 @@
                         </div>
                     </div>
                 `);
-            });
+                });
+            }
+            $existingImageDiv.toggleClass("d-none", campaign.images.length === 0); // Hide if no images
+
+            // Display the modal and remove loading indicator
+            $('#createcampaign').modal('show');
+            $('body').removeClass('loading');
         }
-        $existingImageDiv.toggleClass("d-none", campaign.images.length === 0); // Hide if no images
-
-        // Display the modal and remove loading indicator
-        $('#createcampaign').modal('show');
-        $('body').removeClass('loading');
-    }
 
 
-    $(document).on("click", ".remove-btn", function (e) {
-        e.preventDefault();
-        const $button = $(this);
-        const $assetCard = $button.closest(".col");
-        const assetId = $button.data("id");
-        if (!assetId) {
-            console.error("Asset ID is missing.");
-            alert("Invalid asset. Unable to remove.");
-            return;
-        }
-        if (confirm("Are you sure you want to remove this asset?")) {
-            $('#modalLoader').show();
-            $.ajax({
-                url: `/campaigns/assets/${assetId}`,
-                type: "DELETE",
-                contentType: "application/json",
-                success: function (response) {
-                    $('#modalLoader').hide();
-                    if (response.success) {
-                        $assetCard.remove();
-                        alert("Asset removed successfully!");
-                    } else {
-                        console.warn("Failed to remove asset. Response:", response);
-                        alert("Failed to remove asset. Please try again.");
-                    }
-                },
-                error: function (xhr, status, error) {
-                    $('#modalLoader').hide();
-                    console.error("Error occurred while removing asset:", {
-                        status: xhr.status,
-                        error: error,
-                        response: xhr.responseText,
-                    });
-                    alert("An error occurred while removing the asset. Please try again.");
-                },
-            });
-        }
-    });
-
-</script>
+        $(document).on("click", ".remove-btn", function(e) {
+            e.preventDefault();
+            const $button = $(this);
+            const $assetCard = $button.closest(".col");
+            const assetId = $button.data("id");
+            if (!assetId) {
+                console.error("Asset ID is missing.");
+                alert("Invalid asset. Unable to remove.");
+                return;
+            }
+            if (confirm("Are you sure you want to remove this asset?")) {
+                $('#modalLoader').show();
+                $.ajax({
+                    url: `/campaigns/assets/${assetId}`,
+                    type: "DELETE",
+                    contentType: "application/json",
+                    success: function(response) {
+                        $('#modalLoader').hide();
+                        if (response.success) {
+                            $assetCard.remove();
+                            alert("Asset removed successfully!");
+                        } else {
+                            console.warn("Failed to remove asset. Response:", response);
+                            alert("Failed to remove asset. Please try again.");
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        $('#modalLoader').hide();
+                        console.error("Error occurred while removing asset:", {
+                            status: xhr.status,
+                            error: error,
+                            response: xhr.responseText,
+                        });
+                        alert("An error occurred while removing the asset. Please try again.");
+                    },
+                });
+            }
+        });
+    </script>
 @endsection
