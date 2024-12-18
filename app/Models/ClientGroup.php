@@ -22,4 +22,8 @@ class ClientGroup extends Model
     {
         return $this->hasMany(ClientUser::class, 'group_id');
     }
+    public function partners()
+    {
+        return $this->hasMany(ClientGroupPartners::class, 'group_id');
+    }
 }

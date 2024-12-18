@@ -416,12 +416,19 @@ class TasksController extends Controller
         }
 
         // Get partners related to the campaign with role_level 6
-        $partners = CampaignPartner::with('campaign.client')
+        $partners = CampaignPartner::with([
+            'campaign.client',
+            'partner.roles' => function ($query) {
+                $query->where('role_level', 6); // Filter roles with role_level = 6
+            }
+        ])
             ->where('campaigns_id', $campaignId)
-            ->whereHas('partner.roles', function ($query) {
-                $query->where('role_level', 6);
+            ->whereHas('partner', function ($query) {
+                $query->where('is_active', 1); // Filter partners with is_active = 1
             })
-            ->with('partner.roles')
+            ->whereHas('partner.roles', function ($query) {
+                $query->where('role_level', 6); // Ensure the partner has a role with role_level = 6
+            })
             ->get();
 
         return response()->json([

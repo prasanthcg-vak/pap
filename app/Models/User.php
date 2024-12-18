@@ -76,6 +76,17 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->belongsToMany(ClientGroup::class, 'client_group_user', 'user_id', 'client_group_id');
     }
+    // In ClientGroupPartner model
+    public function campaignPartners()
+    {
+        return $this->belongsToMany(
+            ClientGroupPartners::class, // The related model
+            'campaigns_partner',             // The pivot table name
+            'partner_id',                 // Foreign key on the pivot table for the User model
+            'campaigns_id'     // Foreign key on the pivot table for the related model
+        );
+    }
+
 
     /**
      * Define the belongs-to relationship with a single group.

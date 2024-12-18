@@ -104,7 +104,7 @@
                                     <td>
                                         <span>{{ $task->date_required }}</span>
                                     </td>
-                                   
+
                                     <td class="">
                                         @php
                                             $words = explode(' ', strip_tags($task->description)); // Strip HTML tags and split into words
@@ -120,7 +120,8 @@
                                             <span class="full-text" style="display: none;">
                                                 {!! $task->description !!}
                                                 <span class="read-less"
-                                                    style="color: orange; cursor: pointer; text-decoration: underline;"> Read
+                                                    style="color: orange; cursor: pointer; text-decoration: underline;">
+                                                    Read
                                                     less</span>
                                             </span>
                                         @endif
@@ -441,6 +442,9 @@
                                     partnerDropdown.innerHTML +=
                                         `<option value="${partner.id}">${partner.partner.name}</option>`;
                                 });
+                            } else {
+                                $('#modalLoader').hide();
+                                alert('No partners found for the selected group.');
                             }
                             partnerDropdown.disabled = false; // Enable after loading
                             $('#modalLoader').hide();
@@ -452,7 +456,7 @@
                             $('#modalLoader').hide();
                         });
                 }
-                
+
 
 
             });

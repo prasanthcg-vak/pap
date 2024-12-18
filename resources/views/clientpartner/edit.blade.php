@@ -70,7 +70,9 @@
 
                                         <select name="group" class="form-select  common-select" id="group_id">
                                             @foreach ($groups as $group)
-                                                <option value="{{ $group->id }}" {{$group->id = $group_id ? 'selected':''}}>{{ $group->name }}</option>
+                                                <option value="{{ $group->id }}"
+                                                    {{ $group->id = $group_id ? 'selected' : '' }}>{{ $group->name }}
+                                                </option>
                                             @endforeach
                                         </select>
                                         @error('partner_email')
@@ -123,6 +125,12 @@
                                     </div>
                                 </div>
                             </div>
+                            @if ($returnUrl == 'myprofile')
+                                <input type="hidden" name="returnURL" value="myprofile">
+                            @else
+                                <input type="hidden" name="returnURL" value="partnerlist">
+                                <input type="hidden" name="previousPageGroupId" value="{{$previousPageGroupId}}">
+                            @endif
                             <div class="submit-button text-end">
                                 <button type="submit" class="btn submit-btn">Update Partner</button>
                             </div>

@@ -19,6 +19,7 @@
                             <th>ID</th>
                             <th>Group Name</th>
                             <th>Client Name</th>
+                            <th>Partners</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -28,6 +29,7 @@
                             <td>{{ $group->id }}</td>
                             <td>{{ $group->name }}</td>
                             <td>{{ $group->client->name }}</td>
+                            <td><a href="{{route('partnerlist',$group->id)}}" > {{$group->partners_count}}</a></td>
                             <td>
                                 <a href="#" class="btn search"onclick="openEditModal({{ $group->id }}, '{{ $group->name }}', {{ $group->client_id }})">
                                     <i class="fa-solid fa-pencil" title="Edit"></i>
