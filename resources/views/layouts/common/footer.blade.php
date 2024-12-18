@@ -40,6 +40,14 @@
     // Handle modal cancel button
     $(document).ready(function() {
 
+
+        $('#campaign-cancel , #campaign-close').click(function() {
+            
+            $('#Model-Form')[0].reset(); // Reset form fields
+            $('.modal.fade').modal('hide'); // Close the modal
+            // alert();
+            location.reload(); // Reload the page            
+        });
         $('#cancel, #model-close').click(function() {
             // Reset the form
             $('#Model-Form')[0].reset(); // Reset form fields
