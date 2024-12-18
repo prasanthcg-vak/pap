@@ -65,9 +65,11 @@ class CampaignsController extends Controller
                 ->get();
         }
         
-        $partners = ClientPartner::with(['client', 'partner'])
-            ->where('client_id', $authId)
-            ->get();
+        $partners = ClientPartner::with(['client', 'partner' => function($query) {
+            $query->where('is_active', 1); // Add condition to get only active partners
+        }])
+        ->where('client_id', $authId)
+        ->get();
 
         $clients = Client::get();
         $sideBar = 'dashboard';
@@ -714,8 +716,12 @@ class CampaignsController extends Controller
 
     public function getPartners($groupId)
     {
-        $partners = ClientGroupPartners::with('user')->where('group_id', $groupId)->get();
-        return response()->json($partners);
+        $partners = ClientGroupPartners::with(['user' => function ($query) {
+            $query->where('is_active', 1); // Filter users with is_active = 1
+        }])
+        ->where('group_id', $groupId)
+        ->get();
+                return response()->json($partners);
     }
 
     public function showPdf($filename)

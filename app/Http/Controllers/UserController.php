@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\URL;
 
 
 class UserController extends Controller
@@ -376,13 +377,23 @@ class UserController extends Controller
         $clientPartner = User::findOrFail($id);
         $groups = ClientGroup::where("client_id", $client_id)->get();
 
-        // dd($clientPartner);
-        return view('clientpartner.edit', compact('clientPartner', 'groups', 'group_id'));
+        $previousUrl = URL::previous();
+        $returnUrl = 'myprofile';
+        // dd($previousUrl);
+        if (str_contains(parse_url($previousUrl, PHP_URL_PATH), 'partnerlist')) {
+            $returnUrl = 'partnerlist';
+            $segments = explode('/', parse_url($previousUrl, PHP_URL_PATH));
+            $previousPageGroupId = end($segments);
+            $groups = ClientGroup::get();
+
+        }
+        return view('clientpartner.edit', compact('clientPartner', 'groups', 'group_id', 'returnUrl', 'previousPageGroupId'));
     }
 
     // Update the partner's details
     public function update_client_partner(Request $request, $id)
     {
+        // dd($request->all());
         $request->validate([
             'partner_name' => 'required|string|max:255',
             'partner_email' => 'required|email|unique:users,email,' . $id,
@@ -420,7 +431,13 @@ class UserController extends Controller
             ]);
         }
 
-        return redirect()->route('myprofile')->with('success', 'Partner updated successfully!');
+        if ($request->returnURL == "myprofile") {
+            return redirect()->route('myprofile')->with('success', 'Partner updated successfully!');
+        } else {
+            return redirect()->route('partnerlist', ['id' => $request->previousPageGroupId])->with('success', 'Partner updated successfully!');
+
+        }
+
     }
 
 
@@ -447,9 +464,14 @@ class UserController extends Controller
         $authId = Auth::id();
 
         // Fetch partners related to the selected campaign
-        $partners = CampaignPartner::with(['partner'])
-            ->where('campaigns_id', $id)          // ->where('campaign_id', $id) // Assuming 'campaign_id' is the relation field
+        $partners = CampaignPartner::with([
+            'partner' => function ($query) {
+                $query->where('is_active', 1); // Only get active partners
+            }
+        ])
+            ->where('campaigns_id', $id)
             ->get();
+
 
         // Return JSON response
         return response()->json($partners);

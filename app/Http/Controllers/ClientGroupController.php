@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\ClientGroup;
 use App\Models\Client;
+use App\Models\ClientGroupPartners;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -11,8 +13,11 @@ class ClientGroupController extends Controller
 {
     public function index()
     {
-        $clientGroups = ClientGroup::with('client:id,name')->get();
+        $clientGroups = ClientGroup::withCount('partners')
+            ->with('client:id,name', 'partners.user')
+            ->get();
         $clients = Client::all(['id', 'name']);
+        // dd($clientGroups);
         return view('client-groups.index', compact('clientGroups', 'clients'));
     }
 
@@ -73,5 +78,21 @@ class ClientGroupController extends Controller
             \Log::error('Error deleting client group: ' . $e->getMessage());
             return response()->json(['error' => 'An error occurred while deleting the client group'], 500);
         }
+    }
+    public function partner_list($id)
+    {
+        $partners = ClientGroupPartners::with('user.campaignPartners')
+            ->where('group_id', $id)
+            ->get()
+            ->map(function ($partner) {
+                // Check if the user has campaignPartners
+                $partner->partnerexist = $partner->user && $partner->user->campaignPartners->isNotEmpty() ? 1 : 0;
+                return $partner;
+            });
+
+        // $user = User::with("campaignPartners")->where('id',7)->get();
+        // dd($partners);
+        return view('partners.list', compact('partners'));
+
     }
 }

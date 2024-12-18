@@ -327,7 +327,7 @@ $(document).ready(function () {
     $('#modalLoader').show();
 
     // Reset subsequent dropdowns
-    clientGroupDropdown.empty().append('<option value="">-- Select Client Group --</option>').prop('disabled', true);
+    clientGroupDropdown.empty().append('<option value="" >-- Select Client Group --</option>').prop('disabled', true);
     partnerDropdown.empty().append('<option value="">-- Select Partner --</option>').prop('disabled', true);
 
     if (clientId) {
@@ -400,7 +400,7 @@ $(document).ready(function () {
     // Reset the partner dropdown
     // partnerDropdown.empty().append('<option value="">-- Select Partner --</option>').prop('disabled', true);
 
-    if (groupId) {
+    if (groupId != "") {
       $.ajax({
         url: `/get-partners/${groupId}`, // Laravel route for partners
         type: 'GET',
@@ -410,8 +410,16 @@ $(document).ready(function () {
           partnerDropdown.prop('disabled', false);
           if (Array.isArray(data) && data.length > 0) {
             data.forEach(function (partner) {
-              partnerDropdown.append(`<option value="${partner.user.id}">${partner.user.name}</option>`);
-              $('.selectpicker').selectpicker('refresh');
+              console.log(partner.user);
+
+              if (partner.user != null) {
+                partnerDropdown.append(`<option value="${partner.user.id}">${partner.user.name}</option>`);
+                $('.selectpicker').selectpicker('refresh');
+              }
+              else {
+                $('#modalLoader').hide();
+                alert('No partners found for the selected group.');
+              }
 
             });
           } else {
@@ -426,6 +434,9 @@ $(document).ready(function () {
 
         }
       });
+    }
+    else {
+      $('#modalLoader').hide();
     }
   });
 });
