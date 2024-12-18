@@ -176,7 +176,7 @@ Route::middleware(['web', 'auth'])->group(function () {
     Route::post('/user/{id}/resend-email', [UserController::class, 'resendEmail'])->name('user.resend-email');
     Route::get('/campaigns/{campaign}/images', [CampaignsController::class, 'fetchImages']);
     Route::post('/posts/create', [PostController::class, 'createPost'])->name('posts.create');
-    Route::get('/partnerlist/{id}', [ClientGroupController::class, 'partner_list'])->name('partner_list');
+    Route::get('/partnerlist/{id}', [ClientGroupController::class, 'partner_list'])->name('partnerlist');
 
     // Edit Forms Ajax call
     Route::get('/clients/{id}/edit', [ClientController::class, 'edit'])->name('clients.edit');
