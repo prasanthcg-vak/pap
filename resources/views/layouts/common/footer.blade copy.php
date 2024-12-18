@@ -28,7 +28,6 @@
         new DataTable('#datatable');
 
         var uploadAsset = document.getElementById('uploadAsset');
-
         if (uploadAsset) {
             document.getElementById('uploadAsset').addEventListener('click', function() {
                 // Toggle the 'img-upload-con' visibility
@@ -37,20 +36,15 @@
         }
 
         const toastEl1 = document.getElementById('cancel');
-
         toastEl1.addEventListener('click', function() {
             location.reload();
-
-            // alert('Cancel button clicked!');
         });
 
         const toastEl2 = document.getElementById('model-close');
-
         toastEl2.addEventListener('click', function() {
             location.reload();
-
-            // alert('Cancel button clicked!');
         });
+
         document.addEventListener('DOMContentLoaded', function() {
             // Select all elements with the modal class `.modal.fade`
             document.querySelectorAll('.modal.fade').forEach((modalElement) => {
@@ -69,7 +63,6 @@
         });
 
         // Show the modal with the specified options
-        // myModal.show();
         document.addEventListener("DOMContentLoaded", function() {
             const navItems = document.querySelectorAll(".nav-item");
             const currentPath = window.location.pathname;
