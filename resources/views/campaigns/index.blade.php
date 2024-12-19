@@ -619,7 +619,7 @@
                         `${asset.image}`;
 
                     $existingImageDiv.append(`
-                    <div class="col-md-3" >
+                    <div class="col-md-3 col-image" >
                         <div class="card existing-image-card">
                             <button type="button" class="btn btn-danger btn-sm mt-2 remove-asset existing-remove-btn" data-id="${asset.id}">X</button>
                             <div class="drop-zone__thumb" data-label="${asset.file_name}" style="background-image: url(${thumbnailUrl});">
@@ -640,7 +640,7 @@
         $(document).on("click", ".existing-remove-btn", function(e) {
             e.preventDefault();
             const $button = $(this);
-            const $assetCard = $button.closest(".col");
+            const $assetCard = $button.closest(".col-image");
             const assetId = $button.data("id");
             if (!assetId) {
                 console.error("Asset ID is missing.");

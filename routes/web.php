@@ -142,7 +142,7 @@ Route::middleware(['web', 'auth'])->group(function () {
     Route::get('clientpartner/create', [UserController::class, 'create_client_partner'])->name('clientpartner.create')->middleware('permission:clientpartner.create');
     Route::post('clientpartner', [UserController::class, 'store_client_partner'])->name('clientpartner.store')->middleware('permission:clientpartner.store');
     Route::get('clientpartner/{id}/edit', [UserController::class, 'edit_client_partner'])->name('clientpartner.edit')->middleware('permission:clientpartner.edit');
-    Route::put('clientpartner/{id}', [UserController::class, 'update_client_partner'])->name('clientpartner.update')->middleware('permission:clientpartner.update');
+    Route::post('clientpartner/{id}', [UserController::class, 'update_client_partner'])->name('clientpartner.update')->middleware('permission:clientpartner.update');
     Route::delete('clientpartner/{id}', [UserController::class, 'destroy_client_partner'])->name('clientpartner.destroy')->middleware('permission:clientpartner.destroy');
     Route::get('/myprofile', [UserController::class, 'myprofile'])->name('myprofile')->middleware('permission:myprofile.view');
     Route::put('/profile', [UserController::class, 'updateprofile'])->name('profile.update')->middleware('permission:myprofile.update');
