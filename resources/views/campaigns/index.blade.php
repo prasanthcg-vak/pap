@@ -544,8 +544,8 @@
                 clientGroups,
                 groupPartners,
                 images,
-                partner: partners
             } = campaignData;
+            const partners = campaign.partner;
 
             // Update form action and method
             const $form = $('#campaignForm');
