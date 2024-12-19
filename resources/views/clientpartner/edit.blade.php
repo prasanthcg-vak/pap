@@ -10,10 +10,9 @@
                 </div>
                 <div class="row">
                     <div class="col-md-6">
-                        <form id="Model-Form" action="{{ route('clientpartner.update', $clientPartner->id) }}" method="POST"
+                        <form id="Model-Form" action="{{ route('clientpartner.update', $clientPartner->id) }}" method="post"
                             enctype="multipart/form-data">
                             @csrf
-                            @method('PUT')
 
                             <div class="profile-con">
                                 <div class="row">

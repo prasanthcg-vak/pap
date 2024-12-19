@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ClientPartner;
 use Illuminate\Support\Facades\Log;
 use App\Models\Client;
 use App\Models\User;
@@ -149,20 +150,33 @@ class ClientController extends Controller
     public function update(Request $request, $id)
     {
         $clientuser = ClientUser::where("client_id", $id)->first();
-        // dd($clientuser->user_id);
 
         try {
-            // Validate the request
-            $validatedData = $request->validate([
-                'name' => 'required|string|max:255',
-                'description' => 'nullable|string|max:500',
-                'is_active' => 'nullable|boolean',
-                'client_admin_name' => 'required|string|max:255',
-                'email' => 'required|email|unique:users,email,' . $clientuser->user_id, // Ignore the current admin email
-                'password' => 'nullable|string|min:8', // Optional for updates
-                'role_id' => 'required|integer|exists:roles,id',
-                'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Add validation for logo
-            ]);
+            if ($clientuser != null) {
+                $validatedData = $request->validate([
+                    'name' => 'required|string|max:255',
+                    'description' => 'nullable|string|max:500',
+                    'is_active' => 'nullable|boolean',
+                    'client_admin_name' => 'required|string|max:255',
+                    'password' => 'nullable|string|min:8', // Optional for updates
+                    'role_id' => 'required|integer|exists:roles,id',
+                    'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Add validation for logo
+                    'email' => 'required|email|unique:users,email,' . $clientuser->user_id, // Ignore the current admin email
+                ]);
+            } else {
+                $validatedData = $request->validate([
+                    'name' => 'required|string|max:255',
+                    'description' => 'nullable|string|max:500',
+                    'is_active' => 'nullable|boolean',
+                    'client_admin_name' => 'required|string|max:255',
+                    'password' => 'nullable|string|min:8', // Optional for updates
+                    'role_id' => 'required|integer|exists:roles,id',
+                    'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Add validation for logo
+                    'email' => 'required|email|unique:users', // Ignore the current admin email
+                ]);
+            }
+
+
 
             // Begin transaction
             DB::beginTransaction();
@@ -183,7 +197,7 @@ class ClientController extends Controller
                     unlink(public_path($client->logo));
                 }
             }
-
+            // dd($client);
             // Update the client details
             $client->update([
                 'name' => $validatedData['name'],
@@ -193,9 +207,12 @@ class ClientController extends Controller
             ]);
 
             // Update or create the client admin user
-            $user = User::find($clientuser->user_id); // Find the user by ID
-
-            if ($user) {
+            if ($clientuser != null) {
+                $user = User::find($clientuser->user_id); // Find the user by ID
+            } else {
+                $user = null;
+            }
+            if ($user != null) {
                 // Update the user's fields
                 $user->update([
                     'name' => $validatedData['client_admin_name'],
@@ -204,18 +221,42 @@ class ClientController extends Controller
                         ? Hash::make($validatedData['password'])
                         : $user->password, // Retain the old password if not provided
                     'is_active' => $validatedData['is_active'] ?? 0,
-                    'logo' => $filePath,
                 ]);
+                DB::table('role_user')->updateOrInsert(
+                    ['user_id' => $user->id],
+                    [
+                        'role_id' => $validatedData['role_id'],
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]
+                );
+            } else {
+                $user = User::create([
+                    'name' => $validatedData['client_admin_name'],
+                    'email' => $validatedData['email'],
+                    'password' => Hash::make($validatedData['password']),
+                    'is_active' => $validatedData['is_active'] ?? 0,
+                    'client_id' => $client->id,
+                ]);
+                $clientuser = ClientUser::create(
+                    [
+                        'client_id' => $client->id,
+                        'user_id' => $user->id,
+                    ]
+                );
+
+                DB::table('role_user')->updateOrInsert(
+                    ['user_id' => $user->id], // $user now contains the created model, so $user->id works
+                    [
+                        'role_id' => $validatedData['role_id'],
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]
+                );
+
             }
             // Sync the role for the user
-            DB::table('role_user')->updateOrInsert(
-                ['user_id' => $user->id],
-                [
-                    'role_id' => $validatedData['role_id'],
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]
-            );
+
 
             DB::commit();
 
@@ -246,8 +287,35 @@ class ClientController extends Controller
     public function destroy($id)
     {
         try {
-            $client = Client::findOrFail($id);
-            $client->delete();
+            $client = Client::with('users')->find($id); // Use find() to avoid exception if not found
+            if ($client) {
+                // Check if the client has users
+                $clientUser = $client->users->first();
+                $clientPartners = ClientPartner::where('client_id', $client->id)->get();
+                if (count($clientPartners) > 0) {
+                    foreach ($clientPartners as $clientPartner) {
+                        $clientPartner->delete();
+                    }
+                }
+                if ($clientUser) {
+                    $clientadmin = ClientUser::find($clientUser->id); // Find ClientUser
+                    if ($clientadmin) {
+                        $user = User::with('roles')->find($clientadmin->user_id); // Find associated User
+                        if ($user) {
+                            // Delete roles associated with the user
+                            DB::table('role_user')->where("user_id", $clientadmin->user_id)->delete();
+
+                            // Delete the user
+                            $user->delete();
+                        }
+                        // Delete the client admin
+                        $clientadmin->delete();
+                    }
+                }
+                // Delete the client
+                $client->delete();
+            }
+
 
             return redirect()->route('clients.index')->with('success', 'Client Group deleted successfully');
         } catch (\ModelNotFoundException $e) {

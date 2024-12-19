@@ -28,11 +28,11 @@ class UserController extends Controller
     public function index()
     {
         $users = User::with('roles', 'group', 'client')
-        ->whereDoesntHave('roles', function ($query) {
-            $query->whereIn('role_level', [1, 4]);
-        })
-        ->get();
-            // $data = User::with('roles')->get();
+            ->whereDoesntHave('roles', function ($query) {
+                $query->whereIn('role_level', [1, 4]);
+            })
+            ->get();
+        // $data = User::with('roles')->get();
         // dd($users);
         return view('users.index', compact('users'));
     }
@@ -406,7 +406,6 @@ class UserController extends Controller
             'logo' => 'nullable|image|mimes:jpg,png,jpeg|max:1024',
         ]);
 
-        $clientPartner = ClientPartner::findOrFail($id);
         $user = User::findOrFail($id);
 
         // dd($user);
@@ -443,7 +442,29 @@ class UserController extends Controller
         }
 
     }
+    public function test1(Request $request, $id)
+    {
+        $request->validate([
+            'partner_name' => 'required|string|max:255',
+            'partner_email' => 'required|email|unique:users,email,' . $id,
+            'partner_contact' => 'required|string|max:20',
+            'status' => 'nullable|in:active,inactive',
+            'logo' => 'nullable|image|mimes:jpg,png,jpeg|max:1024',
+        ]);
+        $clientPartner = ClientPartner::findOrFail($id);
+        $user = User::findOrFail($id);
 
+        // dd($user);
+        // Update partner details
+        $user->update([
+            'name' => $request->partner_name,
+            'email' => $request->partner_email,
+            'contact' => $request->partner_contact,
+            'is_active' => $request->status == 'active' ? 1 : 0,
+        ]);
+
+        dd("test");
+    }
 
     // Delete a partner from the client-partner table
     public function destroy_client_partner($id)
