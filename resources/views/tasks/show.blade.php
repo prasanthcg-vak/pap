@@ -234,14 +234,14 @@
                                         <label>Task Brief:</label>
                                         <p>{!! $task->description ?? '<span style="color: gray; font-style: italic;">No description available for this task.</span>' !!}</p>
                                     </div>
-                                    <div class="upload-contents">
+                                    {{-- <div class="upload-contents">
                                         <label>Uploads:</label>
                                         <div class="upload-content-links">
                                             <a href="#">Stockimage01.jpg</a>
                                             <a href="#">Worddocument.doc</a>
                                             <a href="#">example.pdf</a>
                                         </div>
-                                    </div>
+                                    </div> --}}
                                 </div>
                             </div>
                         </div>
@@ -279,7 +279,7 @@
                                     </thead>
                                     <tbody>
                                         <tr>
-                                            <td class="library-img">
+                                            {{-- <td class="library-img">
                                                 <span><img class="img-fluid" src="public/assets/images/profile-image.svg"
                                                         alt=""></span>
                                             </td>
@@ -301,9 +301,10 @@
                                                     <button class="btn thumbs-up"><i
                                                             class="fa-solid fa-thumbs-up"></i></button>
                                                 </div>
-                                            </td>
+                                            </td> --}}
+                                            <td style="text-align: center;">No data found</td>
                                         </tr>
-                                        <tr>
+                                        {{-- <tr>
                                             <td class="library-img">
                                                 <span><img class="img-fluid"
                                                         src="assets/images/automated-prompt-generation-with-generative-ai 1.png"
@@ -380,7 +381,7 @@
                                                             class="fa-solid fa-thumbs-up"></i></button>
                                                 </div>
                                             </td>
-                                        </tr>
+                                        </tr> --}}
                                     </tbody>
                                 </table>
                             </div>
