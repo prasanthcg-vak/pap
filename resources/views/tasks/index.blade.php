@@ -202,7 +202,7 @@
                                     <option value="" selected>Select Campaign</option>
                                     @foreach ($campaigns as $campaign)
                                         <option value="{{ $campaign->id }}"
-                                            data-client-name="{{ $campaign->client->name }}">
+                                            >
                                             {{ $campaign->name }}
                                         </option>
                                     @endforeach

@@ -62,6 +62,7 @@ class TasksController extends Controller
                 ->where('partner_id', $authId)
                 ->get();
         }
+        
 
         return view('tasks.index', compact('tasks', 'campaigns', 'categories', 'assets', 'partners'));
     }
