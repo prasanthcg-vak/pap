@@ -42,15 +42,19 @@
 
 
         $('#campaign-cancel , #campaign-close').click(function() {
-            
-            $('#Model-Form')[0].reset(); // Reset form fields
+
+            if ($('#Model-Form').length > 0) {
+                $('#Model-Form')[0].reset();
+            }
             $('.modal.fade').modal('hide'); // Close the modal
             // alert();
             location.reload(); // Reload the page            
         });
         $('#cancel, #model-close').click(function() {
             // Reset the form
-            $('#Model-Form')[0].reset(); // Reset form fields
+            if ($('#Model-Form').length > 0) {
+                $('#Model-Form')[0].reset();
+            }
             $('.modal.fade').modal('hide'); // Close the modal
 
             // Reset the file input in the first drop-zone
@@ -90,8 +94,14 @@
         document.getElementById('campaignMethod').value = 'POST'; // Change method to POST
 
         // Clear dropdowns
-        document.getElementById('client').value = '';
-        document.getElementById('clientGroup').value = '';
+        const clientInput = document.getElementById('client');
+        if (clientInput) {
+            clientInput.value = '';
+        }
+        const clientGroup = document.getElementById('clientGroup');
+        if (clientGroup) {
+            clientGroup.value = '';
+        }
 
         // Hide active/inactive headers
         document.getElementById('active_header_block').style.display = 'none';

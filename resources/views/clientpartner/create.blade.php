@@ -82,7 +82,7 @@
                                                     <option value="{{$group->id}}">{{$group->name}}</option>
                                                 @endforeach
                                             </select>
-                                            @error('partner_email')
+                                            @error('group')
                                                 <div class="text-danger">{{ $message }}</div>
                                             @enderror
                                         </div>

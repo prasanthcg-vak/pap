@@ -135,7 +135,8 @@
                                     </td>
                                     <td>{{ $task->image_id ? '1' : '0' }}</td>
                                     <td class="">
-                                        <span>{{ $task->status ? $task->status->name : 'N/A' }}</span>
+                                        <span
+                                            class="status {{ $task->is_active == 1 ? 'green' : 'red' }}">{{ $task->is_active == 1 ? 'ACTIVE' : 'INACTIVE' }}</span>
                                     </td>
                                     @if ($hasActionPermission)
                                         <td class="action library-action task">
@@ -143,8 +144,8 @@
                                                 <div class="action-btn-icons ">
                                                     {{-- <button class="btn search"><i class='bx bx-search-alt-2'></i></button> --}}
                                                     @if ($showButton)
-                                                        <a href="{{ route('tasks.show', $task->id) }}" class="btn search"><i
-                                                                class="fa fa-eye" title="show"></i></a>
+                                                        <a href="{{ route('tasks.show', $task->id) }}"
+                                                            class="btn search"><i class="fa fa-eye" title="show"></i></a>
                                                     @endif
 
                                                     {{-- <button class="btn edit"><i class='bx bx-edit'></i></button> --}}
@@ -201,8 +202,7 @@
                                     aria-label="Default select example">
                                     <option value="" selected>Select Campaign</option>
                                     @foreach ($campaigns as $campaign)
-                                        <option value="{{ $campaign->id }}"
-                                            >
+                                        <option value="{{ $campaign->id }}">
                                             {{ $campaign->name }}
                                         </option>
                                     @endforeach

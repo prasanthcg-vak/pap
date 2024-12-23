@@ -7,16 +7,30 @@ use App\Models\Client;
 use App\Models\ClientGroupPartners;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 class ClientGroupController extends Controller
 {
     public function index()
     {
-        $clientGroups = ClientGroup::withCount('partners')
+        
+            // dd(auth()->user());
+        if(auth()->user()->roles->first()->role_level >3){
+            $clientGroups = ClientGroup::withCount('partners')
+            ->with('client:id,name', 'partners.user')
+            ->where('client_id' , auth()->user()->client_id )
+            ->get();
+            $clients = Client::all(['id', 'name'])->where('id',auth()->user()->client_id );
+        }
+        else{
+            $clientGroups = ClientGroup::withCount('partners')
             ->with('client:id,name', 'partners.user')
             ->get();
-        $clients = Client::all(['id', 'name']);
+            $clients = Client::all(['id', 'name']);
+        }
+
+
         // dd($clientGroups);
         return view('client-groups.index', compact('clientGroups', 'clients'));
     }

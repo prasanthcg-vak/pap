@@ -111,7 +111,37 @@ function _user_permission_modules($module, $sub_module, $role_id)
 
 function campaigns_count()
 {
-    $campaign_count = Campaigns::where('is_active', 1)->count();
+    $authId = Auth::id();
+    $role_level = Auth::user()->roles->first()->role_level;
+    $client_id = Auth::user()->client_id;
+    $group_id = Auth::user()->group_id;
+
+    $role_level = Auth::user()->roles->first()->role_level;
+    if ($role_level < 4) {
+        $campaigns = Campaigns::with('images', 'client', 'group', 'tasks')
+            ->orderBy('id', 'asc')
+            ->get();
+    } elseif ($role_level == 4) {
+        $campaigns = Campaigns::with('images', 'client', 'group')
+            ->where("client_id", $client_id)
+            ->orderBy('id', 'asc')
+            ->get();
+    } elseif ($role_level == 5) {
+        $campaigns = Campaigns::with('images', 'client', 'group')
+            ->where("client_id", $client_id)
+            // ->where("client_group_id", $group_id)
+            ->orderBy('id', 'asc')
+            ->get();
+    } elseif ($role_level == 6) {
+        $campaigns = Campaigns::with('images', 'client', 'group', 'partner')
+            ->whereHas('partner', function ($query) use ($authId) {
+                $query->where('partner_id', $authId);
+            })
+            ->orderBy('id', 'asc')
+            ->get();
+    }
+
+    $campaign_count = count($campaigns);
 
     // dd($campaign_count);
     return $campaign_count;
@@ -119,7 +149,35 @@ function campaigns_count()
 
 function task_count()
 {
-    $task_count = Tasks::where('is_active', 1)->count();
+    $authId = Auth::id();
+    $role_level = Auth::user()->roles->first()->role_level;
+    $client_id = Auth::user()->client_id;
+    $group_id = Auth::user()->group_id;
+    if ($role_level < 4) {
+        $tasks = Tasks::with([
+            'campaign.group',  // Load the group related to the campaign
+            'campaign.client', // Load the client related to the campaign
+            'status'           // Load the status if it's a relation
+        ])->get();
+    } elseif ($role_level == 4) {
+        $tasks = Tasks::with(['campaign.group', 'campaign.client', 'status'])
+            ->whereHas('campaign', function ($query) use ($client_id) {
+                $query->where('client_id', $client_id);
+            })
+            ->get();
+    } elseif ($role_level == 5) {
+        $tasks = Tasks::with(['campaign.group', 'campaign.client', 'status'])
+            ->whereHas('campaign', function ($query) use ($client_id, $group_id) {
+                $query->where('client_id', $client_id);
+                    // ->where('client_group_id', $group_id);
+            })
+            ->get();
+    } elseif ($role_level == 6) {
+        $tasks = Tasks::with(['campaign.group', 'campaign.client', 'status', 'campaign.partner'])
+            ->where('partner_id', $authId)
+            ->get();
+    }
+    $task_count = count($tasks);
 
     // dd($campaign_count);
     return $task_count;

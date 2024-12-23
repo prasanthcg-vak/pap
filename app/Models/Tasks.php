@@ -60,5 +60,8 @@ class Tasks extends Model
     //     return $this->belongsTo(Partner::class, 'partner_id');
     // }
 
-    
+    public function client()
+    {
+        return $this->belongsTo(Client::class, 'client_id');
+    }
 }

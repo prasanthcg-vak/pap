@@ -57,7 +57,7 @@
                             <td>{{ $index + 1 }}</td>
                             <td>{{ $assetType->type_name }}</td>
                             <td>{{ $assetType->type_description }}</td>
-                            <td>{{ $assetType->is_active ? 'Active' : 'Inactive' }}</td>
+                            <td  ><span class="status {{ $assetType->is_active ? 'green' : 'red' }}">{{ $assetType->is_active ? 'Active' : 'Inactive' }}</span></td>
                             @if ($edit || $delete)
                                 <td>
                                     @if ($edit)

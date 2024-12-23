@@ -235,7 +235,7 @@ class UserController extends Controller
      */
     public function myprofile()
     {
-        $authId = Auth::id();
+        $authId = Auth::user()->client_id;
         $clientPartners = ClientPartner::with(['client', 'partner'])
             ->where('client_id', $authId)
             ->get();
@@ -331,7 +331,7 @@ class UserController extends Controller
 
         // Create the partner in `clientpartner` table (link the partner with the client)
         ClientPartner::create([
-            'client_id' => Auth::id(), // Using the authenticated client's ID
+            'client_id' => Auth::user()->client_id, // Using the authenticated client's ID
             'partner_id' => $user->id,  // Newly created partner's ID
         ]);
 
@@ -383,6 +383,7 @@ class UserController extends Controller
 
         $previousUrl = URL::previous();
         $returnUrl = 'myprofile';
+        $previousPageGroupId = 0;
         // dd($previousUrl);
         if (str_contains(parse_url($previousUrl, PHP_URL_PATH), 'partnerlist')) {
             $returnUrl = 'partnerlist';

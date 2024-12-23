@@ -45,33 +45,35 @@ class CampaignsController extends Controller
         $groups = ClientGroup::where("client_id", $client_id)->get();
         if ($role_level < 4) {
             $campaigns = Campaigns::with('images', 'client', 'group', 'tasks')
-                ->orderBy('id', 'asc') 
+                ->orderBy('id', 'asc')
                 ->get();
         } elseif ($role_level == 4) {
             $campaigns = Campaigns::with('images', 'client', 'group')
                 ->where("client_id", $client_id)
-                ->orderBy('id', 'asc') 
+                ->orderBy('id', 'asc')
                 ->get();
         } elseif ($role_level == 5) {
             $campaigns = Campaigns::with('images', 'client', 'group')
                 ->where("client_id", $client_id)
-                ->where("client_group_id", $group_id)
-                ->orderBy('id', 'asc') 
+                // ->where("client_group_id", $group_id)
+                ->orderBy('id', 'asc')
                 ->get();
         } elseif ($role_level == 6) {
             $campaigns = Campaigns::with('images', 'client', 'group', 'partner')
                 ->whereHas('partner', function ($query) use ($authId) {
                     $query->where('partner_id', $authId);
                 })
-                ->orderBy('id', 'asc') 
+                ->orderBy('id', 'asc')
                 ->get();
         }
-        
-        $partners = ClientPartner::with(['client', 'partner' => function($query) {
-            $query->where('is_active', 1); // Add condition to get only active partners
-        }])
-        ->where('client_id', $authId)
-        ->get();
+        $partners = ClientPartner::with([
+            'client',
+            'partner' => function ($query) {
+                $query->where('is_active', 1); // Add condition to get only active partners
+            }
+        ])
+            ->where('client_id', $authId)
+            ->get();
 
         $clients = Client::get();
         $sideBar = 'dashboard';
@@ -114,37 +116,37 @@ class CampaignsController extends Controller
         if ($request->hasFile('additional_images')) {
             $thumbnails = $request->file('thumbnail') ?? [];
             $thumbnailIndex = 0; // Keep track of thumbnail index
-        
+
             foreach ($request->file('additional_images') as $key => $file) {
                 $extension = $file->getClientOriginalExtension();
                 $isVideoOrPdf = in_array($extension, ['mp4', 'pdf']);
-        
+
                 if ($isVideoOrPdf) {
                     // Check if a thumbnail exists for this video/PDF file
                     $thumbnail = $thumbnails[$thumbnailIndex] ?? null;
-        
+
                     if (!$thumbnail) {
                         return back()->withErrors([
                             'thumbnail' => "Thumbnails are required for video or PDF files (File: {$file->getClientOriginalName()})."
                         ])->withInput();
                     }
-        
+
                     // Validate the thumbnail file
                     $thumbnailValidation = Validator::make(
                         ['thumbnail' => $thumbnail],
                         ['thumbnail' => 'required|mimes:jpeg,png,jpg|max:10240']
                     );
-        
+
                     if ($thumbnailValidation->fails()) {
                         return back()->withErrors($thumbnailValidation->errors())->withInput();
                     }
-        
+
                     // Increment thumbnail index only after successful validation
                     $thumbnailIndex++;
                 }
             }
         }
-        
+
         // Log incoming request
         Log::info('Incoming campaign request', ['request_data' => $request->all()]);
 
@@ -168,9 +170,9 @@ class CampaignsController extends Controller
                 try {
                     $extension = $file->getClientOriginalExtension();
                     $isVideoOrPdf = in_array($extension, ['mp4', 'pdf']);
-            
+
                     // Check if a thumbnail exists for this video/PDF file
-                     $thumbnail = $thumbnails[$thumbnailIndex] ?? null;
+                    $thumbnail = $thumbnails[$thumbnailIndex] ?? null;
 
                     $image = new Image();
 
@@ -185,7 +187,7 @@ class CampaignsController extends Controller
                     $extension = $file->getClientOriginalExtension();
                     $file_type = in_array($extension, ['jpg', 'jpeg', 'png']) ? 'image' :
                         ($extension === 'pdf' ? 'document' : 'video');
-                    
+
                     // Upload thumbnail if provided
                     $thumbnailPath = null;
                     if ($isVideoOrPdf) {
@@ -400,7 +402,7 @@ class CampaignsController extends Controller
         $partners = ClientPartner::all(); // Assuming you have a Partner model
         return view('campaigns.show', compact('campaign', 'partners', 'tasks', 'imageUrls'));
     }
-    
+
     public function showTasks($id)
     {
         $campaign = Campaigns::findOrFail($id);
@@ -427,23 +429,23 @@ class CampaignsController extends Controller
     {
         $campaign = Campaigns::findOrFail($id);
         $assets = Image::with('campaign')
-        // ->whereNotNull('campaign_id')
-        ->where('campaign_id',$id)
-        ->get()
-        ->map(function ($image) {
-            return [
-                'id' => $image->id,
-                'file_name' => $image->file_name,
-                // 'image_type' => pathinfo($image->file_name, PATHINFO_EXTENSION), 
-                'image_type' => $image->file_type,
-                'image' => Storage::disk('backblaze')->url($image->path) ?? null, 
-                'campaign_name' => $image->campaign ? $image->campaign->name : 'No Campaign', 
-                'campaign_id' => $image->campaign_id, 
-                'campaign_status' => $image->campaign ? $image->campaign->is_active : null,
-            ];
-        });
+            // ->whereNotNull('campaign_id')
+            ->where('campaign_id', $id)
+            ->get()
+            ->map(function ($image) {
+                return [
+                    'id' => $image->id,
+                    'file_name' => $image->file_name,
+                    // 'image_type' => pathinfo($image->file_name, PATHINFO_EXTENSION), 
+                    'image_type' => $image->file_type,
+                    'image' => Storage::disk('backblaze')->url($image->path) ?? null,
+                    'campaign_name' => $image->campaign ? $image->campaign->name : 'No Campaign',
+                    'campaign_id' => $image->campaign_id,
+                    'campaign_status' => $image->campaign ? $image->campaign->is_active : null,
+                ];
+            });
 
-        return view('campaigns.list', compact('assets','campaign'));
+        return view('campaigns.list', compact('assets', 'campaign'));
     }
 
     /**
@@ -456,17 +458,17 @@ class CampaignsController extends Controller
             $campaignId = Crypt::decryptString($encryptedId);
 
             // Fetch the campaign details with necessary relationships
-            $campaign = Campaigns::with(['images', 'client', 'group', 'tasks','partner'])
+            $campaign = Campaigns::with(['images', 'client', 'group', 'tasks', 'partner'])
                 ->findOrFail($campaignId);
-    
+
             // Map the images to include the full URL for both image and thumbnail
             $images = $campaign->images->map(function ($image) {
                 return [
                     'id' => $image->id,
                     'file_name' => $image->file_name,
                     'image' => Storage::disk('backblaze')->url($image->path) ?? null,
-                    'thumbnail' => $image->thumbnail_path 
-                        ? Storage::disk('backblaze')->url($image->thumbnail_path) 
+                    'thumbnail' => $image->thumbnail_path
+                        ? Storage::disk('backblaze')->url($image->thumbnail_path)
                         : null,
                 ];
             });
@@ -509,7 +511,7 @@ class CampaignsController extends Controller
 
         if ($request->hasFile('additional_images')) {
             $thumbnails = $request->file('thumbnail') ?? [];
-            $thumbnailIndex = 0;        
+            $thumbnailIndex = 0;
             foreach ($request->file('additional_images') as $key => $file) {
                 $extension = $file->getClientOriginalExtension();
                 $isVideoOrPdf = in_array($extension, ['mp4', 'pdf']);
@@ -537,12 +539,12 @@ class CampaignsController extends Controller
         $campaign = Campaigns::findOrFail($id);
         if ($request->hasFile('additional_images')) {
             $thumbnails = $request->file('thumbnail') ?? [];
-            $thumbnailIndex = 0; 
+            $thumbnailIndex = 0;
             foreach ($request->file('additional_images') as $key => $file) {
                 try {
                     $extension = $file->getClientOriginalExtension();
                     $isVideoOrPdf = in_array($extension, ['mp4', 'pdf']);
-                     $thumbnail = $thumbnails[$thumbnailIndex] ?? null;
+                    $thumbnail = $thumbnails[$thumbnailIndex] ?? null;
                     $image = new Image();
                     $randomName = Str::random(10) . '.' . $file->getClientOriginalExtension();
                     $filePath = 'images/' . $randomName;
@@ -561,7 +563,7 @@ class CampaignsController extends Controller
                     $image->campaign_id = $campaign->id;
                     $image->file_name = $randomName;
                     $image->file_type = $file_type;
-                    $image->thumbnail_path = $thumbnailPath; 
+                    $image->thumbnail_path = $thumbnailPath;
                     $image->save();
                     Log::info('File uploaded successfully', ['file_id' => $image->id]);
                 } catch (\Exception $e) {
@@ -574,8 +576,8 @@ class CampaignsController extends Controller
         $campaign->name = $request->name;
         $campaign->description = $request->description;
         $campaign->due_date = $request->due_date;
-        $campaign->client_id = (int)$request->client;
-        $campaign->client_group_id = (int)$request->clientGroup;
+        $campaign->client_id = (int) $request->client;
+        $campaign->client_group_id = (int) $request->clientGroup;
         $campaign->is_active = $request->has('active') ? 1 : 0;
         $campaign->update($request->all());
         if (isset($request->related_partner)) {
@@ -583,7 +585,7 @@ class CampaignsController extends Controller
                 CampaignPartner::updateOrCreate(
                     [
                         'campaigns_id' => $id,
-                        'partner_id' => (int)$partner,
+                        'partner_id' => (int) $partner,
                     ],
                     [
                         'updated_at' => now(),
@@ -657,13 +659,21 @@ class CampaignsController extends Controller
         $categories = Category::where('is_active', 1)->get();
         $image = Image::findOrFail($id);
         $campaigns = Campaigns::with('image')->where('id', $image->campaign_id)->get();
-        $partners = CampaignPartner::where('campaigns_id', $image->campaign_id)->whereHas('partner.roles', function ($query) {
-            $query->where('role_level', 6);
-        })->with('partner')->get();
-
+        $partners = CampaignPartner::with([
+            'campaign.client',
+            'partner.roles' => function ($query) {
+                $query->where('role_level', 6); // Filter roles with role_level = 6
+            }
+        ])
+            ->where('campaigns_id', $campaigns->first()->id)
+            ->whereHas('partner', function ($query) {
+                $query->where('is_active', 1); // Filter partners with is_active = 1
+            })
+            ->get();
         // Enable query logging
         DB::enableQueryLog();
-
+        // dd($campaigns);
+        $client = Client::where('id', $campaigns->first()->client_id)->first();
         $post = Post::create([
             'title' => $campaigns[0]['name'],
             'description' => $campaigns[0]['description'],
@@ -709,7 +719,7 @@ class CampaignsController extends Controller
             $image_id = null;
         }
 
-        return view('campaigns.asset_view', compact('image_id','title','file_name', 'fileType', 'post_id', 'returnUrl', 'campaigns', 'image_path', 'categories', 'fileExtension', 'fileSizeKB', 'campDescription', 'campStatus', 'campId', 'categories', 'assets', 'partners'));
+        return view('campaigns.asset_view', compact('image_id', 'title', 'file_name', 'fileType', 'post_id', 'returnUrl', 'campaigns', 'image_path', 'categories', 'fileExtension', 'fileSizeKB', 'campDescription', 'campStatus', 'campId', 'categories', 'assets', 'partners','client'));
     }
 
     public function shareToTwitter($identifier)
@@ -747,12 +757,14 @@ class CampaignsController extends Controller
 
     public function getPartners($groupId)
     {
-        $partners = ClientGroupPartners::with(['user' => function ($query) {
-            $query->where('is_active', 1); // Filter users with is_active = 1
-        }])
-        ->where('group_id', $groupId)
-        ->get();
-                return response()->json($partners);
+        $partners = ClientGroupPartners::with([
+            'user' => function ($query) {
+                $query->where('is_active', 1); // Filter users with is_active = 1
+            }
+        ])
+            ->where('group_id', $groupId)
+            ->get();
+        return response()->json($partners);
     }
 
     public function showPdf($filename)

@@ -76,7 +76,7 @@
                             <td>{{ $category->id }}</td>
                             <td>{{ $category->category_name }}</td>
                             <td>{{ $category->category_description }}</td>
-                            <td>{{ $category->is_active ? 'Active' : 'Inactive' }}</td>
+                            <td><span class="status {{ $category->is_active ? 'green' : 'red' }}">{{ $category->is_active ? 'Active' : 'Inactive' }}</span></td>
                             @if ($edit || $delete)
                                 <td>
                                     @if ($edit)

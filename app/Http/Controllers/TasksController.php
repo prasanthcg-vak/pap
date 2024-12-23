@@ -29,8 +29,19 @@ class TasksController extends Controller
         $role_level = Auth::user()->roles->first()->role_level;
         $client_id = Auth::user()->client_id;
         $group_id = Auth::user()->group_id;
+        if ($role_level < 4) {
+            $campaigns = Campaigns::all(); // Get all campaigns for the dropdown
+        } elseif ($role_level == 6) {
+            $campaigns = Campaigns::with('partner')->whereHas('partner', function ($query) use ($authId) {
+                $query->where('partner_id', $authId);
+            })->get();
+        } else {
+            $campaigns = Campaigns::all()->where('client_id', $client_id);
+        }
 
-        $campaigns = Campaigns::all(); // Get all campaigns for the dropdown
+
+
+
         $categories = Category::where('is_active', 1)->get();
         $assets = AssetType::where('is_active', 1)->get();
         $partners = ClientPartner::with(['client', 'partner'])
@@ -53,8 +64,8 @@ class TasksController extends Controller
         } elseif ($role_level == 5) {
             $tasks = Tasks::with(['campaign.group', 'campaign.client', 'status'])
                 ->whereHas('campaign', function ($query) use ($client_id, $group_id) {
-                    $query->where('client_id', $client_id)
-                        ->where('client_group_id', $group_id);
+                    $query->where('client_id', $client_id);
+                    // ->where('client_group_id', $group_id);
                 })
                 ->get();
         } elseif ($role_level == 6) {
@@ -62,7 +73,6 @@ class TasksController extends Controller
                 ->where('partner_id', $authId)
                 ->get();
         }
-        
 
         return view('tasks.index', compact('tasks', 'campaigns', 'categories', 'assets', 'partners'));
     }
@@ -127,9 +137,9 @@ class TasksController extends Controller
                         'region' => 'us-east-005',
                         'endpoint' => 'https://s3.us-east-005.backblazeb2.com',
                         'credentials' => [
-                            'key' => env('BACKBLAZE_KEY_ID'),
-                            'secret' => env('BACKBLAZE_APPLICATION_KEY'),
-                        ],
+                                'key' => env('BACKBLAZE_KEY_ID'),
+                                'secret' => env('BACKBLAZE_APPLICATION_KEY'),
+                            ],
                     ]);
 
                     $result = $s3Client->putObject([
@@ -196,6 +206,7 @@ class TasksController extends Controller
             'partner_id' => (int) $request->partner_id,
             'category_id' => (int) $request->category_id,
             'asset_id' => (int) $request->asset_id,
+            'size_measurement' => $request->size_measurement,
             'description' => $validatedData['description'],
             'status_id' => null, // Set this as needed
             'is_active' => $request->has('is_active') ? 1 : 0,
@@ -223,14 +234,36 @@ class TasksController extends Controller
     public function show(Tasks $task)
     {
         $authId = Auth::id();
+        $role_level = Auth::user()->roles->first()->role_level;
+        $client_id = Auth::user()->client_id;
 
-        $campaigns = Campaigns::all();
+        if ($role_level < 4) {
+            $campaigns = Campaigns::all(); // Get all campaigns for the dropdown
+        } elseif ($role_level == 6) {
+            $campaigns = Campaigns::with('partner')->whereHas('partner', function ($query) use ($authId) {
+                $query->where('partner_id', $authId);
+            })->get();
+        } else {
+            $campaigns = Campaigns::all()->where('client_id', $client_id);
+        }
         $categories = Category::where('is_active', 1)->get();
         $assets = AssetType::where('is_active', 1)->get();
 
-        $partners = CampaignPartner::with(['partner'])
+        $partners = CampaignPartner::with([
+            'campaign.client',
+            'partner.roles' => function ($query) {
+                $query->where('role_level', 6); // Filter roles with role_level = 6
+            }
+        ])
             ->where('campaigns_id', $task->campaign_id)
+            ->whereHas('partner', function ($query) {
+                $query->where('is_active', 1); // Filter partners with is_active = 1
+            })
+            ->whereHas('partner.roles', function ($query) {
+                $query->where('role_level', 6); // Ensure the partner has a role with role_level = 6
+            })
             ->get();
+
 
         // Fetch the associated image for the task
         $image = $task->image_id
@@ -240,7 +273,6 @@ class TasksController extends Controller
         $imageUrl = $image
             ? Storage::disk('backblaze')->url($image->path)
             : null;
-
         return view('tasks.show', compact('task', 'campaigns', 'categories', 'assets', 'partners', 'imageUrl'));
     }
 
@@ -318,9 +350,9 @@ class TasksController extends Controller
                     'region' => 'us-east-005',
                     'endpoint' => 'https://s3.us-east-005.backblazeb2.com',
                     'credentials' => [
-                        'key' => env('BACKBLAZE_KEY_ID'),
-                        'secret' => env('BACKBLAZE_APPLICATION_KEY'),
-                    ],
+                            'key' => env('BACKBLAZE_KEY_ID'),
+                            'secret' => env('BACKBLAZE_APPLICATION_KEY'),
+                        ],
                 ]);
 
                 $result = $s3Client->putObject([
