@@ -581,6 +581,13 @@ class CampaignsController extends Controller
         $campaign->is_active = $request->has('active') ? 1 : 0;
         $campaign->update($request->all());
         if (isset($request->related_partner)) {
+            // dd($request->related_partner);
+            $camppart = CampaignPartner::where('campaigns_id', $id)->get();
+
+            // Convert the existing campaign partners into an array of partner IDs for comparison
+            $existingPartners = $camppart->pluck('partner_id')->toArray();
+
+            // Loop through the incoming related partners and update or create them
             foreach ($request->related_partner as $partner) {
                 CampaignPartner::updateOrCreate(
                     [
@@ -592,6 +599,17 @@ class CampaignsController extends Controller
                     ]
                 );
             }
+
+            // Find partners that exist in the database but are not in the incoming request
+            $partnersToDelete = array_diff($existingPartners, $request->related_partner);
+
+            // Delete these partners
+            if (!empty($partnersToDelete)) {
+                CampaignPartner::where('campaigns_id', $id)
+                    ->whereIn('partner_id', $partnersToDelete)
+                    ->delete();
+            }
+
         }
 
         return redirect()->route('campaigns.index')->with('success', 'Campaign updated successfully.');
@@ -719,7 +737,7 @@ class CampaignsController extends Controller
             $image_id = null;
         }
 
-        return view('campaigns.asset_view', compact('image_id', 'title', 'file_name', 'fileType', 'post_id', 'returnUrl', 'campaigns', 'image_path', 'categories', 'fileExtension', 'fileSizeKB', 'campDescription', 'campStatus', 'campId', 'categories', 'assets', 'partners','client'));
+        return view('campaigns.asset_view', compact('image_id', 'title', 'file_name', 'fileType', 'post_id', 'returnUrl', 'campaigns', 'image_path', 'categories', 'fileExtension', 'fileSizeKB', 'campDescription', 'campStatus', 'campId', 'categories', 'assets', 'partners', 'client'));
     }
 
     public function shareToTwitter($identifier)

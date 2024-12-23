@@ -214,13 +214,17 @@
                             </div>
 
                             <!-- Partner Dropdown -->
-                            <div class="col-xl-4 col-md-6 mt-md-0 mt-4">
-                                <label for="partner-select">Select Campaign Partners</label>
-                                <select class="form-select" id="partner-select" name="partner_id" required
-                                    aria-label="Default select example">
-                                    <option value="" selected>Select Partner</option>
-                                </select>
-                            </div>
+                            @if (Auth::user()->roles->first()->role_level == 6)
+                                <input type="hidden" name="partner_id" value="{{Auth::id()}}">
+                            @else
+                                <div class="col-xl-4 col-md-6 mt-md-0 mt-4">
+                                    <label for="partner-select">Select Campaign Partners</label>
+                                    <select class="form-select" id="partner-select" name="partner_id" required
+                                        aria-label="Default select example">
+                                        <option value="" selected>Select Partner</option>
+                                    </select>
+                                </div>
+                            @endif
 
                         </div>
 
@@ -428,31 +432,38 @@
                 clientName.value = '';
 
                 if (campaignId) {
-                    partnerDropdown.disabled = true; // Disable while fetching
+                    if (partnerDropdown) {
+                        partnerDropdown.disabled = true; // Disable while fetching
+                    }
                     fetch(`/get-partners-by-campaign/${campaignId}`)
                         .then(response => response.json())
                         .then(data => {
                             // Populate Client Name
                             clientName.value = data.client?.name || 'No Client';
                             // Populate Partner Dropdown
-                            partnerDropdown.innerHTML =
-                                `<option value="" selected>Select Partner</option>`;
-                            if (data.partners.length > 0) {
-                                data.partners.forEach(partner => {
-                                    partnerDropdown.innerHTML +=
-                                        `<option value="${partner.id}">${partner.partner.name}</option>`;
-                                });
-                            } else {
-                                $('#modalLoader').hide();
-                                alert('No partners found for the selected group.');
+                            if (partnerDropdown) {
+                                partnerDropdown.innerHTML =
+                                    `<option value="" selected>Select Partner</option>`;
+                                if (data.partners.length > 0) {
+                                    data.partners.forEach(partner => {
+                                        partnerDropdown.innerHTML +=
+                                            `<option value="${partner.id}">${partner.partner.name}</option>`;
+                                    });
+                                } else {
+                                    $('#modalLoader').hide();
+                                    alert('No partners found for the selected group.');
+                                }
+                                partnerDropdown.disabled = false; // Enable after loading
                             }
-                            partnerDropdown.disabled = false; // Enable after loading
                             $('#modalLoader').hide();
 
                         })
                         .catch(() => {
                             alert('Failed to fetch partners. Please try again.');
-                            partnerDropdown.disabled = false;
+                            if (partnerDropdown) {
+                                partnerDropdown.disabled = false;
+                            }
+
                             $('#modalLoader').hide();
                         });
                 }
