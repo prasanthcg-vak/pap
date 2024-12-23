@@ -14,16 +14,18 @@ use Exception;
 class LibraryController extends Controller
 {
     public function index(Request $request)
-    {     
-        $assets = Tasks::with(['campaign.group','campaign.client', 'category', 'image'])
+    {
+        $assets = Tasks::with(['campaign.group', 'campaign.client', 'category', 'image'])
             ->get()
             ->map(function ($task) {
                 return [
                     'id' => $task->id,
                     'name' => $task->name,
                     'description' => $task->description,
-                    'image' => Storage::disk('backblaze')->url($task->image->path) ?? null,
-                    'thumbnail' => ($task->image->thumbnail_path) ? Storage::disk('backblaze')->url($task->image->thumbnail_path) : null,
+                    'image' => $task->image ? Storage::disk('backblaze')->url($task->image->path) : null,
+                    'thumbnail' => $task->image && $task->image->thumbnail_path
+                        ? Storage::disk('backblaze')->url($task->image->thumbnail_path)
+                        : asset('/path/to/default-thumbnail.jpg'),
                     'image_name' => $task->image->file_name ?? null,
                     'image_path' => $task->image->path ?? null,
                     'image_type' => $task->image->file_type ?? null,

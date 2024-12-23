@@ -6,8 +6,11 @@
         <div class="col-lg-12 task campaigns-contents">
             <div class="campaigns-title">
                 <h3>CAMPAIGNS ({{$campaign->name}}) - Assets </h3>
+                
             </div>
-           
+            <a href="{{ url()->previous() }}" class="btn btn-secondary ms-4" style="float: right;">
+                <i class="fa fa-arrow-left"></i> 
+            </a>
         </div>
         
         <!--card-grid-items -->

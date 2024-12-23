@@ -24,7 +24,7 @@
                                 <th>Client Admin</th>
                                 <th>Email</th>
                                 <th>Status</th>
-                                <th>Actions</th>
+                                <th style="display: flex;">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -45,13 +45,13 @@
                                                 {{ $client->is_active ? 'Active' : 'Inactive' }}</p>
                                         </span>
                                     </td>
-                                    <td>
-                                        <a href="#" class="btn search"
+                                    <td style="display: flex;">
+                                        <a href="#" class="btn search m-1"
                                             onclick="editClient({{ json_encode($client) }})">
                                             <i class="fa-solid fa-pencil" title="Edit"></i>
                                         </a>
                                         <form id="Model-Form" action="{{ route('clients.destroy', $client->id) }}"
-                                            method="POST" class="d-inline-block"
+                                            method="POST" class="d-inline-block m-1"
                                             onsubmit="return confirm('Are you sure you want to delete this client?');">
                                             @csrf
                                             @method('DELETE')

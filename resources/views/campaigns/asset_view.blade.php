@@ -119,51 +119,63 @@
     </div>
 
     <!-- create task modal -->
-    <div class="modal fade createTask-modal" id="createTask" tabindex="-1" aria-labelledby="ModalLabel"
-        aria-hidden="true">
+    
+    <div class="modal fade createTask-modal" id="createTask" tabindex="-1" aria-labelledby="ModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
                     <h1 class="modal-title fs-5">Create Task
                     </h1>
-                    <span class="btn-close" data-bs-dismiss="modal" id="cancel" aria-label="Close"></span>
+                    {{-- <p class="status green">Active</p> --}}
+                    <span class="btn-close" id="model-close" data-dismiss="modal" aria-label="Close"></span>
+                </div>
+                <div id="modalLoader" class="modal-loader" style="display: none;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
                 </div>
                 <div class="modal-body">
                     <form id="Model-Form" action="{{ route('tasks.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="row m-0">
-                            <!-- Campaign Dropdown -->
-                            <div class="col-xl-4 col-md-6">
+
+
+                            <div class="col-xl-4 col-md-6  mt-md-0 mt-4">
+                                <label for="campaign-select">Campaign Name</label>
                                 <select class="form-select" id="campaign-select" name="campaign_id" required
                                     aria-label="Default select example">
-                                    {{-- <option value="" >Select Campaign</option> --}}
                                     @foreach ($campaigns as $campaign)
                                         <option value="{{ $campaign->id }}" >{{ $campaign->name }}</option>
                                     @endforeach
                                 </select>
                             </div>
+                            <div class="col-xl-4 col-md-6">
+                                <label for="client-name">Client Name</label>
+                                <input type="text" id="client-name" name="client_name" class="form-control" value="{{$client->name ?? 'No Client'}}" readonly>
+                            </div>
                             <!-- Partner Dropdown -->
                             <div class="col-xl-4 col-md-6 mt-md-0 mt-4">
+                                <label for="partner-select">Select Campaign Partners</label>
                                 <select class="form-select" id="partner-select" name="partner_id" required
                                     aria-label="Default select example">
-                                    <option value="" >Select Partner</option>
-                                @foreach ($partners as $partner)
-                                <option value="{{$partner->partner_id}}" >{{$partner->partner->name}}</option>
-                                @endforeach
-                                </select>
+                                    @foreach ($partners as $partner)
+                                    <option value="{{$partner->partner_id}}" >{{$partner->partner->name}}</option>
+                                    @endforeach                                </select>
                             </div>
+
                         </div>
+
                         <div class="row m-0">
                             <div class="col-xl-4">
+                                <label for="">Task Name</label>
                                 <input type="text" name="name" id="" required placeholder="Task Name">
                             </div>
-                        </div>
-                        <div class="row m-0">
                             <div class="col-xl-4">
                                 <label for="">Date Required</label>
                                 <div class="input-wrap">
                                     <input type="date" name="date_required" id="datepicker" required
                                         placeholder="Date Required">
+
                                     <div class="form-group">
                                         <div class="checkbox checbox-switch switch-success">
                                             <label>
@@ -174,13 +186,16 @@
                                             </label>
                                         </div>
                                     </div>
+
                                 </div>
+
                             </div>
                         </div>
                         <div class="row m-0">
                             <div class="col-lg-6 col-xl-4 mb-4 mb-lg-0">
-
-                                <select class="form-select" name="category_id" required aria-label="Default select example">
+                                <label for="">Category</label>
+                                <select class="form-select" name="category_id" required
+                                    aria-label="Default select example">
                                     <option value="" selected>Select Category</option>
                                     @foreach ($categories as $category)
                                         <option value="{{ $category->id }} ">
@@ -190,7 +205,7 @@
                                 </select>
                             </div>
                             <div class="col-lg-6 col-xl-4 mb-4 mb-lg-0">
-
+                                <label for="">Asset Type</label>
                                 <select class="form-select" name="asset_id" required aria-label="Default select example">
                                     <option value="" selected>Select Asset</option>
                                     @foreach ($assets as $asset)
@@ -200,24 +215,37 @@
                                     @endforeach
                                 </select>
                             </div>
-                            <div class="col-lg-6 col-xl-3 p-xl-0 sizing-input">
-                                <div class="input-wrap">
-                                    <input type="number" name="size_width" id="size_width" required
-                                        placeholder="Size (Width)">
-                                    <input type="number" name="size_height" id="size_height" required
-                                        placeholder="Size (Height)">
-                                </div>
+                        </div>
+                        <div class="row m-0">
+                            <div class="col-lg-6 col-xl-4 mb-4 mb-lg-0">
+                                <label for="">Width</label>
+                                <input type="number" name="size_width" id="size_width" required
+                                    placeholder="Size (Width)">
+                            </div>
+                            <div class="col-lg-6 col-xl-4 mb-4 mb-lg-0">
+                                <label for="">Height</label>
+                                <input type="number" name="size_height" id="size_height" required
+                                    placeholder="Size (Height)">
+                            </div>
+                            <div class="col-lg-6 col-xl-4 mb-4 mb-lg-0">
+                                <label for="">Measurement</label>
+                                <input type="text" name="size_measurement" id="size_measurement" required
+                                    placeholder="Size Measurement">
                             </div>
                         </div>
                         <div class="row m-0">
                             <div class="col-md-12">
                                 <label for="">Task Brief</label>
-                                <textarea name="description" placeholder="Add a description for your Task" required id="description"></textarea>
+                                <textarea name="description" id="editor"></textarea>
                             </div>
+
+                            {{-- <span class="info-text">Add a description for your Task</span> --}}
                         </div>
                         <div class="row m-0">
                             <div class="col-xl-4">
                                 <div class="input-wrap">
+
+
                                     <div class="form-group">
                                         <div class="checkbox checbox-switch switch-success">
                                             <label>
@@ -228,7 +256,9 @@
                                             </label>
                                         </div>
                                     </div>
+
                                 </div>
+
                             </div>
                         </div>
                         <div class="sic-action-btns d-flex justify-content-md-end justify-content-center flex-wrap">
@@ -239,31 +269,38 @@
                                 <button class="btn download" id="save">
                                     save
                                 </button>
-                                <span class="btn cancel-btn" data-dismiss="modal" id="cancel"
+                                <span class="btn link-asset" data-dismiss="modal" id="cancel"
                                     aria-label="Close">cancel</span>
                             </div>
+
                         </div>
+
+
                         <div class="img-upload-con d-none">
                             <div class="upload--col w-100">
                                 <div class="drop-zone">
                                     <div class="drop-zone__prompt">
-
                                         <div class="drop-zone_color-txt">
                                             <span><img src="assets/images/Image.png" alt=""></span> <br />
                                             <span><img src="assets/images/fi_upload-cloud.svg" alt=""> Upload
-                                                Image</span>
+                                                Asset</span>
                                         </div>
-
                                         <div class="file-format">
-                                            <p>Upload a cover image for your product.</p>
-                                            <p>File Format <b> jpeg, png</b>. Recommened Size <b>600x600 (1:1)</b></p>
+                                            <p>File Format <b>JEPG, PNG, JPG, MP4, PDF</b></p>
                                         </div>
                                     </div>
                                     <input type="file" name="myFile" class="drop-zone__input">
                                 </div>
                             </div>
                         </div>
+
+
                     </form>
+                </div>
+                <div id="modalLoader" class="modal-loader" style="display: none;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
                 </div>
             </div>
         </div>

@@ -22,12 +22,12 @@
             <div class="col-lg-12 p-0">
                 <div class="card">
                     <div class="heading_text">
-                        <a href="{{ url()->previous() }}" class="btn btn-secondary" style="float: right;">
+                        <a href="{{ url()->previous() }}" class="btn btn-secondary ms-4" style="float: right;">
                             <i class="fa fa-arrow-left"></i> 
                         </a>
                         <div class="title_status">
                             <h3>{{$campaign->name}}</h3>
-                            <p class="status {{ $campaign->is_active ? 'green' : 'red' }}">
+                            <p class="status {{ $campaign->is_active ? 'green' : 'red' }} mt-1">
                                 {{ $campaign->is_active ? 'Active' : 'Inactive' }}
                             </p>
                             

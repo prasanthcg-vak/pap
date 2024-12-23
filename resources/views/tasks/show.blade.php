@@ -132,7 +132,7 @@
                                     </clipPath>
                                 </defs>
                             </svg>
-                            <span>Task #{{$task->id}} - {{$task->name}}</span>
+                            <span>Task #{{ $task->id }} - {{ $task->name }}</span>
                             <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">
                                 <path
@@ -154,9 +154,14 @@
                             </div>
                         @endif
                         <div class="heading_text">
+                            <a href="{{ url()->previous() }}" class="btn btn-secondary ms-4" style="float: right;">
+                                <i class="fa fa-arrow-left"></i>
+                            </a>
                             <div class="title_status">
+
                                 <h3> {{ strtoupper($task->name ?? 'N/A') }}</h3>
-                                <p class="status green">{{ $task->status['name'] ?? 'N/A' }}</p>
+                                <p class="status {{ $task->is_active == 1 ? 'green' : 'red' }} ">
+                                    {{ $task->is_active == 1 ? 'ACTIVE' : 'INACTIVE' }} </p>
                             </div>
                         </div>
                         <!-- Task info details -->
@@ -189,7 +194,7 @@
                                                 <label>Asset Type:</label>
                                             </div>
                                             <div class="col-md-8">
-                                                <p>{{ $task->asset_type ?? 'N/A' }}</p>
+                                                <p>{{ $task->asset()->first()->type_name ?? 'N/A' }}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -232,7 +237,8 @@
                                 <div class="col-md-12">
                                     <div class="Task-brief-fields">
                                         <label>Task Brief:</label>
-                                        <p>{!! $task->description ?? '<span style="color: gray; font-style: italic;">No description available for this task.</span>' !!}</p>
+                                        <p>{!! $task->description ??
+                                            '<span style="color: gray; font-style: italic;">No description available for this task.</span>' !!}</p>
                                     </div>
                                     {{-- <div class="upload-contents">
                                         <label>Uploads:</label>
@@ -398,23 +404,23 @@
 
                                     <!-- Comment Form -->
                                     @if ($storeButton)
-                                    <form id="commentForm" method="POST">
-                                        @csrf
-                                        <input type="hidden" name="task_id" value="{{ $task->id }}">
-                                        <div class="comments-header">
-                                            <div class="profile-fields">
-                                                <img src="{{ asset('/assets/images/profile-image.svg') }}"
-                                                    alt="profile-image">
+                                        <form id="commentForm" method="POST">
+                                            @csrf
+                                            <input type="hidden" name="task_id" value="{{ $task->id }}">
+                                            <div class="comments-header">
+                                                <div class="profile-fields">
+                                                    <img src="{{ asset('/assets/images/profile-image.svg') }}"
+                                                        alt="profile-image">
+                                                </div>
+                                                <div class="comment-input-fields">
+                                                    <input type="text" name="contents" placeholder="Add a comment"
+                                                        required>
+                                                </div>
+                                                <div class="comments-button">
+                                                    <button type="submit" class="comments-btn">comment</button>
+                                                </div>
                                             </div>
-                                            <div class="comment-input-fields">
-                                                <input type="text" name="contents" placeholder="Add a comment"
-                                                    required>
-                                            </div>
-                                            <div class="comments-button">
-                                                <button type="submit" class="comments-btn">comment</button>
-                                            </div>
-                                        </div>
-                                    </form>
+                                        </form>
                                     @endif
 
                                     <!-- Comments Display Section -->
@@ -423,7 +429,7 @@
                                             <div class="card-body">
                                                 <div class="row">
                                                     <div class="col-md-12">
-                                                        @foreach ($task->comments->reverse() as $comment)
+                                                        @foreach ($task->comments as $comment)
                                                             <div class="media mb-4 border-bottom pb-3">
                                                                 <img class="mr-3 rounded-circle" alt="User Profile Image"
                                                                     src="{{ asset('/assets/images/profile-image.svg') }}"
@@ -437,29 +443,55 @@
                                                                                 class="text-muted">{{ $comment->created_at->diffForHumans() }}</small>
                                                                         </div>
                                                                         <div>
-                                                                            @if($storeButton)
                                                                             <button
-                                                                                class="btn btn-secondary btn-sm toggle-reply">
-                                                                                <i class="fas fa-reply"></i> Reply
-                                                                            </button>
-                                                                            @endif
-                                                                            @if($editButton)
-                                                                            <button
-                                                                                class="btn btn-warning btn-sm toggle-edit">
-                                                                                <i class="fas fa-edit"></i> Edit
-                                                                            </button>
-                                                                            @endif
-                                                                            @if($deleteButton)
-                                                                            <button
-                                                                                class="btn btn-danger btn-sm delete-reply"
-                                                                                data-id="{{ $comment->id }}">
-                                                                                <i class="fas fa-trash"></i>
-                                                                            </button>
+                                                                                class="btn btn-secondary btn-sm toggle-reply"><i
+                                                                                    class="fas fa-reply"></i>
+                                                                                Reply</button>
+                                                                            {{-- <button
+                                                                                class="btn btn-warning btn-sm toggle-edit"><i
+                                                                                    class="fas fa-edit"></i> Edit</button> --}}
+                                                                            @if (Auth::user()->roles->first()->role_level != 3)
+                                                                                <button
+                                                                                    class="btn btn-danger btn-sm delete-reply"
+                                                                                    data-id="{{ $comment->id }}"><i
+                                                                                        class="fas fa-trash"></i></button>
                                                                             @endif
                                                                         </div>
                                                                     </div>
                                                                     <p class="mt-2 comment-content">
                                                                         {{ $comment->content }}</p>
+
+                                                                    <!-- Display Replies -->
+                                                                    @foreach ($comment->replies as $reply)
+                                                                        <div class="media mt-4">
+                                                                            <img class="mr-3 rounded-circle"
+                                                                                alt="User Profile Image"
+                                                                                src="{{ asset('/assets/images/profile-image.svg') }}"
+                                                                                style="width: 40px; height: 40px;" />
+                                                                            <div class="media-body">
+                                                                                <div
+                                                                                    class="d-flex justify-content-between">
+                                                                                    <div>
+                                                                                        <h6 class="mb-0">
+                                                                                            {{ $reply->user->name }}</h6>
+                                                                                        <small
+                                                                                            class="text-muted">{{ $reply->created_at->diffForHumans() }}</small>
+                                                                                    </div>
+                                                                                    <div>
+                                                                                        @if (Auth::user()->roles->first()->role_level != 3)
+                                                                                        <button
+                                                                                            class="btn btn-danger btn-sm delete-reply"
+                                                                                            data-id="{{ $reply->id }}">
+                                                                                            <i class="fas fa-trash"></i>
+                                                                                        </button>
+                                                                                        @endif
+                                                                                    </div>
+                                                                                </div>
+                                                                                <p class="mt-2">{{ $reply->content }}
+                                                                                </p>
+                                                                            </div>
+                                                                        </div>
+                                                                    @endforeach
 
                                                                     <!-- Reply Form (Initially Hidden) -->
                                                                     <div class="reply-section mt-3"
@@ -475,9 +507,8 @@
                                                                                 class="form-control me-2" name="contents"
                                                                                 placeholder="Add a reply" required>
                                                                             <button type="submit"
-                                                                                class="btn btn-primary">
-                                                                                <i class="fas fa-paper-plane"></i>
-                                                                            </button>
+                                                                                class="btn btn-primary"><i
+                                                                                    class="fas fa-paper-plane"></i></button>
                                                                         </form>
                                                                     </div>
 
@@ -493,14 +524,14 @@
                                                                                 name="updated_content"
                                                                                 value="{{ $comment->content }}" required>
                                                                             <button type="submit"
-                                                                                class="btn btn-success">
-                                                                                <i class="fas fa-save"></i> Save
-                                                                            </button>
+                                                                                class="btn btn-success"><i
+                                                                                    class="fas fa-save"></i> Save</button>
                                                                         </form>
                                                                     </div>
                                                                 </div>
                                                             </div>
                                                         @endforeach
+
                                                     </div>
                                                 </div>
                                             </div>
@@ -549,20 +580,18 @@
                     <span class="btn-close" data-dismiss="modal" id="model-close" aria-label="Close"></span>
                 </div>
                 <div class="modal-body">
-                    <form id="Model-Form" action="{{ route('tasks.update', $task->id) }}" method="POST" enctype="multipart/form-data">
+                    <form id="Model-Form" action="{{ route('tasks.update', $task->id) }}" method="POST"
+                        enctype="multipart/form-data">
                         @csrf
                         @method('PUT') <!-- HTTP method for updating -->
 
                         <!-- Campaign and Partner -->
                         <div class="row m-0">
-                            <div class="col-xl-4 col-md-6">
-                                <label for="client-name">Client Name</label>
-                                <input type="text" id="client-name" name="client_name" class="form-control" readonly>
-                            </div>
-                            <div class="col-xl-4">
-                            <label for="">Campaign Name</label>
-                                <select class="form-select" id="campaign-select" name="campaign_id" required>
-                                    <option value="" disabled>Select Campaign</option>
+                            <div class="col-xl-4 col-md-6  mt-md-0 mt-4">
+                                <label for="campaign-select">Campaign Name</label>
+                                <select class="form-select" id="campaign-select" name="campaign_id" required
+                                    aria-label="Default select example">
+                                    <option value="" selected>Select Campaign</option>
                                     @foreach ($campaigns as $campaign)
                                         <option value="{{ $campaign->id }}"
                                             {{ $task->campaign_id == $campaign->id ? 'selected' : '' }}>
@@ -571,18 +600,23 @@
                                     @endforeach
                                 </select>
                             </div>
-                            <div class="col-xl-4">
-                            <label for="">Select Campaign Partners</label>
-                                <select class="form-select" id="partner-select" name="partner_id" required>
-                                    <option value="">Select Partner</option>
+                            <div class="col-xl-4 col-md-6">
+                                <label for="client-name">Client Name</label>
+                                <input type="text" id="client-name" name="client_name" class="form-control" readonly
+                                    value="{{ $partners->isNotEmpty() && $partners->first()->campaign && $partners->first()->campaign->client ? $partners->first()->campaign->client->name : 'No client' }}">
+                            </div>
+
+                            <!-- Partner Dropdown -->
+                            <div class="col-xl-4 col-md-6 mt-md-0 mt-4">
+                                <label for="partner-select">Select Campaign Partners</label>
+                                <select class="form-select" id="partner-select" name="partner_id" required
+                                    aria-label="Default select example">
+                                    <option value="" selected>Select Partner</option>
                                     @foreach ($partners as $partner)
-                                        @if ($partner->partner)
-                                            <!-- Check if partner relationship exists -->
-                                            <option value="{{ $partner->partner->id }}"
-                                                {{ $task->partner_id == $partner->partner->id ? 'selected' : '' }}>
-                                                {{ $partner->partner->name ?? 'Unnamed Partner' }}
-                                            </option>
-                                        @endif
+                                        <option value="{{ $partner->id }}"
+                                            {{ $task->partner_id == $partner->id ? 'selected' : '' }}>
+                                            {{ $partner->partner->name }}
+                                        </option>
                                     @endforeach
                                 </select>
                             </div>
@@ -592,7 +626,7 @@
                         <!-- Task Name -->
                         <div class="row m-0">
                             <div class="col-xl-4">
-                            <label for="">Task Name</label>
+                                <label for="">Task Name</label>
                                 <input type="text" name="name" value="{{ $task->name }}" required
                                     placeholder="Task Name">
                             </div>
@@ -619,7 +653,7 @@
                         <!-- Category and Asset -->
                         <div class="row m-0">
                             <div class="col-lg-6 col-xl-4 mb-4 mb-lg-0">
-                            <label for="">Category</label>
+                                <label for="">Category</label>
                                 <select class="form-select" name="category_id" required>
                                     <option value="" disabled>Select Category</option>
                                     @foreach ($categories as $category)
@@ -631,7 +665,7 @@
                                 </select>
                             </div>
                             <div class="col-lg-6 col-xl-4 mb-4 mb-lg-0">
-                            <label for="">Asset Type</label>
+                                <label for="">Asset Type</label>
                                 <select class="form-select" name="asset_id" required>
                                     <option value="" disabled>Select Asset</option>
                                     @foreach ($assets as $asset)
@@ -649,17 +683,17 @@
                             <div class="col-lg-6 col-xl-4 mb-4 mb-lg-0">
                                 <label for="">Width</label>
                                 <input type="number" name="size_width" id="size_width" required
-                                    value="{{ $task->size_width }}"  placeholder="Size (Width)">
+                                    value="{{ $task->size_width }}" placeholder="Size (Width)">
                             </div>
                             <div class="col-lg-6 col-xl-4 mb-4 mb-lg-0">
                                 <label for="">Height</label>
                                 <input type="number" name="size_height" id="size_height" required
-                                 value="{{ $task->size_height }}"  placeholder="Size (Height)">
+                                    value="{{ $task->size_height }}" placeholder="Size (Height)">
                             </div>
                             <div class="col-lg-6 col-xl-4 mb-4 mb-lg-0">
                                 <label for="">Measurement</label>
                                 <input type="text" name="size_measurement" id="size_measurement" required
-                                value="{{ $task->size_measurement }}"  placeholder="Size Measurement">
+                                    value="{{ $task->size_measurement }}" placeholder="Size Measurement">
                             </div>
                         </div>
                         {{-- <div class="row m-0">
@@ -680,22 +714,23 @@
                                 <textarea name="description" required id="editor" placeholder="Add a description for your Task">{{ $task->description }}</textarea>
                             </div>
                         </div>
-                        
+
                         <div class="row m-0">
                             <div class="col-xl-4">
                                 <div class="input-wrap">
-                                <label for="">Status</label>
+                                    <label for="">Status</label>
                                     <div class="form-group">
                                         <div class="checkbox checbox-switch switch-success">
                                             <label>
                                                 <div> Active</div>
-                                                <input type="checkbox" name="is_active" {{ $task->is_active ? 'checked' : '' }}/>
+                                                <input type="checkbox" name="is_active"
+                                                    {{ $task->is_active ? 'checked' : '' }} />
                                                 <span></span>
 
                                             </label>
                                         </div>
                                     </div>
-                                    
+
                                 </div>
 
                             </div>
@@ -707,13 +742,14 @@
                                 <div class="drop-zone  update-campaign">
                                     <div class="drop-zone__prompt">
                                         <div class="drop-zone_color-txt">
-                                            <span><img src="{{ $imageUrl }}" alt="" class="main-image"></span>
+                                            <span><img src="{{ $imageUrl }}" alt=""
+                                                    class="main-image"></span>
                                             <br />
                                             <span><img src="{{ asset('assets/images/fi_upload-cloud.svg') }}"
                                                     alt=""> Upload
                                                 Image</span>
                                         </div>
-                                        
+
                                     </div>
                                     <!-- Existing Image Display -->
                                     {{-- @if ($imageUrl)
@@ -739,7 +775,11 @@
                         </div>
                     </form>
 
-
+                    <div id="modalLoader" class="modal-loader" style="display: none;">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -751,7 +791,7 @@
         // $(function() {
         //     $('#createTask').modal('toggle');
         // });
-        function openModal(){
+        function openModal() {
             $('#createTask').modal('show');
         }
     </script>
@@ -808,7 +848,7 @@
                             if (response.success) {
                                 // Remove the reply from the DOM
                                 $(`button[data-id="${replyId}"]`).closest('.media').remove();
-                                alert(response.id)
+                                // alert(response.id)
                             } else {
                                 alert('Error deleting reply.');
                             }
@@ -828,105 +868,141 @@
 
             // Handle Comment Submission via AJAX
             $('#commentForm').on('submit', function(e) {
-                e.preventDefault(); // Prevent form from submitting traditionally
+                e.preventDefault(); // Prevent default form submission
 
                 $.ajax({
-                    url: "{{ route('comments.store') }}", // Your Laravel route
+                    url: "{{ route('comments.store') }}", // Laravel route for storing comments
                     method: 'POST',
-                    data: $(this).serialize(), // Serialize the form data
+                    data: $(this).serialize(),
                     success: function(response) {
+                        console.log(response); // Log the full response
                         if (response.success) {
-                            // Append the new comment dynamically
-                            $('#comments-list .comment-media').prepend(`
-                        <div class="col-md-12">
-                            <div class="media">
-                                <img class="mr-3 rounded-circle" alt="User Profile Image"
-                                    src="{{ asset('/assets/images/profile-image.svg') }}" />
-                                <div class="media-body">
-                                    <div class="row">
-                                        <div class="col-9 d-flex align-items-center">
-                                            <h5>${response.user.name}</h5>
-                                            <span>- ${response.created_at} <button class="btn btn-danger btn-sm delete-reply m-2" data-id="${response.comment.id}"><i class="fas fa-trash"></i></button></span>
-                                        </div>
-                                        <div class="col-4">
-                                            <div class="pull-right reply">
-                                                <a href="#"><span><i class="fa fa-reply"></i> reply</span></a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <p>${response.comment.content}</p>
-                                    <!-- Reply Form -->
-                                    <form class="replyForm mt-2 d-flex" method="POST">
-                                        @csrf
-                                        <input type="hidden" name="task_id" value="${response.comment.tasks_id}">
-                                        <input type="hidden" name="parent_id" value="${response.comment.id}">
-                                        <div class="comment-input-fields">
-                                            <input type="text" name="contents" placeholder="Add a reply" required>
-                                        </div>
-                                        <div class="comments-button">
-                                            <button type="submit" class="comments-btn"><i class="fas fa-paper-plane"></i></button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
+                            alert(
+                                "Comment added successfully!"); // Check if this alert is shown
+                            console.log("Response data:",
+                                response); // Log response to see all fields
+
+                            const userRoleLevel =
+                                {{ Auth::user()->roles->first()->role_level }};
+
+                            const newCommentHtml = `
+            <div class="media mb-4 border-bottom pb-3">
+                <img class="mr-3 rounded-circle" alt="User Profile Image"
+                    src="{{ asset('/assets/images/profile-image.svg') }}"
+                    style="width: 50px; height: 50px;" />
+                <div class="media-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="mb-0">${response.user.name}</h5>
+                            <small class="text-muted">${response.created_at}</small>
                         </div>
-                    `);
-                            // Clear the comment input field after successful submission
-                            $('#commentForm')[0].reset();
+                        <div>
+                            <button class="btn btn-secondary btn-sm toggle-reply">
+                                <i class="fas fa-reply"></i> Reply
+                            </button>
+
+                            
+                           ${
+                            userRoleLevel !== 3
+                                    ? `<button class="btn btn-danger btn-sm delete-reply" data-id="${response.comment.id}">
+                                                <i class="fas fa-trash"></i>
+                                            </button>`
+                                    : ''
+                            }
+                        </div>
+                    </div>
+                    <p class="mt-2 comment-content">${response.comment.content}</p>
+                </div>
+            </div>`;
+
+                            $('#comments-list').prepend(
+                                newCommentHtml); // Add the new comment to the list
+                            $('#commentForm')[0].reset(); // Clear the form
                         }
                     },
                     error: function(xhr) {
                         console.log(xhr.responseText);
-                        alert("Error adding comment.");
+                        alert('Error adding comment.');
                     }
                 });
             });
 
+
+
+            // Event delegation for dynamically added reply forms
             // Event delegation for dynamically added reply forms
             $('#comments-list').on('submit', '.replyForm', function(e) {
-                e.preventDefault(); // Prevent form from submitting traditionally
+                e.preventDefault(); // Prevent the form's default submission
+
+                const $form = $(this); // Reference to the current form
+                const commentId = $form.find('input[name="parent_id"]').val(); // Get the parent comment id
 
                 $.ajax({
-                    url: "{{ route('comments.store') }}", // Same route for replies
+                    url: "{{ route('comments.store') }}", // Your Laravel route
                     method: 'POST',
-                    data: $(this).serialize(),
+                    data: $form.serialize(), // Serialize the form data
                     success: function(response) {
                         if (response.success && response.is_reply) {
-                            // Append the new reply dynamically
-                            $(this).closest('.media-body').append(`
-                        <div class="media mt-4">
-                            <a class="pr-3" href="#">
-                                <img class="rounded-circle" alt="User Profile Image"
-                                    src="{{ asset('/assets/images/profile-image.svg') }}" />
-                            </a>
-                            <div class="media-body">
-                                <div class="row">
-                                    <div class="col-12 d-flex align-items-center">
-                                        <h5>${response.user.name}</h5>
-                                        <span> - ${response.created_at}</span>
-                                    </div>
-                                </div>
-                                <p>${response.comment.content}</p>
-                            </div>
-                        </div>
-                    `);
-                            // Clear the reply input field after successful submission
-                            $(this)[0].reset();
+                            console.log(response);
+                            const userRoleLevel =
+                                {{ Auth::user()->roles->first()->role_level }};
+
+                            // Construct the new reply HTML
+                            const newReplyHtml = `
+                                    <div class="media mt-4">
+                                        <img class="mr-3 rounded-circle" alt="User Profile Image"
+                                            src="{{ asset('/assets/images/profile-image.svg') }}"
+                                            style="width: 40px; height: 40px;" />
+                                        <div class="media-body">
+                                            <div class="d-flex justify-content-between">
+                                                <div>
+                                                    <h6 class="mb-0">${response.user.name}</h6>
+                                                    <small class="text-muted">${response.created_at}</small>
+                                                </div>
+                                                <div>${
+                                                userRoleLevel !== 3
+                                                        ?
+                                                    `<button class="btn btn-danger btn-sm delete-reply"
+                                                            data-id="${response.comment.id}">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>`
+                                                      : ''
+                                                }
+                                                </div>
+                                            </div>
+                                            <p class="mt-2">${response.comment.content}</p>
+                                        </div>
+                                    </div>`;
+
+                            // Prepend the new reply to the correct comment (based on commentId)
+                            $form.closest('.media-body').find('.reply-section').before(
+                                newReplyHtml);
+
+                            // Clear the reply form after successful submission
+                            $form[0].reset();
                         }
-                    }.bind(this), // Ensure 'this' context refers to the form
+                    },
                     error: function(xhr) {
-                        console.log(xhr.responseText);
+                        console.log(xhr.responseText); // Log the error response
                         alert("Error adding reply.");
                     }
                 });
             });
+
+
         });
     </script>
     <script>
         $(document).ready(function() {
             // Toggle reply section visibility
-            $('.toggle-reply').on('click', function() {
-                $(this).closest('.media').find('.reply-section').slideToggle();
+            $(document).on('click', '.toggle-reply', function() {
+                const replySection = $(this).closest('.media-body').find('.reply-section');
+
+                if (replySection.length) {
+                    replySection.toggle(); // Show/hide the reply section
+                } else {
+                    console.error("Reply section not found!");
+                }
             });
 
             // Toggle edit section visibility
@@ -974,6 +1050,7 @@
 
             // Handle Campaign Selection
             campaignDropdown.addEventListener('change', function() {
+                $('#modalLoader').show();
                 const campaignId = this.value;
                 clientName.value = '';
 
@@ -982,22 +1059,34 @@
                     fetch(`/get-partners-by-campaign/${campaignId}`)
                         .then(response => response.json())
                         .then(data => {
+                            // Populate Client Name
+                            clientName.value = data.client?.name || 'No Client';
                             // Populate Partner Dropdown
-                            
                             partnerDropdown.innerHTML =
                                 `<option value="" selected>Select Partner</option>`;
-                            data.forEach(partner => {
-                                partnerDropdown.innerHTML +=
-                                    `<option value="${partner.id}">${partner.partner.name}</option>`;
-                            });
+                            if (data.partners.length > 0) {
+                                data.partners.forEach(partner => {
+                                    partnerDropdown.innerHTML +=
+                                        `<option value="${partner.id}">${partner.partner.name}</option>`;
+                                });
+                            } else {
+                                $('#modalLoader').hide();
+                                alert('No partners found for the selected group.');
+                            }
                             partnerDropdown.disabled = false; // Enable after loading
-                            clientName.value = data[0]?.campaign?.client?.name || 'No Client';
+                            $('#modalLoader').hide();
 
                         })
-                        .catch(() => alert('Failed to fetch partners. Please try again.'));
+                        .catch(() => {
+                            alert('Failed to fetch partners. Please try again.');
+                            partnerDropdown.disabled = false;
+                            $('#modalLoader').hide();
+                        });
                 }
+
+
+
             });
         });
     </script>
-
 @endsection

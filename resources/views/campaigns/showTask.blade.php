@@ -23,6 +23,9 @@
                         <!-- Table -->
                         <div class="campaigns-title mb-4">
                             <h3>{{ $campaign->name }} - TASKS</h3>
+                            <a href="{{ url()->previous() }}" class="btn btn-secondary ms-4" style="float: right;">
+                                <i class="fa fa-arrow-left"></i> 
+                            </a>
                         </div>
                         <div class="campaingn-table common-table">
                             <div class="table-wrapper">
@@ -63,7 +66,7 @@
                                                     </span>
                                                 </td>
                                                 <td class="">
-                                                    <span>{{ optional($task->status)->name ?? 'No Status' }}</span>
+                                                    <span class="status {{ $task->is_active == 1 ? 'green' : 'red' }}"> {{ $task->is_active == 1 ? 'ACTIVE' : 'INACTIVE' }}</span>
                                                 </td>
                                                
                                             </tr>

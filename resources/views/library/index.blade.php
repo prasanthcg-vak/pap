@@ -62,10 +62,10 @@
                                     <td class="library-file-category">
                                         <span>{{ $asset['category'] }}</span>
                                     </td>
-                                    <td>
+                                    <td class="library-file-name">
                                         <span>{{ $asset['client']->name ?? '-' }}</span>
                                     </td>
-                                    <td>
+                                    <td class="library-file-name">
                                         <span>{{ $asset['group']->name ?? '-' }}</span>
                                     </td>
                                     <td class="library-status">

@@ -85,7 +85,7 @@
                                             <img src="{{ asset(Auth::user()->profile_picture) }}" alt="Profile Picture"
                                                 class="img-thumbnail mt-2" width="100">
                                         @else
-                                            <img src="{{ asset('assets/profile_picture/default.png') }}"
+                                            <img src="{{ asset('assets/images/Image.png') }}"
                                                 alt="Default Profile Picture" class="img-thumbnail mt-2" width="100">
                                         @endif
                                     </div>
@@ -94,8 +94,8 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-6 d-none">
-                        <div class="profile-con">
+                    <div class="col-md-6 ">
+                        <div class="profile-con d-none">
                             <div class="row">
                                 <div class="col-sm-4">
                                     <p class="profile-label">Logo:</p>
@@ -110,7 +110,7 @@
                                 </div>
                             </div>
                         </div>
-                        @if (Auth::user()->hasRolePermission('clientpartner.index'))
+                        @if (Auth::user()->roles->first()->role_level == 4)
                             <div class="profile-con">
                                 <div class="row">
                                     <div class="col-sm-4">
@@ -130,7 +130,7 @@
                                                                 <i class="bx bx-edit"></i>
                                                             </a>
                                                         @endif
-                                                        @if (Auth::user()->hasRolePermission('clientpartner.edit'))
+                                                        @if (Auth::user()->hasRolePermission('clientpartner.destroy'))
                                                             <form
                                                                 action="{{ route('clientpartner.destroy', $clientPartner->id) }}"
                                                                 method="POST" style="display:inline;">
