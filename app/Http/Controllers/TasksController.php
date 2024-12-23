@@ -73,6 +73,7 @@ class TasksController extends Controller
                 ->where('partner_id', $authId)
                 ->get();
         }
+        // dd($tasks);
 
         return view('tasks.index', compact('tasks', 'campaigns', 'categories', 'assets', 'partners'));
     }
@@ -102,7 +103,6 @@ class TasksController extends Controller
             'description' => 'required|string',
         ]);
         $date = $validatedData['date_required'];
-        // dd($date);
         $formattedDate = $date;
         // dd($formattedDate);
 
@@ -110,6 +110,7 @@ class TasksController extends Controller
         Log::info('Incoming request for image upload', [
             'request_data' => $request->all(),
         ]);
+
 
         // Store the uploaded file in Backblaze B2
         $image = new Image();
@@ -194,6 +195,9 @@ class TasksController extends Controller
             }
         }
         $image_id = $image->id;
+        Log::info('PArtner_id', [
+            'PartnerId' => $request->partner_id,
+        ]);
         // Create a new task using the validated data
         Tasks::create([
             'campaign_id' => (int) $request->campaign_id,
