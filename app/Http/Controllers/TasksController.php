@@ -138,9 +138,9 @@ class TasksController extends Controller
                         'region' => 'us-east-005',
                         'endpoint' => 'https://s3.us-east-005.backblazeb2.com',
                         'credentials' => [
-                                'key' => env('BACKBLAZE_KEY_ID'),
-                                'secret' => env('BACKBLAZE_APPLICATION_KEY'),
-                            ],
+                            'key' => env('BACKBLAZE_KEY_ID'),
+                            'secret' => env('BACKBLAZE_APPLICATION_KEY'),
+                        ],
                     ]);
 
                     $result = $s3Client->putObject([
@@ -225,12 +225,41 @@ class TasksController extends Controller
      * Show the form for editing the specified resource.
      */
     public function edit(Tasks $task)
-    {
-        $campaigns = Campaigns::all(); // Get all campaigns for the dropdown
-        $categories = Category::where('is_active', 1)->get();
+{
+    if (request()->ajax()) {
+        $partners = CampaignPartner::with([
+            'partner' => function ($query) {
+                $query->select('id', 'name', 'is_active'); // Fetch only required fields
+            },
+        ])
+        ->where('campaigns_id', $task->campaign_id)
+        ->whereHas('partner', function ($query) {
+            $query->where('is_active', 1); // Filter active partners
+        })
+        ->get()
+        ->pluck('partner'); // Extract the partner details
 
-        return view('tasks.edit', compact('task', 'campaigns', 'categories'));
+        $clientName = $partners->isNotEmpty() && $partners->first()->campaign && $partners->first()->campaign->client
+            ? $partners->first()->campaign->client->name
+            : 'No client';
+
+        return response()->json([
+            'task' => $task,
+            'partners' => $partners, // Return the partners list
+            'client_name' => $clientName,
+            'campaigns' => Campaigns::all(),
+            'categories' => Category::where('is_active', 1)->get(),
+        ]);
     }
+
+    // For non-AJAX requests, return the normal view
+    $campaigns = Campaigns::all();
+    $categories = Category::where('is_active', 1)->get();
+    return view('tasks.edit', compact('task', 'campaigns', 'categories'));
+}
+
+
+
 
     /**
      * Display the specified resource.
@@ -354,9 +383,9 @@ class TasksController extends Controller
                     'region' => 'us-east-005',
                     'endpoint' => 'https://s3.us-east-005.backblazeb2.com',
                     'credentials' => [
-                            'key' => env('BACKBLAZE_KEY_ID'),
-                            'secret' => env('BACKBLAZE_APPLICATION_KEY'),
-                        ],
+                        'key' => env('BACKBLAZE_KEY_ID'),
+                        'secret' => env('BACKBLAZE_APPLICATION_KEY'),
+                    ],
                 ]);
 
                 $result = $s3Client->putObject([
