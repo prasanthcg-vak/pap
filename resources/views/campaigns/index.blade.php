@@ -56,8 +56,10 @@
                                 <th class="">
                                     <span>Description</span>
                                 </th>
-                                
-                                @if (Auth::user()->roles->first()->role_level != 5 && Auth::user()->roles->first()->role_level != 4 )
+                                @php
+                                    dd(Auth::user()->roles->first()->role_level);
+                                @endphp
+                                @if (Auth::user()->roles->first()->role_level != 5)
                                     <th>
                                         <span>Client</span>
                                     </th>
@@ -120,7 +122,7 @@
                                             </span>
                                         @endif
                                     </td>
-                                    @if (Auth::user()->roles->first()->role_level != 5 && Auth::user()->roles->first()->role_level != 4 )
+                                    @if (Auth::user()->roles->first()->role_level != 5)
                                         <td>
                                             {{ $campaign->client ? $campaign->client->name : '-' }} </td>
                                     @endif

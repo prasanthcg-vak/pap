@@ -178,7 +178,8 @@ Route::middleware(['web', 'auth'])->group(function () {
     Route::post('/posts/create', [PostController::class, 'createPost'])->name('posts.create');
     Route::get('/partnerlist/{id}', [ClientGroupController::class, 'partner_list'])->name('partnerlist');
 
-    
+    Route::get('/tasks/{task}/edit', [TasksController::class, 'edit'])->name('tasks.edit');
+
     // Edit Forms Ajax call
     Route::get('/clients/{id}/edit', [ClientController::class, 'edit'])->name('clients.edit');
 });

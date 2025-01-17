@@ -1136,7 +1136,7 @@ button.btn.btn-danger.btn-sm.mt-2.remove-btn,
 .title_status {
     display: flex;
     justify-content: space-between;
-    padding-bottom: 14px;
+    /* padding-bottom: 14px; */
 }
 
 .heading_text .title_status h3 {
@@ -1147,13 +1147,18 @@ button.btn.btn-danger.btn-sm.mt-2.remove-btn,
     margin-bottom: 0;
 
 }
+.heading_text .title_status h3 span{
+    font-weight: 300;
+}
 
 .heading_text p {
     font-family: var(--Inter);
     font-size: 15px;
     font-weight: 400;
     color: var(--Text-gray);
+    margin-top: 14px;
 }
+
 
 .campaign-card-contents .card {
     padding: 16px 20px;

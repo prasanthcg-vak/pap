@@ -74,17 +74,19 @@
                                 <th class="description">
                                     <span>Description</span>
                                 </th>
-                                @if (Auth::user()->roles->first()->role_level != 5  && Auth::user()->roles->first()->role_level != 4 )
-                                <th class="">
-                                    <span>Client</span>
-                                </th>
+                                @if (Auth::user()->roles->first()->role_level != 5 && Auth::user()->roles->first()->role_level != 4)
+                                    <th class="">
+                                        <span>Client</span>
+                                    </th>
                                 @endif
                                 <th class="">
                                     <span>Client Group</span>
                                 </th>
-                                <th class="">
-                                    <span>Staff</span>
-                                </th>
+                                @if (!in_array(Auth::user()->roles->first()->role_level, [4, 5, 6]))
+                                    <th class="">
+                                        <span>Staff</span>
+                                    </th>
+                                @endif
                                 <th class="">
                                     <span>Assets</span>
                                 </th>
@@ -131,17 +133,19 @@
                                             </span>
                                         @endif
                                     </td>
-                                    @if (Auth::user()->roles->first()->role_level != 5  && Auth::user()->roles->first()->role_level != 4 )
-                                    <td class="">
-                                        <span>{{ $task->campaign->client->name ?? '-' }}</span>
-                                    </td>
+                                    @if (Auth::user()->roles->first()->role_level != 5 && Auth::user()->roles->first()->role_level != 4)
+                                        <td class="">
+                                            <span>{{ $task->campaign->client->name ?? '-' }}</span>
+                                        </td>
                                     @endif
                                     <td class="">
                                         <span>{{ $task->campaign->group->name ?? '-' }} </span>
-                                    </td>                                    
-                                    <td class="">
-                                        <span>-</span>
                                     </td>
+                                    @if (!in_array(Auth::user()->roles->first()->role_level, [4, 5, 6]))
+                                        <td class="">
+                                            <span>-</span>
+                                        </td>
+                                    @endif
                                     <td>{{ $task->image_id ? '1' : '0' }}</td>
                                     <td class="">
                                         <span
@@ -157,7 +161,10 @@
                                                             class="btn search"><i class="fa fa-eye" title="show"></i></a>
                                                     @endif
 
-                                                    {{-- <button class="btn edit"><i class='bx bx-edit'></i></button> --}}
+                                                    <a href="#" class="edit-task-btn" data-id="{{ $task->id }}"
+                                                        data-toggle="modal" data-target="#editTaskModal">
+                                                        <button class="btn edit"><i class='bx bx-edit'></i></button>
+                                                    </a>
                                                     @if ($deleteButton)
                                                         <form id="Model-Form"
                                                             action="{{ route('tasks.destroy', $task->id) }}" method="POST"
@@ -203,8 +210,7 @@
                     <form id="Model-Form" action="{{ route('tasks.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="row m-0">
-
-
+                            <input type="hidden" id="method-field" name="_method" value="POST">
                             <div class="col-xl-4 col-md-6  mt-md-0 mt-4">
                                 <label for="campaign-select">Campaign Name</label>
                                 <select class="form-select" id="campaign-select" name="campaign_id" required
@@ -217,16 +223,16 @@
                                     @endforeach
                                 </select>
                             </div>
-                            @if (Auth::user()->roles->first()->role_level != 5  && Auth::user()->roles->first()->role_level != 4 )
-                            <div class="col-xl-4 col-md-6">
-                                <label for="client-name">Client Name</label>
-                                <input type="text" id="client-name" name="client_name" class="form-control" readonly>
-                            </div>
+                            @if (Auth::user()->roles->first()->role_level != 5 && Auth::user()->roles->first()->role_level != 4)
+                                <div class="col-xl-4 col-md-6">
+                                    <label for="client-name">Client Name</label>
+                                    <input type="text" id="client-name" name="client_name" class="form-control" readonly>
+                                </div>
                             @endif
 
                             <!-- Partner Dropdown -->
                             @if (Auth::user()->roles->first()->role_level == 6)
-                                <input type="hidden" name="partner_id" value="{{Auth::id()}}">
+                                <input type="hidden" name="partner_id" value="{{ Auth::id() }}">
                             @else
                                 <div class="col-xl-4 col-md-6 mt-md-0 mt-4">
                                     <label for="partner-select">Select Campaign Partners</label>
@@ -272,7 +278,7 @@
                                     aria-label="Default select example">
                                     <option value="" selected>Select Category</option>
                                     @foreach ($categories as $category)
-                                        <option value="{{ $category->id }} ">
+                                        <option value="{{ $category->id }}">
                                             {{ $category->category_name }}
                                         </option>
                                     @endforeach
@@ -283,7 +289,7 @@
                                 <select class="form-select" name="asset_id" required aria-label="Default select example">
                                     <option value="" selected>Select Asset</option>
                                     @foreach ($assets as $asset)
-                                        <option value="{{ $asset->id }} ">
+                                        <option value="{{ $asset->id }}">
                                             {{ $asset->type_name }}
                                         </option>
                                     @endforeach
@@ -369,6 +375,7 @@
                         </div>
 
 
+
                     </form>
                 </div>
                 <div id="modalLoader" class="modal-loader" style="display: none;">
@@ -379,6 +386,8 @@
             </div>
         </div>
     </div>
+
+
 @endsection
 @section('script')
     <script>
@@ -411,8 +420,66 @@
         }
 
         function openModal() {
+            const modal = $('#createTask');
+
+            // Reset form
+            modal.find('#Model-Form')[0].reset();
+            modal.find('#Model-Form').attr('action', '{{ route('tasks.store') }}'); // Set Create action
+            modal.find('#method-field').val('POST'); // Set method to POST
+
             $('#createTask').modal('show');
         }
+        $(document).on('click', '.edit-task-btn', function() {
+            const taskId = $(this).data('id');
+            const modal = $('#createTask');
+            modal.modal('show');
+
+
+            $('#modalLoader').show(); // Show loader
+
+            $.ajax({
+                url: `/tasks/${taskId}/edit`, // Replace with your route
+                method: 'GET',
+                success: function(response) {
+                    const form = modal.find('#Model-Form');
+                    form.attr('action', `/tasks/${taskId}`); // Update action to tasks.update route
+                    modal.find('#method-field').val('PUT');
+
+                    const partnerSelect = modal.find('#partner-select');
+                    partnerSelect.empty(); // Clear existing options
+                    partnerSelect.append(
+                        '<option value="" selected>Select Partner</option>'); // Default option
+                    response.partners.forEach(function(partner) {
+                        partnerSelect.append(
+                            `<option value="${partner.id}" ${response.task.partner_id == partner.id ? 'selected' : ''}>
+                        ${partner.name}
+                    </option>`
+                        );
+                    });
+                    $('#modalLoader').hide();
+
+                    // Populate the modal with data
+                    modal.find('#campaign-select').val(response.task.campaign_id);
+                    modal.find('#client-name').val(response.client_name); // Client name
+                    modal.find('#partner-select').val(response.task.partner_id);
+                    modal.find('input[name="name"]').val(response.task.name);
+                    modal.find('input[name="date_required"]').val(response.task.date_required);
+                    modal.find('input[name="task_urgent"]').prop('checked', response.task.task_urgent);
+                    modal.find('select[name="category_id"]').val(response.task.category_id);
+                    modal.find('select[name="asset_id"]').val(response.task.asset_id);
+                    modal.find('#size_width').val(response.task.size_width);
+                    modal.find('#size_height').val(response.task.size_height);
+                    modal.find('#size_measurement').val(response.task.size_measurement);
+                    modal.find('textarea[name="description"]').val(response.task.description);
+                    modal.find('input[name="is_active"]').prop('checked', response.task.is_active);
+
+                },
+                error: function() {
+                    $('#modalLoader').hide();
+                    alert('Failed to fetch task details.');
+                }
+            });
+        });
     </script>
 
     <script>
@@ -440,7 +507,7 @@
             campaignDropdown.addEventListener('change', function() {
                 $('#modalLoader').show();
                 const campaignId = this.value;
-                if(clientName){
+                if (clientName) {
                     clientName.value = '';
                 }
 
@@ -452,8 +519,8 @@
                         .then(response => response.json())
                         .then(data => {
                             // Populate Client Name
-                            if(clientName){
-                            clientName.value = data.client?.name || 'No Client';
+                            if (clientName) {
+                                clientName.value = data.client?.name || 'No Client';
                             }
                             // Populate Partner Dropdown
                             if (partnerDropdown) {

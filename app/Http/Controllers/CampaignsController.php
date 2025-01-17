@@ -383,7 +383,7 @@ class CampaignsController extends Controller
      */
     public function show($id)
     {
-        $campaign = Campaigns::findOrFail($id);
+        $campaign = Campaigns::with('group')->findOrFail($id);
         $tasks = Tasks::with('status')->where('campaign_id', $id)->get();
 
         $images = Image::where('campaign_id', $id)->get(['id', 'file_name', 'path', 'file_type', 'thumbnail_path']);
