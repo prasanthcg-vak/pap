@@ -47,9 +47,9 @@
                         <thead>
                             <tr>
 
-                                <th>
+                                <!-- <th>
                                     <span>S.No</span>
-                                </th>
+                                </th> -->
                                 <th class="">
                                     <span>Name</span>
                                 </th>
@@ -84,9 +84,9 @@
                             @foreach ($campaigns as $campaign)
                                 <tr>
 
-                                    <td>
+                                    <!-- <td>
                                         <span>{{ $loop->iteration }}</span>
-                                    </td>
+                                    </td> -->
                                     <td class="">
                                         <span>{{ $campaign->name }}</span>
                                     </td>
@@ -495,14 +495,14 @@
                 order: [
                     [1, 'asc']
                 ], // Initial sort by name
-                drawCallback: function(settings) {
-                    var api = this.api();
-                    api.column(0, {
-                        order: 'applied'
-                    }).nodes().each(function(cell, i) {
-                        cell.innerHTML = i + 1; // Number rows dynamically
-                    });
-                }
+                // drawCallback: function(settings) {
+                //     var api = this.api();
+                //     api.column(0, {
+                //         order: 'applied'
+                //     }).nodes().each(function(cell, i) {
+                //         cell.innerHTML = i + 1; // Number rows dynamically
+                //     });
+                // }
             });
         });
 

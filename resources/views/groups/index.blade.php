@@ -34,9 +34,9 @@
                         <thead>
                             <tr>
 
-                                <th class="slno">
+                                {{-- <th class="slno">
                                     <span>S.No</span>
-                                </th>
+                                </th> --}}
                                 <th class="campaingn-title1">
                                     <span>Group Name</span>
                                 </th>
@@ -48,9 +48,9 @@
                         <tbody>
                             @foreach ($groups as $group)
                                 <tr>
-                                    <td class="slno">
+                                    {{-- <td class="slno">
                                         <span>{{ $loop->iteration }}</span>
-                                    </td>
+                                    </td> --}}
                                     <td class="campaingn-title1">
                                         <span>{{ $group->client_group_name }}</span>
                                     </td>

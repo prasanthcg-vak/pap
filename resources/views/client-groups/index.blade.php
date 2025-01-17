@@ -20,7 +20,9 @@
                             <tr>
                                 <th>ID</th>
                                 <th>Group Name</th>
-                                <th>Client Name</th>
+                                @if (Auth::user()->roles->first()->role_level != 4)
+                                    <th>Client Name</th>
+                                @endif
                                 @if (Auth::user()->roles->first()->role_level != 6)
                                     <th>Partners</th>
                                 @endif
@@ -35,7 +37,9 @@
                                 <tr>
                                     <td>{{ $group->id }}</td>
                                     <td>{{ $group->name }}</td>
-                                    <td>{{ $group->client->name }}</td>
+                                    @if (Auth::user()->roles->first()->role_level != 4)
+                                        <td>{{ $group->client->name }}</td>
+                                    @endif
                                     @if (Auth::user()->roles->first()->role_level != 6)
                                         <td><a href="{{ route('partnerlist', $group->id) }}">
                                                 {{ $group->partners_count }}</a>
@@ -96,15 +100,23 @@
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
                             </div>
-                            <div class="col-lg-12">
-                                <label for="client_id" class="common-label">Client</label>
-                                <select class="form-control" id="client_id" name="client_id" required>
-                                    <option value="">Select Client</option>
-                                    @foreach ($clients as $client)
-                                        <option value="{{ $client->id }}">{{ $client->name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
+                            @if (Auth::user()->roles->first()->role_level != 4)
+                                <div class="col-lg-12">
+                                    <label for="client_id" class="common-label">Client</label>
+                                    <select class="form-control" id="client_id" name="client_id" required>
+                                        <option value="">Select Client</option>
+                                        @foreach ($clients as $client)
+                                            <option value="{{ $client->id }}">{{ $client->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            @else
+                                @if ($clients->isNotEmpty())
+                                    <input type="hidden" id="client_id" name="client_id"
+                                        value="{{ $clients->first()->id }}">
+                                @endif
+                            @endif
+
                         </div>
                         <div class="sic-action-btns d-flex justify-content-md-end justify-content-center flex-wrap">
                             <div class="sic-btn">
@@ -131,6 +143,10 @@
 @endsection
 
 @section('script')
+    <script>
+        var userRoleLevel = @json(Auth::user()->roles->first()->role_level);
+    </script>
+
     <script>
         $(document).ready(function() {
             $('#clientGroupTable').DataTable().destroy();
@@ -164,7 +180,9 @@
         function openCreateModal() {
             $('#clientGroupModalLabel').text('Add Client Group');
             $('#clientGroupForm')[0].reset();
-            $('#client_id').val('');
+            if (userRoleLevel != 4) {
+                $('#client_id').val('');
+            }
             $('#clientGroupModal').modal('show');
         }
 

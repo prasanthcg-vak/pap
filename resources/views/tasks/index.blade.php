@@ -61,7 +61,7 @@
                     <table id="datatable" class="table table-bordered table-striped" style="width:100%">
                         <thead>
                             <tr>
-                                <th>Slno</th>
+                                {{-- <th>Slno</th> --}}
                                 <th class="">
                                     <span>Task Title</span>
                                 </th>
@@ -74,11 +74,16 @@
                                 <th class="description">
                                     <span>Description</span>
                                 </th>
+                                @if (Auth::user()->roles->first()->role_level != 5  && Auth::user()->roles->first()->role_level != 4 )
                                 <th class="">
                                     <span>Client</span>
                                 </th>
+                                @endif
                                 <th class="">
                                     <span>Client Group</span>
+                                </th>
+                                <th class="">
+                                    <span>Staff</span>
                                 </th>
                                 <th class="">
                                     <span>Assets</span>
@@ -94,7 +99,7 @@
                         <tbody>
                             @foreach ($tasks as $task)
                                 <tr>
-                                    <td></td>
+                                    {{-- <td></td> --}}
                                     <td class="">
                                         <span>{{ $task->name }}</span>
                                     </td>
@@ -126,12 +131,16 @@
                                             </span>
                                         @endif
                                     </td>
-
+                                    @if (Auth::user()->roles->first()->role_level != 5  && Auth::user()->roles->first()->role_level != 4 )
                                     <td class="">
                                         <span>{{ $task->campaign->client->name ?? '-' }}</span>
                                     </td>
+                                    @endif
                                     <td class="">
                                         <span>{{ $task->campaign->group->name ?? '-' }} </span>
+                                    </td>                                    
+                                    <td class="">
+                                        <span>-</span>
                                     </td>
                                     <td>{{ $task->image_id ? '1' : '0' }}</td>
                                     <td class="">
@@ -208,10 +217,12 @@
                                     @endforeach
                                 </select>
                             </div>
+                            @if (Auth::user()->roles->first()->role_level != 5  && Auth::user()->roles->first()->role_level != 4 )
                             <div class="col-xl-4 col-md-6">
                                 <label for="client-name">Client Name</label>
                                 <input type="text" id="client-name" name="client_name" class="form-control" readonly>
                             </div>
+                            @endif
 
                             <!-- Partner Dropdown -->
                             @if (Auth::user()->roles->first()->role_level == 6)
@@ -384,14 +395,14 @@
                 order: [
                     [1, 'asc']
                 ], // Initial sort by name
-                drawCallback: function(settings) {
-                    var api = this.api();
-                    api.column(0, {
-                        order: 'applied'
-                    }).nodes().each(function(cell, i) {
-                        cell.innerHTML = i + 1; // Number rows dynamically
-                    });
-                }
+                // drawCallback: function(settings) {
+                //     var api = this.api();
+                //     api.column(0, {
+                //         order: 'applied'
+                //     }).nodes().each(function(cell, i) {
+                //         cell.innerHTML = i + 1; // Number rows dynamically
+                //     });
+                // }
             });
         });
 
@@ -429,7 +440,9 @@
             campaignDropdown.addEventListener('change', function() {
                 $('#modalLoader').show();
                 const campaignId = this.value;
-                clientName.value = '';
+                if(clientName){
+                    clientName.value = '';
+                }
 
                 if (campaignId) {
                     if (partnerDropdown) {
@@ -439,7 +452,9 @@
                         .then(response => response.json())
                         .then(data => {
                             // Populate Client Name
+                            if(clientName){
                             clientName.value = data.client?.name || 'No Client';
+                            }
                             // Populate Partner Dropdown
                             if (partnerDropdown) {
                                 partnerDropdown.innerHTML =

@@ -63,7 +63,7 @@
             <div class="campaign-card-contents task-table-info ">
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="#">
+                        <li class="breadcrumb-item"><a href="{{ route('tasks.index') }}">
                                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
                                     xmlns="http://www.w3.org/2000/svg">
                                     <g clip-path="url(#clip0_211_479)">
@@ -86,7 +86,7 @@
                                         fill="#A1AEBE" />
                                 </svg>
                             </a></li>
-                        <li class="breadcrumb-item"><a href="#">
+                        <li class="breadcrumb-item"><a href="{{ route('campaigns.show', ['id' => $task->campaign->id]) }}">
                                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
                                     xmlns="http://www.w3.org/2000/svg">
                                     <g clip-path="url(#clip0_211_479)">
@@ -109,7 +109,7 @@
                                         fill="#A1AEBE" />
                                 </svg>
                             </a></li>
-                        <li class="breadcrumb-item"><a href="#">
+                        <li class="breadcrumb-item"><a href="">
                                 <svg width="16" height="5" viewBox="0 0 16 5" fill="none"
                                     xmlns="http://www.w3.org/2000/svg">
                                     <path
@@ -159,7 +159,7 @@
                             </a>
                             <div class="title_status">
 
-                                <h3> {{ strtoupper($task->name ?? 'N/A') }}</h3>
+                                <h3> Task Name: {{ strtoupper($task->name ?? 'N/A') }}</h3>
                                 <p class="status {{ $task->is_active == 1 ? 'green' : 'red' }} ">
                                     {{ $task->is_active == 1 ? 'ACTIVE' : 'INACTIVE' }} </p>
                             </div>
@@ -233,6 +233,18 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <div class="Category-fields">
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <label>Client Name:</label>
+                                            </div>
+                                            <div class="col-md-8">
+                                                <p> @php
+                                                    echo get_client_name($task->campaign->client_id);
+                                                @endphp </p>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="col-md-12">
                                     <div class="Task-brief-fields">
@@ -258,7 +270,14 @@
                             <div class="col-lg-12 task campaigns-contents">
                                 <div class="campaigns-title">
                                     <h3>VERSIONING</h3>
+
                                 </div>
+                                <form>
+                                    <a href="#" class="create-task-btn" data-toggle="modal"
+                                        data-target="#createTask" onclick=""><span>Create
+                                            Versioning</span> <i class="fa-solid fa-plus"></i></a>
+
+                                </form>
 
                             </div>
                             <!-- campaigns-contents -->
@@ -409,7 +428,7 @@
                                             <input type="hidden" name="task_id" value="{{ $task->id }}">
                                             <div class="comments-header">
                                                 <div class="profile-fields">
-                                                    <img src="{{ asset('/assets/images/profile-image.svg') }}"
+                                                    <img src="{{ asset(Auth::user()->profile_picture) }}"
                                                         alt="profile-image">
                                                 </div>
                                                 <div class="comment-input-fields">
@@ -430,9 +449,10 @@
                                                 <div class="row">
                                                     <div class="col-md-12">
                                                         @foreach ($task->comments as $comment)
+                                                           
                                                             <div class="media mb-4 border-bottom pb-3">
                                                                 <img class="mr-3 rounded-circle" alt="User Profile Image"
-                                                                    src="{{ asset('/assets/images/profile-image.svg') }}"
+                                                                    src="{{ asset($comment->user->profile_picture) }}"
                                                                     style="width: 50px; height: 50px;" />
                                                                 <div class="media-body">
                                                                     <div class="d-flex justify-content-between">
@@ -551,10 +571,10 @@
                         <!-- campaign task cost -->
                         <div class="campaign-task-cost py-3">
                             <div class="campaign-task-cost-title">
-                                <button type="button" class="btn view-btn" data-bs-toggle="modal"
+                                {{-- <button type="button" class="btn view-btn" data-bs-toggle="modal"
                                     data-bs-target="#exampleModal2">
                                     CAMPAIGN TASK COST TO DATE: $XXX
-                                </button>
+                                </button> --}}
                             </div>
                             <div class="campaign-task-cost-button">
                                 @if (Auth::user()->hasRolePermission('tasks.edit'))
@@ -893,7 +913,7 @@
                             const newCommentHtml = `
             <div class="media mb-4 border-bottom pb-3">
                 <img class="mr-3 rounded-circle" alt="User Profile Image"
-                    src="{{ asset('/assets/images/profile-image.svg') }}"
+                    src="{{ asset($comment->user->profile_picture) }}"
                     style="width: 50px; height: 50px;" />
                 <div class="media-body">
                     <div class="d-flex justify-content-between">
@@ -910,8 +930,8 @@
                            ${
                             userRoleLevel !== 3
                                     ? `<button class="btn btn-danger btn-sm delete-reply" data-id="${response.comment.id}">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>`
+                                                                <i class="fas fa-trash"></i>
+                                                            </button>`
                                     : ''
                             }
                         </div>
@@ -956,7 +976,7 @@
                             const newReplyHtml = `
                                     <div class="media mt-4">
                                         <img class="mr-3 rounded-circle" alt="User Profile Image"
-                                            src="{{ asset('/assets/images/profile-image.svg') }}"
+                                            src="{{ asset($comment->user->profile_picture) }}"
                                             style="width: 40px; height: 40px;" />
                                         <div class="media-body">
                                             <div class="d-flex justify-content-between">
@@ -968,9 +988,9 @@
                                                 userRoleLevel !== 3
                                                         ?
                                                     `<button class="btn btn-danger btn-sm delete-reply"
-                                                                    data-id="${response.comment.id}">
-                                                                    <i class="fas fa-trash"></i>
-                                                                </button>`
+                                                                            data-id="${response.comment.id}">
+                                                                            <i class="fas fa-trash"></i>
+                                                                        </button>`
                                                       : ''
                                                 }
                                                 </div>

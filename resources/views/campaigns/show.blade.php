@@ -26,7 +26,7 @@
                             <i class="fa fa-arrow-left"></i> 
                         </a>
                         <div class="title_status">
-                            <h3>{{$campaign->name}}</h3>
+                            <h3>Campaign Name: {{$campaign->name}}</h3>
                             <p class="status {{ $campaign->is_active ? 'green' : 'red' }} mt-1">
                                 {{ $campaign->is_active ? 'Active' : 'Inactive' }}
                             </p>
@@ -135,9 +135,9 @@
                                         <th class="campaingn-title">
                                             <span>Task Title</span>
                                         </th>
-                                        <th>
+                                        {{-- <th>
                                             <span>Campaign</span>
-                                        </th>
+                                        </th> --}}
                                         <th>
                                             <span>Due Date</span>
                                         </th>
@@ -158,9 +158,9 @@
                                         <td class="campaingn-title">
                                             <span>{{$task->name}}</span>
                                         </td>
-                                        <td>
+                                        {{-- <td>
                                             <span>{{$campaign->name}}</span>
-                                        </td>
+                                        </td> --}}
                                         <td>
                                             <span>{{$task->date_required}}</span>
                                         </td>

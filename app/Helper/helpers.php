@@ -93,6 +93,14 @@ function get_clients()
 {
     return Client::pluck('name', 'id');
 }
+function get_client_name($id)
+{
+    $client = Client::select('name')->where('id', $id)->first();
+
+    $client_name = $client ? $client->name : 'N/A';
+    // dd($client_name);
+    return  $client_name;
+}
 
 function get_groups()
 {
@@ -169,7 +177,7 @@ function task_count()
         $tasks = Tasks::with(['campaign.group', 'campaign.client', 'status'])
             ->whereHas('campaign', function ($query) use ($client_id, $group_id) {
                 $query->where('client_id', $client_id);
-                    // ->where('client_group_id', $group_id);
+                // ->where('client_group_id', $group_id);
             })
             ->get();
     } elseif ($role_level == 6) {

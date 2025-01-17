@@ -365,6 +365,7 @@ $(document).ready(function () {
       clientGroupDropdown.empty().append('<option value="">-- Select Client Group --</option>').prop('disabled', true);
 
       if (clientId) {
+              $('#modalLoader').show();
         $.ajax({
           url: `/get-client-groups/${clientId}`, // Laravel route for client groups
           type: 'GET',

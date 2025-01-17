@@ -181,7 +181,7 @@
                                     class="form-select @error('role_id') is-invalid @enderror common-select">
                                     <option value="">-Select-</option>
                                     @foreach (get_roles() as $value => $label)
-                                        @if (!in_array($value, [1,4]))
+                                        @if (!in_array($value, [1, 4]))
                                             <option value="{{ $value }}"
                                                 {{ isset($data) && $data->role_id == $value ? 'selected' : '' }}>
                                                 {{ $label }}
@@ -196,7 +196,7 @@
 
                             <!-- Group Field -->
                             <div class="col-lg-12" id="client-section"
-                                style="display: {{ isset($data) && ($data->role_id == 4 || $data->role_id == 5 || $data->role_id == 6) ? 'block' : 'none' }};">
+                                style="display: {{ isset($data) && ($data->role_id == 4 || $data->role_id == 5 || $data->role_id == 6) ? 'block' : 'none' }} none;">
                                 <label for="client_id_inUser" class="common-label">Client</label>
                                 <select id="client_id_inUser" name="client_id"
                                     class="form-select @error('client_id_inUser') is-invalid @enderror common-select">
@@ -319,11 +319,19 @@
         });
 
         function openModal() {
-            $('#userForm')[0].reset();
-            $('#user_id').val('');
-            $('#is_active').prop('checked', false); // Reset checkbox
-            $('#userModal').modal('show');
+            $('#userForm')[0].reset(); // Reset the form
+            $('#user_id').val(''); // Clear hidden user ID field
+            $('#is_active').prop('checked', false); // Reset the checkbox
+            $('#userModalLabel').text('Create User'); // Set modal title to "Create User"
+            $('#userModal').modal('show'); // Show the modal
+            const groupSection = $('#group-section');
+            const clientSection = $('#client-section');
+            groupSection.hide(); // Hide Group section
+            clientSection.hide(); // Hide Client section
+
+
         }
+
 
         $('#userForm').off('submit').on('submit', function(e) {
             e.preventDefault();
@@ -390,6 +398,7 @@
             $('#name').val(user.name);
             $('#email').val(user.email);
             $('#is_active').prop('checked', user.is_active); // Check/uncheck based on value
+            $('#userModalLabel').text('Edit User'); // Set modal title to "Edit User"
 
             // Populate the role dropdown
             if (user.roles && user.roles.length > 0) {
@@ -408,6 +417,7 @@
                 clientSection.show(); // Show Client section
                 if (user.roles[0].id == 6) {
                     groupSection.show(); // Show Group section
+                    $('#modalLoader').show();
                     // Populate group dropdown
                     const groupDropdown = $('#group_id');
                     groupDropdown.empty().append('<option value="">-- Select Client Group --</option>'); // Reset options
@@ -415,6 +425,7 @@
                         url: `/get-client-groups/${user.client_id}`, // Fetch groups based on client_id
                         type: 'GET',
                         success: function(data) {
+                            groupDropdown.empty().append('<option value="">-- Select Client Group --</option>'); // Reset options
                             // Populate group dropdown with fetched data
                             data.forEach(function(group) {
                                 groupDropdown.append(
@@ -422,12 +433,15 @@
                                 );
                             });
                             groupDropdown.prop('disabled', false); // Enable the dropdown
+                            $('#modalLoader').hide();
                         },
                         error: function() {
+                            $('#modalLoader').hide();
                             alert('Failed to fetch client groups.');
                         }
                     });
                 } else {
+                    $('#modalLoader').hide();
                     groupSection.hide(); // Hide Group section if role is not 6
                 }
             } else {
