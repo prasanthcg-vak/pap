@@ -913,7 +913,7 @@
                             const newCommentHtml = `
             <div class="media mb-4 border-bottom pb-3">
                 <img class="mr-3 rounded-circle" alt="User Profile Image"
-                    src="{{ asset($comment->user->profile_picture) }}"
+                    src="{{ asset(Auth::user()->profile_picture) }}"
                     style="width: 50px; height: 50px;" />
                 <div class="media-body">
                     <div class="d-flex justify-content-between">
@@ -976,7 +976,7 @@
                             const newReplyHtml = `
                                     <div class="media mt-4">
                                         <img class="mr-3 rounded-circle" alt="User Profile Image"
-                                            src="{{ asset($comment->user->profile_picture) }}"
+                                            src="{{ asset(Auth::user()->profile_picture) }}"
                                             style="width: 40px; height: 40px;" />
                                         <div class="media-body">
                                             <div class="d-flex justify-content-between">
