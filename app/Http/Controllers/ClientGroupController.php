@@ -41,7 +41,7 @@ class ClientGroupController extends Controller
             // Validate the request
             $request->validate([
                 'name' => 'required|string|max:255',
-                'client_id' => 'required|exists:clients,id',
+                // 'client_id' => 'required|exists:clients,id',
             ]);
 
             // Create the client group

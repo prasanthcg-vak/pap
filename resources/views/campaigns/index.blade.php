@@ -49,18 +49,20 @@
                     <table id="datatable" class="table table-bordered table-striped">
                         <thead>
                             <tr>
-                                <th>
-                                    <span>S.No</span>
-                                </th>
+
                                 <th class="">
                                     <span>Name</span>
                                 </th>
                                 <th class="">
                                     <span>Description</span>
                                 </th>
-                                <th>
-                                    <span>Client</span>
-                                </th>
+                                
+                                @if (Auth::user()->roles->first()->role_level != 5 && Auth::user()->roles->first()->role_level != 4 )
+                                    <th>
+                                        <span>Client</span>
+                                    </th>
+                                @endif
+
                                 <th>
                                     <span>Client Group</span>
                                 </th>
@@ -92,9 +94,7 @@
                             @foreach ($campaigns as $campaign)
                                 <tr>
 
-                                    <td>
-                                        <span>{{ $loop->iteration }}</span>
-                                    </td>
+
                                     <td class="">
                                         <span>{{ $campaign->name }}</span>
                                     </td>
@@ -120,8 +120,10 @@
                                             </span>
                                         @endif
                                     </td>
-                                    <td>
-                                        {{ $campaign->client ? $campaign->client->name : '-' }} </td>
+                                    @if (Auth::user()->roles->first()->role_level != 5 && Auth::user()->roles->first()->role_level != 4 )
+                                        <td>
+                                            {{ $campaign->client ? $campaign->client->name : '-' }} </td>
+                                    @endif
                                     <td>
                                         {{ $campaign->group ? $campaign->group->name : '-' }} </td>
                                     <td>
@@ -209,6 +211,55 @@
             <!-- Table -->
         </div>
     </div>
+    <div id="preloader">
+        <div class="loader-main"></div>
+    </div>
+    <style>
+        /* Preloader background */
+        #preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Loader animation */
+        .loader {
+            border: 6px solid #f3f3f3;
+            border-top: 6px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+    <script>
+        // Show the preloader immediately on page reload
+        window.addEventListener('beforeunload', function() {
+            document.getElementById('preloader').style.display = 'flex'; // Ensure it's visible
+        });
+
+        // Hide the preloader after the page is fully loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('preloader').style.display = 'none';
+        });
+    </script>
 
     <!-- Modal Structure -->
     <div class="modal fade createTask-modal" id="createcampaign" tabindex="-1" aria-labelledby="ModalLabel"
@@ -216,10 +267,9 @@
         <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5">Campaign</h1>
-                    <p class="status green active_header_block" id="active_header_block" style="display: none;">Active</p>
-                    <p class="status red inactive_header_block" id="inactive_header_block" style="display: none;">Inactive
-                    </p>
+                    <h1 class="modal-title fs-5" id="CampaignModalLabel">Create Campaign</h1>
+
+
                     <button type="button" class="btn-close" id="campaign-close" data-bs-dismiss="modal"
                         aria-label="Close"></button>
                 </div>
@@ -243,7 +293,18 @@
                                 <input type="date" name="due_date" id="datepicker" class="form-control"
                                     placeholder="Date">
                             </div>
+                            <div class="col-xl-4 mb-3">
+                                <label for="status">Status</label>
+                                <select name="status" class="status  form-control" id="select-status">
+                                    <option value="1" selected>ACTIVE</option>
+                                    <option value="2">INACTIVE</option>
+                                    <option value="3">CANCELLED</option>
+                                    <option value="4">COMPLETED</option>
+                                    <option value="5">ARCHIVED</option>
+                                </select>
+                            </div>
                         </div>
+
                         <div class="row m-0">
                             <!-- Client Dropdown -->
                             @if ($role_level < 3)
@@ -415,14 +476,14 @@
                 order: [
                     [1, 'asc']
                 ], // Initial sort by name
-                drawCallback: function(settings) {
-                    var api = this.api();
-                    api.column(0, {
-                        order: 'applied'
-                    }).nodes().each(function(cell, i) {
-                        cell.innerHTML = i + 1; // Number rows dynamically
-                    });
-                }
+                // drawCallback: function(settings) {
+                //     var api = this.api();
+                //     api.column(0, {
+                //         order: 'applied'
+                //     }).nodes().each(function(cell, i) {
+                //         cell.innerHTML = i + 1; // Number rows dynamically
+                //     });
+                // }
             });
 
             // Add form validation on submission
@@ -519,6 +580,7 @@
         function editCampaign(encryptedCampaignId) {
             $('body').addClass('loading'); // Show loader
             $('#modalLoader').show();
+            $('#CampaignModalLabel').text('Edit Campaign'); // Set modal title to "Edit Campaign"
 
             $.ajax({
                 url: `/campaigns/edit/${encryptedCampaignId}`,
