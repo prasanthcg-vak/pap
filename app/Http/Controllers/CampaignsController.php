@@ -107,10 +107,10 @@ class CampaignsController extends Controller
             'name' => 'required',
             'description' => 'required',
             'due_date' => 'required',
-            'additional_images.*' => 'nullable|mimes:jpeg,png,jpg,mp4,pdf|max:51200', // 50 MB limit
+            'additional_images.*' => 'nullable|mimes:jpeg,png,jpg,mp4,pdf,jfif|max:51200', // 50 MB limit
             'additional_images' => 'nullable|array',
             'thumbnail' => 'nullable|array',
-            'thumbnail.*' => 'file|mimes:jpeg,png,jpg|max:10240', // 10 MB limit for thumbnails
+            'thumbnail.*' => 'file|mimes:jpeg,png,jpg,jfif|max:10240', // 10 MB limit for thumbnails
         ]);
 
         if ($request->hasFile('additional_images')) {
@@ -134,7 +134,7 @@ class CampaignsController extends Controller
                     // Validate the thumbnail file
                     $thumbnailValidation = Validator::make(
                         ['thumbnail' => $thumbnail],
-                        ['thumbnail' => 'required|mimes:jpeg,png,jpg|max:10240']
+                        ['thumbnail' => 'required|mimes:jpeg,png,jpg,jfif|max:10240']
                     );
 
                     if ($thumbnailValidation->fails()) {
@@ -268,8 +268,8 @@ class CampaignsController extends Controller
                 'description' => 'required',
                 'due_date' => 'required',
                 // 'status_id' => 'required',                
-                'additional_images.*' => 'nullable|mimes:jpeg,png,jpg,mp4,pdf|max:51200',
-                'additional_images' => 'nullable|mimes:jpeg,png,jpg,mp4,pdf|max:51200', // 50 MB limit
+                'additional_images.*' => 'nullable|mimes:jpeg,png,jpg,mp4,pdf,jfif|max:51200',
+                'additional_images' => 'nullable|mimes:jpeg,png,jpg,mp4,pdf,jfif|max:51200', // 50 MB limit
             ]
         );
         // dd($request->all());
@@ -385,8 +385,11 @@ class CampaignsController extends Controller
     {
         $campaign = Campaigns::with('group')->findOrFail($id);
         $tasks = Tasks::with('status')->where('campaign_id', $id)->get();
+        $role_level = Auth::user()->roles->first()->role_level;
 
         $images = Image::where('campaign_id', $id)->get(['id', 'file_name', 'path', 'file_type', 'thumbnail_path']);
+        $categories = Category::where('is_active', 1)->get();
+        $assets = AssetType::where('is_active', 1)->get();
 
         // Retrieve the URLs for each image
         $imageUrls = $images->map(function ($image) {
@@ -400,7 +403,7 @@ class CampaignsController extends Controller
             ];
         });
         $partners = ClientPartner::all(); // Assuming you have a Partner model
-        return view('campaigns.show', compact('campaign', 'partners', 'tasks', 'imageUrls'));
+        return view('campaigns.show', compact('campaign', 'partners','assets','categories' ,'tasks', 'imageUrls','role_level'));
     }
 
     public function showTasks($id)
@@ -503,10 +506,10 @@ class CampaignsController extends Controller
             'name' => 'required',
             'due_date' => 'required|date',
             'campaign_brief' => 'nullable|string',
-            'additional_images.*' => 'nullable|mimes:jpeg,png,jpg,mp4,pdf|max:51200',
+            'additional_images.*' => 'nullable|mimes:jpeg,png,jpg,mp4,pdf,jfif|max:51200',
             'additional_images' => 'nullable|array',
             'thumbnail' => 'nullable|array',
-            'thumbnail.*' => 'nullable|mimes:jpeg,png,jpg|max:10240',
+            'thumbnail.*' => 'nullable|mimes:jpeg,png,jpg,jfif|max:10240',
         ]);
 
         if ($request->hasFile('additional_images')) {
@@ -524,7 +527,7 @@ class CampaignsController extends Controller
                     }
                     $thumbnailValidation = Validator::make(
                         ['thumbnail' => $thumbnail],
-                        ['thumbnail' => 'required|mimes:jpeg,png,jpg|max:10240']
+                        ['thumbnail' => 'required|mimes:jpeg,png,jpg,jfif|max:10240']
                     );
                     if ($thumbnailValidation->fails()) {
                         return back()->withErrors($thumbnailValidation->errors())->withInput();

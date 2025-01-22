@@ -26,8 +26,14 @@
                     <div class="campaigns-title">
                         <h3>CLIENT PARTNERS</h3>
                     </div>
-
+                    @if (Auth::user()->hasRolePermission('client-groups.store'))
+                        {{-- @if (Auth::user()->hasRolePermission('clientpartner.create')) --}}
+                        <a href="{{ route('clientpartner.create') }}" class="Edit-My-Profile-btn"> <i
+                                class="fa-solid fa-plus"></i> Add Partner</a>
+                        {{-- @endif --}}
+                    @endif
                 </div>
+
                 <!-- campaigns-contents -->
                 <div class="table-wrapper">
                     <table id="datatable" class="table table-bordered">
@@ -86,8 +92,7 @@
                                                 </div>
                                             </div>
                                         @endif
-                                        <a href="{{ route('clientpartner.edit', $partner->user->id) }}"
-                                            class="btn search ">
+                                        <a href="{{ route('clientpartner.edit', $partner->user->id) }}" class="btn search ">
                                             <i class="bx bx-edit"></i>
                                         </a>
                                     </td>

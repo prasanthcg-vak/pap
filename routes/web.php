@@ -115,6 +115,8 @@ Route::middleware(['web', 'auth'])->group(function () {
     Route::get('comments/task/{taskId}', [CommentController::class, 'index'])->name('comments.index')->middleware('permission:comments.index');
     Route::post('comments', [CommentController::class, 'store'])->name('comments.store')->middleware('permission:comments.store');
     Route::delete('comments/{id}', [CommentController::class, 'destroy'])->name('comments.destroy')->middleware('permission:comments.destroy');
+    Route::post('comments/{id}/update', [CommentController::class, 'update'])->name('comments.update');
+    Route::get('comments/{id}/replies', [CommentController::class, 'fetchReplies'])->name('comments.replies')->middleware('permission:comments.index');
 
     // Campaigns
     Route::get('campaigns', [CampaignsController::class, 'index'])->name('campaigns.index')->middleware('permission:campaigns.index');

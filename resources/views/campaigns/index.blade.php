@@ -56,9 +56,9 @@
                                 <th class="">
                                     <span>Description</span>
                                 </th>
-                                @php
-                                    dd(Auth::user()->roles->first()->role_level);
-                                @endphp
+                                {{-- @php
+                                    // dd(Auth::user()->roles->first()->role_level);
+                                @endphp --}}
                                 @if (Auth::user()->roles->first()->role_level != 5)
                                     <th>
                                         <span>Client</span>
@@ -95,7 +95,7 @@
                         <tbody>
                             @foreach ($campaigns as $campaign)
                                 <tr>
-
+                                    
 
                                     <td class="">
                                         <span>{{ $campaign->name }}</span>
@@ -213,55 +213,9 @@
             <!-- Table -->
         </div>
     </div>
-    <div id="preloader">
+    {{-- <div id="preloader">
         <div class="loader-main"></div>
-    </div>
-    <style>
-        /* Preloader background */
-        #preloader {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.9);
-            z-index: 9999;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        /* Loader animation */
-        .loader {
-            border: 6px solid #f3f3f3;
-            border-top: 6px solid #3498db;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-    </style>
-    <script>
-        // Show the preloader immediately on page reload
-        window.addEventListener('beforeunload', function() {
-            document.getElementById('preloader').style.display = 'flex'; // Ensure it's visible
-        });
-
-        // Hide the preloader after the page is fully loaded
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('preloader').style.display = 'none';
-        });
-    </script>
+    </div> --}}
 
     <!-- Modal Structure -->
     <div class="modal fade createTask-modal" id="createcampaign" tabindex="-1" aria-labelledby="ModalLabel"
@@ -295,9 +249,9 @@
                                 <input type="date" name="due_date" id="datepicker" class="form-control"
                                     placeholder="Date">
                             </div>
-                            <div class="col-xl-4 mb-3">
+                            <div class="col-xl-4 mb-3 " id="select-status">
                                 <label for="status">Status</label>
-                                <select name="status" class="status  form-control" id="select-status">
+                                <select name="status" class="status form-control">
                                     <option value="1" selected>ACTIVE</option>
                                     <option value="2">INACTIVE</option>
                                     <option value="3">CANCELLED</option>
@@ -424,7 +378,7 @@
                                                         <span style="font-size:14px;"><img
                                                                 src="assets/images/fi_upload-cloud.svg" alt="">
                                                             Upload Asset</span>
-                                                        <span style="font-size:10px;">(JEPG, PNG, JPG, MP4, PDF).</span>
+                                                        <span style="font-size:10px;">(JEPG, PNG, JPG, MP4, PDF, JFIF).</span>
                                                     </div>
                                                 </div>
                                                 <input type="file" name="additional_images[]" class="drop-zone__input"

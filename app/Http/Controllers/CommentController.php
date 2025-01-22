@@ -13,7 +13,7 @@ class CommentController extends Controller
     // Display all comments for a task
     public function index($taskId)
     {
-        
+
         $task = Tasks::with([
             'comments' => function ($query) {
                 $query->orderBy('created_at', 'desc'); // Order comments by creation date
@@ -22,9 +22,9 @@ class CommentController extends Controller
                 $query->orderBy('created_at', 'desc'); // Order replies by creation date
             }
         ])->findOrFail($taskId);
-        
+
         return view('comments.index', compact('task'));
-        
+
     }
 
     // Store a new comment or reply
@@ -34,7 +34,7 @@ class CommentController extends Controller
             'task_id' => 'required|exists:tasks,id',
             'contents' => 'required|string',
         ]);
-        
+
         // dd(auth()->id());
 
         $comment = Comment::create([
@@ -59,12 +59,49 @@ class CommentController extends Controller
         // return response()->json(['success' => true]);
         // return back()->with('success', 'Comment added successfully!');
     }
-    public function destroy($id){
+    public function fetchReplies($id)
+    {
+        $comment = Comment::with([
+            'replies' => function ($query) {
+                $query->orderBy('created_at', 'desc');
+            }
+        ])->findOrFail($id);
+
+        return response()->json([
+            'success' => true,
+            'replies' => $comment->replies,
+        ]);
+    }
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'contents' => 'required|string',
+        ]);
+
+        $comment = Comment::findOrFail($id);
+
+        // Check if the authenticated user is authorized to edit the comment
+        if ($comment->created_by !== auth()->id()) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        $comment->content = $request->contents;
+        $comment->save();
+
+        return response()->json([
+            'success' => true,
+            'comment' => $comment,
+            'updated_at' => $comment->updated_at->diffForHumans(),
+        ]);
+    }
+
+    public function destroy($id)
+    {
         // dd(True);
         $comment = Comment::find($id);
         $comment->delete();
 
-        return response()->json(['success' => true,'id'=>$id]);
+        return response()->json(['success' => true, 'id' => $id]);
 
     }
 }

@@ -35,6 +35,7 @@ class ClientController extends Controller
 
     public function store(Request $request)
     {
+
         try {
             // Validate incoming request
             $validatedData = $request->validate([
@@ -43,7 +44,7 @@ class ClientController extends Controller
                 'is_active' => 'nullable|boolean',
                 'client_admin_name' => 'required|string|max:255',
                 'email' => 'required|email|unique:users,email',
-                'password' => 'required|string|min:8', // Validate password
+                'password' => 'required|string|min:8|confirmed',
                 'role_id' => 'required|integer|exists:roles,id',
                 'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Add validation for logo
             ]);
@@ -65,6 +66,7 @@ class ClientController extends Controller
                 'logo' => $filePath,
                 'is_active' => $validatedData['is_active'] ?? 0,
             ]);
+            // dd($client);
 
             $clientId = $client->id;
 
@@ -85,7 +87,6 @@ class ClientController extends Controller
                     'client_id' => $clientId,
                 ]
             );
-
             // Assign role to the user
             DB::table('role_user')->insert([
                 'user_id' => $user->id,
@@ -95,7 +96,7 @@ class ClientController extends Controller
             ]);
 
             DB::commit();
-
+            // dd("test");
             return response()->json(['success' => 'Client and Client Admin created successfully'], 201);
 
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -158,7 +159,7 @@ class ClientController extends Controller
                     'description' => 'nullable|string|max:500',
                     'is_active' => 'nullable|boolean',
                     'client_admin_name' => 'required|string|max:255',
-                    'password' => 'nullable|string|min:8', // Optional for updates
+                    'password' => 'nullable|string|min:8|confirmed',
                     'role_id' => 'required|integer|exists:roles,id',
                     'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Add validation for logo
                     'email' => 'required|email|unique:users,email,' . $clientuser->user_id, // Ignore the current admin email

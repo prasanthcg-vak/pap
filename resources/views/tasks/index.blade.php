@@ -69,7 +69,7 @@
                                     <span>Campaign</span>
                                 </th>
                                 <th>
-                                    <span>Due Date</span>
+                                    <span>Due_Date</span>
                                 </th>
                                 <th class="description">
                                     <span>Description</span>
@@ -102,15 +102,19 @@
                             @foreach ($tasks as $task)
                                 <tr>
                                     {{-- <td></td> --}}
+                                    @php
+                                        // dd($task->task_urgent);
+                                    @endphp
                                     <td class="">
                                         <span>{{ $task->name }}</span>
                                     </td>
                                     <td>
                                         <span>{{ $task->campaign ? $task->campaign->name : 'N/A' }}</span>
                                     </td>
-                                    <td>
+                                    <td class="{{ $task->task_urgent == 1 ? 'red' : '' }}">
                                         <span>{{ $task->date_required }}</span>
                                     </td>
+
 
                                     <td class="">
                                         @php
@@ -226,7 +230,8 @@
                             @if (Auth::user()->roles->first()->role_level != 5 && Auth::user()->roles->first()->role_level != 4)
                                 <div class="col-xl-4 col-md-6">
                                     <label for="client-name">Client Name</label>
-                                    <input type="text" id="client-name" name="client_name" class="form-control" readonly>
+                                    <input type="text" id="client-name" name="client_name" class="form-control"
+                                        readonly>
                                 </div>
                             @endif
 
