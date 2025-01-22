@@ -184,6 +184,15 @@
                                     @error('password')
                                         <span class="text-danger">{{ $message }}</span>
                                     @enderror
+                                </div><!-- password_confirmation Field -->
+                                <div class="col-lg-12">
+                                    <label for="password_confirmation" class="common-label">Confirm Password</label>
+                                    <input type="password"
+                                        class="form-control @error('password_confirmation') is-invalid @enderror common-input"
+                                        id="password_confirmation" name="password_confirmation" minlength="8" required>
+                                    @error('password_confirmation')
+                                        <span class="text-danger">{{ $message }}</span>
+                                    @enderror
                                 </div>
                                 <!-- Role Field -->
                                 <div class="col-lg-12">

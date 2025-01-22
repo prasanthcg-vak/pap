@@ -460,7 +460,7 @@
                                                         <span style="font-size:14px;"><img
                                                                 src="assets/images/fi_upload-cloud.svg" alt="">
                                                             Upload Asset</span>
-                                                        <span style="font-size:10px;">(JEPG, PNG, JPG, MP4, PDF).</span>
+                                                        <span style="font-size:10px;">(JEPG, PNG, JPG, MP4, PDF, JFIF).</span>
                                                     </div>
                                                 </div>
                                                 <input type="file" name="additional_images[]"

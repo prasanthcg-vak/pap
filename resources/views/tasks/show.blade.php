@@ -448,8 +448,7 @@
                                             <div class="card-body">
                                                 <div class="row">
                                                     <div class="col-md-12">
-                                                        @foreach ($task->comments as $comment)
-                                                           
+                                                        @foreach ($task->comments->sortByDesc('created_at') as $comment)
                                                             <div class="media mb-4 border-bottom pb-3">
                                                                 <img class="mr-3 rounded-circle" alt="User Profile Image"
                                                                     src="{{ asset($comment->user->profile_picture) }}"
@@ -467,6 +466,11 @@
                                                                                 class="btn btn-secondary btn-sm toggle-reply"><i
                                                                                     class="fas fa-reply"></i>
                                                                                 Reply</button>
+                                                                            <button
+                                                                                class="btn btn-secondary btn-sm toggle-edit"
+                                                                                data-content="{{ $comment->content }}"><i
+                                                                                    class="fas fa-edit"></i> Edit</button>
+
                                                                             {{-- <button
                                                                                 class="btn btn-warning btn-sm toggle-edit"><i
                                                                                     class="fas fa-edit"></i> Edit</button> --}}
@@ -481,12 +485,33 @@
                                                                     <p class="mt-2 comment-content">
                                                                         {{ $comment->content }}</p>
 
+                                                                    <!-- Reply Form (Initially Hidden) -->
+                                                                    <div class="reply-section edit-reply-form mt-3"
+                                                                        style="">
+                                                                        <form class="replyForm d-flex align-items-center"
+                                                                            method="POST">
+                                                                            @csrf
+                                                                            <input type="hidden" name="task_id"
+                                                                                value="{{ $task->id }}">
+                                                                            <input type="hidden" name="parent_id"
+                                                                                value="{{ $comment->id }}">
+                                                                            <input type="hidden" name="is_edit"
+                                                                                value="false">
+                                                                            <input type="text"
+                                                                                class="form-control me-2" name="contents"
+                                                                                placeholder="Add a reply or edit this comment"
+                                                                                required>
+                                                                            <button type="submit"
+                                                                                class="btn btn-primary"><i
+                                                                                    class="fas fa-paper-plane"></i></button>
+                                                                        </form>
+                                                                    </div>
                                                                     <!-- Display Replies -->
-                                                                    @foreach ($comment->replies as $reply)
+                                                                    @foreach ($comment->replies->sortByDesc('created_at') as $reply)
                                                                         <div class="media mt-4">
                                                                             <img class="mr-3 rounded-circle"
                                                                                 alt="User Profile Image"
-                                                                                src="{{ asset('/assets/images/profile-image.svg') }}"
+                                                                                src="{{ asset($reply->user->profile_picture) }}"
                                                                                 style="width: 40px; height: 40px;" />
                                                                             <div class="media-body">
                                                                                 <div
@@ -498,6 +523,12 @@
                                                                                             class="text-muted">{{ $reply->created_at->diffForHumans() }}</small>
                                                                                     </div>
                                                                                     <div>
+                                                                                        <button
+                                                                                            class="btn btn-secondary btn-sm toggle-edit-reply"
+                                                                                            data-id="{{ $reply->id }}">
+                                                                                            <i class="fas fa-edit"></i>
+                                                                                            Edit
+                                                                                        </button>
                                                                                         @if (Auth::user()->roles->first()->role_level != 3)
                                                                                             <button
                                                                                                 class="btn btn-danger btn-sm delete-reply"
@@ -508,30 +539,38 @@
                                                                                         @endif
                                                                                     </div>
                                                                                 </div>
-                                                                                <p class="mt-2">{{ $reply->content }}
+                                                                                <p class="reply-content mt-2">{{ $reply->content }}
                                                                                 </p>
+                                                                                <!-- Edit Reply Form (Initially Hidden) -->
+                                                                                <div class="edit-reply-section mt-3"
+                                                                                    style="display: none;">
+                                                                                    <form
+                                                                                        class="editReplyForm d-flex align-items-center"
+                                                                                        method="POST"
+                                                                                        data-id="{{ $reply->id }}">
+                                                                                        @csrf
+                                                                                        @method('POST')
+                                                                                        <input type="hidden"
+                                                                                            name="reply_id"
+                                                                                            value="{{ $reply->id }}">
+                                                                                        <input type="text"
+                                                                                            class="form-control me-2 edit-reply-input"
+                                                                                            name="contents"
+                                                                                            value="{{ $reply->content }}"
+                                                                                            required>
+                                                                                        <button type="submit"
+                                                                                            class="btn btn-success">
+                                                                                            <i class="fas fa-save"></i>
+                                                                                            Save
+                                                                                        </button>
+                                                                                    </form>
+                                                                                </div>
                                                                             </div>
                                                                         </div>
                                                                     @endforeach
 
-                                                                    <!-- Reply Form (Initially Hidden) -->
-                                                                    <div class="reply-section mt-3"
-                                                                        style="display: none;">
-                                                                        <form class="replyForm d-flex align-items-center"
-                                                                            method="POST">
-                                                                            @csrf
-                                                                            <input type="hidden" name="task_id"
-                                                                                value="{{ $task->id }}">
-                                                                            <input type="hidden" name="parent_id"
-                                                                                value="{{ $comment->id }}">
-                                                                            <input type="text"
-                                                                                class="form-control me-2" name="contents"
-                                                                                placeholder="Add a reply" required>
-                                                                            <button type="submit"
-                                                                                class="btn btn-primary"><i
-                                                                                    class="fas fa-paper-plane"></i></button>
-                                                                        </form>
-                                                                    </div>
+
+
 
                                                                     <!-- Edit Form (Initially Hidden) -->
                                                                     <div class="edit-section mt-3" style="display: none;">
@@ -930,17 +969,34 @@
                            ${
                             userRoleLevel !== 3
                                     ? `<button class="btn btn-danger btn-sm delete-reply" data-id="${response.comment.id}">
-                                                                <i class="fas fa-trash"></i>
-                                                            </button>`
+                                                                                            <i class="fas fa-trash"></i>
+                                                                                        </button>`
                                     : ''
                             }
                         </div>
                     </div>
                     <p class="mt-2 comment-content">${response.comment.content}</p>
+                    <div class="reply-section mt-3"
+                                                                        style="display: none;">
+                                                                        <form class="replyForm d-flex align-items-center"
+                                                                            method="POST">
+                                                                            @csrf
+                                                                            <input type="hidden" name="task_id"
+                                                                                value="{{ $task->id }}">
+                                                                            <input type="hidden" name="parent_id"
+                                                                                value="${response.comment.id}">
+                                                                            <input type="text"
+                                                                                class="form-control me-2" name="contents"
+                                                                                placeholder="Add a reply" required>
+                                                                            <button type="submit"
+                                                                                class="btn btn-primary"><i
+                                                                                    class="fas fa-paper-plane"></i></button>
+                                                                        </form>
+                                                                    </div>
                 </div>
             </div>`;
 
-                            $('#comments-list').prepend(
+                            $('#comments-list .card-body .row').prepend(
                                 newCommentHtml); // Add the new comment to the list
                             $('#commentForm')[0].reset(); // Clear the form
                         }
@@ -952,7 +1008,21 @@
                 });
             });
 
+            $('#comments-list').on('click', '.toggle-reply, .toggle-edit', function() {
+                const $button = $(this);
+                const $form = $button.closest('.media-body').find('.edit-reply-form');
 
+                if ($button.hasClass('toggle-reply')) {
+                    $form.find('input[name="is_edit"]').val('false');
+                    $form.find('input[name="contents"]').val('').attr('placeholder', 'Add a reply');
+                } else if ($button.hasClass('toggle-edit')) {
+                    const content = $button.data('content');
+                    $form.find('input[name="is_edit"]').val('true');
+                    $form.find('input[name="contents"]').val(content).attr('placeholder',
+                        'Edit this comment');
+                }
+                // $form.toggle();
+            });
 
             // Event delegation for dynamically added reply forms
             // Event delegation for dynamically added reply forms
@@ -961,19 +1031,26 @@
 
                 const $form = $(this); // Reference to the current form
                 const commentId = $form.find('input[name="parent_id"]').val(); // Get the parent comment id
+                const isEdit = $form.find('input[name="is_edit"]').val() === 'true';
+                console.log(isEdit); // Debug the isEdit value
 
                 $.ajax({
-                    url: "{{ route('comments.store') }}", // Your Laravel route
+                    url: isEdit ? `/comments/${commentId}/update` : `/comments`,
                     method: 'POST',
                     data: $form.serialize(), // Serialize the form data
                     success: function(response) {
-                        if (response.success && response.is_reply) {
-                            console.log(response);
+
+                        if (response.success) {
                             const userRoleLevel =
                                 {{ Auth::user()->roles->first()->role_level }};
 
                             // Construct the new reply HTML
-                            const newReplyHtml = `
+                            if (isEdit) {
+                                alert('Comment updated successfully!');
+                                $form.closest('.media-body').find('.comment-content').text(
+                                    response.comment.content);
+                            } else {
+                                const newReplyHtml = `
                                     <div class="media mt-4">
                                         <img class="mr-3 rounded-circle" alt="User Profile Image"
                                             src="{{ asset(Auth::user()->profile_picture) }}"
@@ -988,9 +1065,9 @@
                                                 userRoleLevel !== 3
                                                         ?
                                                     `<button class="btn btn-danger btn-sm delete-reply"
-                                                                            data-id="${response.comment.id}">
-                                                                            <i class="fas fa-trash"></i>
-                                                                        </button>`
+                                                                                                        data-id="${response.comment.id}">
+                                                                                                        <i class="fas fa-trash"></i>
+                                                                                                    </button>`
                                                       : ''
                                                 }
                                                 </div>
@@ -999,10 +1076,10 @@
                                         </div>
                                     </div>`;
 
-                            // Prepend the new reply to the correct comment (based on commentId)
-                            $form.closest('.media-body').find('.reply-section').before(
-                                newReplyHtml);
-
+                                // Prepend the new reply to the correct comment (based on commentId)
+                                $form.closest('.media-body').find('.reply-section').after(
+                                    newReplyHtml);
+                            }
                             // Clear the reply form after successful submission
                             $form[0].reset();
                         }
@@ -1015,27 +1092,48 @@
             });
 
 
+            $('#comments-list').on('click', '.toggle-edit-reply', function() {
+                const $button = $(this);
+                const $replySection = $button.closest('.media-body');
+                $replySection.find('.edit-reply-section').toggle(); // Show/Hide edit form
+                $replySection.find('.reply-content').toggle(); // Toggle content visibility
+            });
+
+            // Handle Edit Reply Submission
+            $('#comments-list').on('submit', '.editReplyForm', function(e) {
+                e.preventDefault(); // Prevent default form submission
+
+                const $form = $(this);
+                const replyId = $form.data('id');
+                const updatedContent = $form.find('.edit-reply-input').val();
+
+                $.ajax({
+                    url: `/comments/${replyId}/update`, // Update route
+                    method: 'post',
+                    data: $form.serialize(),
+                    success: function(response) {
+                        if (response.success) {
+                            // Update the reply content in the UI
+                            const $replySection = $form.closest('.media-body');
+                            $replySection.find('.reply-content').text(updatedContent).show();
+                            $replySection.find('.edit-reply-section')
+                        .hide(); // Hide the edit form
+                            alert('Reply updated successfully!');
+                            $form.closest('.media-body').find('.reply-content').text(
+                                    response.comment.content);
+                        }
+                    },
+                    error: function(xhr) {
+                        console.error(xhr.responseText);
+                        alert('Error updating reply.');
+                    },
+                });
+            });
         });
     </script>
     <script>
         $(document).ready(function() {
-            // Toggle reply section visibility
-            $(document).on('click', '.toggle-reply', function() {
-                const replySection = $(this).closest('.media-body').find('.reply-section');
 
-                if (replySection.length) {
-                    replySection.toggle(); // Show/hide the reply section
-                } else {
-                    console.error("Reply section not found!");
-                }
-            });
-
-            // Toggle edit section visibility
-            $('.toggle-edit').on('click', function() {
-                $(this).closest('.media').find('.edit-section').slideToggle();
-            });
-
-            // Handle edit form submission (AJAX example)
             $('.editForm').on('submit', function(e) {
                 e.preventDefault();
 
