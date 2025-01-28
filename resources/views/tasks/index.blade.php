@@ -69,7 +69,7 @@
                                     <span>Campaign</span>
                                 </th>
                                 <th>
-                                    <span>Due_Date</span>
+                                    <span>Due Date</span>
                                 </th>
                                 <th class="description">
                                     <span>Description</span>
