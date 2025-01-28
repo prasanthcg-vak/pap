@@ -26,7 +26,11 @@
                                 <i class="fa fa-arrow-left"></i>
                             </a>
                             <div class="title_status">
+                                @if (!in_array(Auth::user()->roles->first()->role_level, [1, 3]))
                                 <h3>{{ $campaign->name }}</h3>
+                                @else
+                                <h3>{{$campaign->client->name}} : {{ $campaign->name }}</h3>
+                                @endif
                                 <p class="status {{ $campaign->is_active ? 'green' : 'red' }} mt-1">
                                     {{ $campaign->is_active ? 'Active' : 'Inactive' }}
                                 </p>
@@ -178,12 +182,15 @@
                                                 </td>
                                                 @if (Auth::user()->roles->first()->role_level != 5 && Auth::user()->roles->first()->role_level != 4)
                                                     <td class="">
-                                                        <span>{{ $task->campaign->client->name ?? '-' }}</span>
+                                                        <span>{{ $task->campaign->group->name ?? '-' }}</span>
                                                     </td>
                                                 @endif
+                                                @if (!in_array(Auth::user()->roles->first()->role_level, [4, 5, 6]))
+
                                                 <td>
                                                     staff
                                                 </td>
+                                                @endif
 
                                                 <td class="">
                                                     <span>{{ optional($task->status)->name ?? 'No Status' }}</span>
