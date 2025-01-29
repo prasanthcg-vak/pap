@@ -7,6 +7,7 @@ use App\Models\ClientGroup;
 use App\Models\ClientGroupPartners;
 use App\Models\ClientPartner;
 use App\Models\Group;
+use App\Models\GroupClientUsers;
 use App\Models\User;
 use App\Models\Role;
 use App\Models\RoleUser;
@@ -55,7 +56,7 @@ class UserController extends Controller
             $request->validate([
                 'client_id' => 'required',
             ]);
-            if ($request->role_id == 6) {
+            if ($request->role_id == 5) {
                 $request->validate([
                     'group_id' => 'required',
                 ]);
@@ -87,6 +88,16 @@ class UserController extends Controller
             'created_at' => now(),
             'updated_at' => now()
         ]);
+        if ($request->role_id == 5) {
+
+            foreach ($request->group_id as $groupId) {
+                GroupClientUsers::create([
+                    'clientuser_id' => $user->id,
+                    'group_id' => $groupId
+                ]);
+            }
+            
+        }
         if ($request->role_id == 6) {
 
             $clientUser = ClientPartner::create([
@@ -94,13 +105,13 @@ class UserController extends Controller
                 'client_id' => $request->client_id
             ]);
         }
-        if ($request->role_id == 6) {
+        // if ($request->role_id == 5) {
 
-            $clientGroup = ClientGroupPartners::create([
-                'user_id' => $user->id,
-                'group_id' => (int) $request->group_id
-            ]);
-        }
+        //     $clientGroup = ClientGroupPartners::create([
+        //         'user_id' => $user->id,
+        //         'group_id' => (int) $request->group_id
+        //     ]);
+        // }
 
 
         // Attempt to send email
@@ -325,7 +336,7 @@ class UserController extends Controller
             'contact' => $request->partner_contact, // Hash the random password
             'pcode' => $randomPassword,
             'client_id' => $client_id,
-            'group_id' => (int) $request->group,
+            // 'group_id' => (int) $request->group,
             'is_active' => $request->status == 'active' ? 1 : 0,  // Set status
         ]);
 
@@ -335,10 +346,10 @@ class UserController extends Controller
             'partner_id' => $user->id,  // Newly created partner's ID
         ]);
 
-        ClientGroupPartners::create([
-            'user_id' => $user->id,
-            'group_id' => $request->group,
-        ]);
+        // ClientGroupPartners::create([
+        //     'user_id' => $user->id,
+        //     'group_id' => $request->group,
+        // ]);
 
         DB::table('role_user')->insert([
             'user_id' => $user->id,

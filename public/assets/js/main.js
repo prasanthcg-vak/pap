@@ -243,10 +243,10 @@ function toggleGroupSection() {
     groupDropdown.empty().append('<option value="" disabled selected>Select Client Group</option>').prop('disabled', true); // Reset group dropdown
 
     // Show/Hide sections based on the selected role
-    if (roleSelect.val() == 4 || roleSelect.val() == 5) {
+    if (roleSelect.val() == 4 || roleSelect.val() == 6) {
       clientSection.show(); // Show client section
       groupSection.hide(); // Hide group section
-    } else if (roleSelect.val() == 6) {
+    } else if (roleSelect.val() == 5) {
       clientSection.show(); // Show client section
       groupSection.show(); // Show group section
     } else {
@@ -352,12 +352,45 @@ $(document).ready(function () {
 
         }
       });
+      $.ajax({
+        url: `/get-partners/${clientId}`, // Laravel route for partners
+        type: 'GET',
+        success: function (data) {
+          partnerDropdown.empty(); // Clear all existing options
+          $('.selectpicker').selectpicker('refresh');
+          partnerDropdown.prop('disabled', false);
+          if (Array.isArray(data) && data.length > 0) {
+            data.forEach(function (partner) {
+              console.log(partner.user);
+
+              if (partner.user != null) {
+                partnerDropdown.append(`<option value="${partner.user.id}">${partner.user.name}</option>`);
+                $('.selectpicker').selectpicker('refresh');
+              }
+              else {
+                $('#modalLoader').hide();
+                alert('No partners found for the selected group.');
+              }
+
+            });
+          } else {
+            alert('No partners found for the selected group.');
+          }
+          $('#modalLoader').hide();
+
+        },
+        error: function () {
+          alert('Failed to fetch partners. Please try again.');
+          $('#modalLoader').hide();
+
+        }
+      });
     }
   });
   $('#client_id_inUser').on('change', function () {
     let clientId = $(this).val();
     let role_id = $('#role_id').val();
-    if (role_id == 6) {
+    if (role_id == 5) {
       let clientGroupDropdown = $('#group_id');
       // $('#modalLoader').show();
 
@@ -373,11 +406,11 @@ $(document).ready(function () {
             clientGroupDropdown.prop('disabled', false);
             data.forEach(function (group) {
               clientGroupDropdown.append(`<option value="${group.id}">${group.name}</option>`);
+              // alert(group.name);
             });
+            $('.selectpicker').selectpicker('refresh'); // Refresh dropdown UI
             // $('#clientGroupLoader').hide();
             $('#modalLoader').hide();
-
-
           },
           error: function () {
             alert('Failed to fetch client groups. Please try again.');

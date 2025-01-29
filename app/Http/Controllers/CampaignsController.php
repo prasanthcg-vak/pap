@@ -776,15 +776,16 @@ class CampaignsController extends Controller
         return response()->json($clientGroups);
     }
 
-    public function getPartners($groupId)
+    public function getPartners($clientId)
     {
-        $partners = ClientGroupPartners::with([
-            'user' => function ($query) {
+        $partners = ClientPartner::with([
+            'partner' => function ($query) {
                 $query->where('is_active', 1); // Filter users with is_active = 1
             }
         ])
-            ->where('group_id', $groupId)
+            ->where('client_id', $clientId)
             ->get();
+            // dd($partners);
         return response()->json($partners);
     }
 
