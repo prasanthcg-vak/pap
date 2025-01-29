@@ -356,20 +356,21 @@ $(document).ready(function () {
         url: `/get-partners/${clientId}`, // Laravel route for partners
         type: 'GET',
         success: function (data) {
+          console.log('Response Data:', data);
           partnerDropdown.empty(); // Clear all existing options
           $('.selectpicker').selectpicker('refresh');
           partnerDropdown.prop('disabled', false);
           if (Array.isArray(data) && data.length > 0) {
             data.forEach(function (partner) {
-              console.log(partner.user);
+              console.log(partner.partner);
 
-              if (partner.user != null) {
-                partnerDropdown.append(`<option value="${partner.user.id}">${partner.user.name}</option>`);
+              if (partner.partner != null) {
+                partnerDropdown.append(`<option value="${partner.partner.id}">${partner.partner.name}</option>`);
                 $('.selectpicker').selectpicker('refresh');
               }
               else {
                 $('#modalLoader').hide();
-                alert('No partners found for the selected group.');
+                alert('No partners found for the selected group........');
               }
 
             });
@@ -426,53 +427,53 @@ $(document).ready(function () {
   });
 
   // When client group dropdown changes
-  $('#clientGroup').on('change', function () {
-    let groupId = $(this).val();
-    let partnerDropdown = $('#related_partner');
-    $('#modalLoader').show();
+  // $('#clientGroup').on('change', function () {
+  //   let groupId = $(this).val();
+  //   let partnerDropdown = $('#related_partner');
+  //   $('#modalLoader').show();
 
-    // Reset the partner dropdown
-    // partnerDropdown.empty().append('<option value="">-- Select Partner --</option>').prop('disabled', true);
+  //   // Reset the partner dropdown
+  //   // partnerDropdown.empty().append('<option value="">-- Select Partner --</option>').prop('disabled', true);
 
-    if (groupId != "") {
-      $.ajax({
-        url: `/get-partners/${groupId}`, // Laravel route for partners
-        type: 'GET',
-        success: function (data) {
-          partnerDropdown.empty(); // Clear all existing options
-          $('.selectpicker').selectpicker('refresh');
-          partnerDropdown.prop('disabled', false);
-          if (Array.isArray(data) && data.length > 0) {
-            data.forEach(function (partner) {
-              console.log(partner.user);
+  //   if (groupId != "") {
+  //     $.ajax({
+  //       url: `/get-partners/${groupId}`, // Laravel route for partners
+  //       type: 'GET',
+  //       success: function (data) {
+  //         partnerDropdown.empty(); // Clear all existing options
+  //         $('.selectpicker').selectpicker('refresh');
+  //         partnerDropdown.prop('disabled', false);
+  //         if (Array.isArray(data) && data.length > 0) {
+  //           data.forEach(function (partner) {
+  //             console.log(partner.user);
 
-              if (partner.user != null) {
-                partnerDropdown.append(`<option value="${partner.user.id}">${partner.user.name}</option>`);
-                $('.selectpicker').selectpicker('refresh');
-              }
-              else {
-                $('#modalLoader').hide();
-                alert('No partners found for the selected group.');
-              }
+  //             if (partner.user != null) {
+  //               partnerDropdown.append(`<option value="${partner.user.id}">${partner.user.name}</option>`);
+  //               $('.selectpicker').selectpicker('refresh');
+  //             }
+  //             else {
+  //               $('#modalLoader').hide();
+  //               alert('No partners found for the selected group.');
+  //             }
 
-            });
-          } else {
-            alert('No partners found for the selected group.');
-          }
-          $('#modalLoader').hide();
+  //           });
+  //         } else {
+  //           alert('No partners found for the selected group.');
+  //         }
+  //         $('#modalLoader').hide();
 
-        },
-        error: function () {
-          alert('Failed to fetch partners. Please try again.');
-          $('#modalLoader').hide();
+  //       },
+  //       error: function () {
+  //         alert('Failed to fetch partners. Please try again.');
+  //         $('#modalLoader').hide();
 
-        }
-      });
-    }
-    else {
-      $('#modalLoader').hide();
-    }
-  });
+  //       }
+  //     });
+  //   }
+  //   else {
+  //     $('#modalLoader').hide();
+  //   }
+  // });
 });
 $(document).ready(function () {
   $('.read-more').on('click', function () {
