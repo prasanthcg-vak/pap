@@ -7,6 +7,9 @@
             <div class="profile-content add-a-partner">
                 <div class="profile-header">
                     <h3>Edit Partner</h3>
+                    <a href="{{ url()->previous() }}" class="btn btn-secondary ms-4" style="float: right;">
+                        <i class="fa fa-arrow-left"></i>
+                    </a>
                 </div>
                 <div class="row">
                     <div class="col-md-6">
@@ -60,7 +63,7 @@
                                 </div>
                             </div>
 
-                            <div class="profile-con">
+                            {{-- <div class="profile-con">
                                 <div class="row">
                                     <div class="col-sm-4">
                                         <p class="profile-label">Client Group:</p>
@@ -79,7 +82,7 @@
                                         @enderror
                                     </div>
                                 </div>
-                            </div>
+                            </div> --}}
                             <div class="profile-con add-partner-status">
                                 <div class="row">
                                     <div class="col-sm-4">

@@ -8,7 +8,11 @@
                 <div class="profile-content add-a-partner">
                     <div class="profile-header">
                         <h3>ADD A PARTNER</h3>
+                        <a href="{{ url()->previous() }}" class="btn btn-secondary ms-4" style="float: right;">
+                            <i class="fa fa-arrow-left"></i>
+                        </a>
                     </div>
+                    
                     @if ($errors->any())
                         <div class="alert alert-danger">
                             <ul>
@@ -69,7 +73,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="profile-con">
+                                {{-- <div class="profile-con">
                                     <div class="row">
                                         <div class="col-sm-4">
                                             <p class="profile-label">Client Group:</p>
@@ -87,7 +91,7 @@
                                             @enderror
                                         </div>
                                     </div>
-                                </div>
+                                </div> --}}
                                 <!-- Status -->
                                 <div class="profile-con add-partner-status">
                                     <div class="row">
