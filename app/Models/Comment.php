@@ -15,7 +15,7 @@ class Comment extends Model
     // Relationship to get task
     public function task()
     {
-        return $this->belongsTo(Tasks::class);
+        return $this->belongsTo(Tasks::class,'task_id');
     }
 
     // Relationship to get replies
