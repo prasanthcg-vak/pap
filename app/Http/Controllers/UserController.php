@@ -28,21 +28,18 @@ class UserController extends Controller
 {
     public function index()
     {
-        $users = User::with('roles', 'group', 'client')
+        $users = User::with('roles', 'group', 'client','clientuser_group.group')
             ->whereDoesntHave('roles', function ($query) {
                 $query->whereIn('role_level', [1, 4]);
             })
             ->get();
-        // $data = User::with('roles')->get();
-        // dd($users);
+            // dd($users);
         return view('users.index', compact('users'));
     }
 
 
     public function store(Request $request)
     {
-        // dd($request->all());
-
         // Validate the incoming data
         $request->validate([
             'name' => 'required|string|max:255',

@@ -475,7 +475,7 @@ class TasksController extends Controller
     public function getPartnersByCampaign($campaignId)
     {
         // Retrieve the campaign with the client and partners
-        $campaign = Campaigns::with('client')->find($campaignId);
+        $campaign = Campaigns::with(['client','group'])->find($campaignId);
 
         if (!$campaign) {
             return response()->json(['message' => 'Campaign not found'], 404);
@@ -498,6 +498,7 @@ class TasksController extends Controller
             ->get();
 
         return response()->json([
+            'group' => $campaign->group,
             'client' => $campaign->client,
             'partners' => $partners,
         ]);
