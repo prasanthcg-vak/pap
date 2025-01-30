@@ -56,8 +56,13 @@
                                         @endforeach
                                     </td>
                                     <td>{{ $user->client ? $user->client->name : '-' }}</td>
-                                    <td>{{ $user->group ? $user->group->name : '-' }}</td>
-
+                                    <td>
+                                        @if ($user->clientuser_group && $user->clientuser_group->isNotEmpty())
+                                            {{ $user->clientuser_group->pluck('group.name')->implode(', ') }}
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
                                     <td>
                                         <span>
                                             <p class="status {{ $user->is_active ? 'green' : 'red' }}">

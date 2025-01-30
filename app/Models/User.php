@@ -95,6 +95,11 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->belongsTo(ClientGroup::class, 'group_id');
     }
+    public function clientuser_group()
+    {
+        return $this->hasMany(GroupClientUsers::class, 'clientuser_id', 'id');
+    }
+
     public function client()
     {
         return $this->belongsTo(Client::class, 'client_id');

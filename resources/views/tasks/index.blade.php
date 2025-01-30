@@ -234,19 +234,16 @@
                                         readonly>
                                 </div>
                             @endif
-
-                            <!-- Partner Dropdown -->
-                            @if (Auth::user()->roles->first()->role_level == 6)
-                                <input type="hidden" name="partner_id" value="{{ Auth::id() }}">
-                            @else
-                                <div class="col-xl-4 col-md-6 mt-md-0 mt-4">
-                                    <label for="partner-select">Select Campaign Partners</label>
-                                    <select class="form-select" id="partner-select" name="partner_id" required
-                                        aria-label="Default select example">
-                                        <option value="" selected>Select Partner</option>
-                                    </select>
+                            @if (Auth::user()->roles->first()->role_level != 5 && Auth::user()->roles->first()->role_level != 4)
+                                <div class="col-xl-4 col-md-6">
+                                    <label for="group-name">Group Name</label>
+                                    <input type="text" id="group-name" name="group_name" class="form-control"
+                                        readonly>
                                 </div>
                             @endif
+
+                            <!-- Partner Dropdown -->
+
 
                         </div>
 
@@ -275,6 +272,17 @@
                                 </div>
 
                             </div>
+                            @if (Auth::user()->roles->first()->role_level == 6)
+                                <input type="hidden" name="partner_id" value="{{ Auth::id() }}">
+                            @else
+                                <div class="col-xl-4 col-md-6 mt-md-0 mt-4">
+                                    <label for="partner-select">Select Campaign Partners</label>
+                                    <select class="form-select" id="partner-select" name="partner_id" required
+                                        aria-label="Default select example">
+                                        <option value="" selected>Select Partner</option>
+                                    </select>
+                                </div>
+                            @endif
                         </div>
                         <div class="row m-0">
                             <div class="col-lg-6 col-xl-4 mb-4 mb-lg-0">
@@ -507,6 +515,7 @@
             const campaignDropdown = document.getElementById('campaign-select');
             const partnerDropdown = document.getElementById('partner-select');
             const clientName = document.getElementById('client-name'); // The readonly field for client name
+            const groupName = document.getElementById('group-name'); // The readonly field for group name
 
             // Handle Campaign Selection
             campaignDropdown.addEventListener('change', function() {
@@ -514,6 +523,9 @@
                 const campaignId = this.value;
                 if (clientName) {
                     clientName.value = '';
+                }
+                if (groupName) {
+                    groupName.value = '';
                 }
 
                 if (campaignId) {
@@ -526,6 +538,9 @@
                             // Populate Client Name
                             if (clientName) {
                                 clientName.value = data.client?.name || 'No Client';
+                            }
+                            if (groupName) {
+                                groupName.value = data.group?.name || 'No Group';
                             }
                             // Populate Partner Dropdown
                             if (partnerDropdown) {
