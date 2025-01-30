@@ -221,8 +221,8 @@
                             <div class="col-lg-12" id="group-section"
                                 style="display: {{ isset($data) && $data->role_id == 6 ? 'block' : 'none' }};">
                                 <label for="group_id" class="form-label">Select Client Group</label>
-                                <select name="group_id[]" id="group_id" class="selectpicker form-control" 
-                                    multiple aria-label="size 1 select example" data-selected-text-format="count > 5"
+                                <select name="group_id[]" id="group_id" class="selectpicker form-control" multiple
+                                    aria-label="size 1 select example" data-selected-text-format="count > 5"
                                     data-live-search="true">
                                     <option value="" disabled selected>Select Client Group</option>
                                 </select>
@@ -422,24 +422,30 @@
             const clientSection = $('#client-section');
             if (user.roles[0].id == 4 || user.roles[0].id == 5 || user.roles[0].id == 6) {
                 clientSection.show(); // Show Client section
-                if (user.roles[0].id == 6) {
+                if (user.roles[0].id == 5) {
                     groupSection.show(); // Show Group section
                     $('#modalLoader').show();
                     // Populate group dropdown
                     const groupDropdown = $('#group_id');
                     groupDropdown.empty().append('<option value="">-- Select Client Group --</option>'); // Reset options
+                    
                     $.ajax({
-                        url: `/get-client-groups/${user.client_id}`, // Fetch groups based on client_id
+                        url: `/get-clientuser-groups/${user.id}`, // Fetch groups based on client_id
                         type: 'GET',
                         success: function(data) {
-                            groupDropdown.empty().append(
-                            '<option value="">-- Select Client Group --</option>'); // Reset options
+
                             // Populate group dropdown with fetched data
                             data.forEach(function(group) {
-                                groupDropdown.append(
-                                    `<option value="${group.id}" ${group.id == user.group_id ? 'selected' : ''}>${group.name}</option>`
-                                );
+                                let existingOption = groupDropdown.find(
+                                    `option[value="${group.group_id}"]`);
+                                // alert(existingOption);
+                                
+                                if (existingOption.length) {
+                                    existingOption.prop('selected', true);
+                                }
+
                             });
+                            $('.selectpicker').selectpicker('refresh');
                             groupDropdown.prop('disabled', false); // Enable the dropdown
                             $('#modalLoader').hide();
                         },

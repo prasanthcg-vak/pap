@@ -775,6 +775,7 @@ class CampaignsController extends Controller
         $clientGroups = ClientGroup::where('client_id', $clientId)->get();
         return response()->json($clientGroups);
     }
+    
 
     public function getPartners($clientId)
     {
