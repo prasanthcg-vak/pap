@@ -171,6 +171,7 @@ Route::middleware(['web', 'auth'])->group(function () {
     Route::delete('/images', [ImageController::class, 'destroy'])->name('images.delete');
 
     Route::get('/get-client-groups/{clientId}', [CampaignsController::class, 'getClientGroups']);
+    Route::get('/get-clientuser-groups/{clientId}', [UserController::class, 'getClientuserGroups']);
     Route::get('/get-partners/{groupId}', [CampaignsController::class, 'getPartners']);
     Route::get('/get-partners-by-campaign/{campaignId}', [TasksController::class, 'getPartnersByCampaign']);
     Route::get('/pdf/{filename}', [CampaignsController::class, 'showPdf'])->name('show-pdf');

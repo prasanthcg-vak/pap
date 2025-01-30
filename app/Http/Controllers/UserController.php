@@ -145,7 +145,7 @@ class UserController extends Controller
                 'name' => $request->name,
                 'email' => $request->email,
                 'client_id' => (int) $request->client_id,
-                'group_id' => (int) $request->group_id,
+                // 'group_id' => (int) $request->group_id,
                 'is_active' => $request->has('is_active') ? 1 : 0,
             ];
 
@@ -174,19 +174,44 @@ class UserController extends Controller
                     ClientPartner::where('partner_id', $user->id)->delete();
                 }
             }
-
-            // Handle group association for role 6
-            if ($request->role_id == 6) {
-                ClientGroupPartners::updateOrCreate(
-                    ['user_id' => $user->id],
-                    ['group_id' => $request->group_id]
-                );
-            } else {
-                // If not role 6, remove ClientGroup entry
-                if (ClientGroupPartners::where('user_id', $user->id)->exists()) {
-                    ClientGroupPartners::where('user_id', $user->id)->delete();
+            if ($request->role_id == 5) {
+                // Get the existing group IDs for this user
+                $existingGroupIds = GroupClientUsers::where('clientuser_id', $user->id)
+                    ->pluck('group_id')
+                    ->toArray();
+            
+                // Ensure `$request->group_id` is always an array
+                $newGroupIds = is_array($request->group_id) ? $request->group_id : [];
+            
+                // Find groups to delete (existing but not in new request)
+                $groupsToDelete = array_diff($existingGroupIds, $newGroupIds);
+                GroupClientUsers::where('clientuser_id', $user->id)
+                    ->whereIn('group_id', $groupsToDelete)
+                    ->delete();
+            
+                // Find groups to add (in new request but not in existing)
+                $groupsToAdd = array_diff($newGroupIds, $existingGroupIds);
+                foreach ($groupsToAdd as $groupId) {
+                    GroupClientUsers::create([
+                        'clientuser_id' => $user->id,
+                        'group_id' => $groupId
+                    ]);
                 }
             }
+            
+            
+            // Handle group association for role 6
+            // if ($request->role_id == 6) {
+            //     ClientGroupPartners::updateOrCreate(
+            //         ['user_id' => $user->id],
+            //         ['group_id' => $request->group_id]
+            //     );
+            // } else {
+            //     // If not role 6, remove ClientGroup entry
+            //     if (ClientGroupPartners::where('user_id', $user->id)->exists()) {
+            //         ClientGroupPartners::where('user_id', $user->id)->delete();
+            //     }
+            // }
 
             return response()->json(['success' => 'User updated successfully']);
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -574,7 +599,12 @@ class UserController extends Controller
 
         return back()->with('success', 'User has been unblocked successfully.');
     }
-
+    public function getClientuserGroups($userId)
+    {
+        $clientuserGroups = GroupClientUsers::where('clientuser_id', $userId)->get();
+        // dd($clientuserGroups);
+        return response()->json($clientuserGroups);
+    }
 
 
 }
