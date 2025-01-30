@@ -8,6 +8,7 @@ use App\Models\Campaigns;
 use App\Models\Category;
 use App\Models\ClientPartner;
 use App\Models\Image;
+use App\Models\comment;
 use App\Models\Tasks;
 use Aws\S3\S3Client;
 use Exception;
@@ -73,9 +74,11 @@ class TasksController extends Controller
                 ->where('partner_id', $authId)
                 ->get();
         }
+        $comments = comment::with('replies')->where('main_comment', 1)->get();
+        // dd($comments);
         // dd($tasks);
 
-        return view('tasks.index', compact('tasks', 'campaigns', 'categories', 'assets', 'partners'));
+        return view('tasks.index', compact('tasks', 'campaigns', 'categories', 'assets', 'partners','comments'));
     }
 
 
@@ -225,38 +228,38 @@ class TasksController extends Controller
      * Show the form for editing the specified resource.
      */
     public function edit(Tasks $task)
-{
-    if (request()->ajax()) {
-        $partners = CampaignPartner::with([
-            'partner' => function ($query) {
-                $query->select('id', 'name', 'is_active'); // Fetch only required fields
-            },
-        ])
-        ->where('campaigns_id', $task->campaign_id)
-        ->whereHas('partner', function ($query) {
-            $query->where('is_active', 1); // Filter active partners
-        })
-        ->get()
-        ->pluck('partner'); // Extract the partner details
+    {
+        if (request()->ajax()) {
+            $partners = CampaignPartner::with([
+                'partner' => function ($query) {
+                    $query->select('id', 'name', 'is_active'); // Fetch only required fields
+                },
+            ])
+                ->where('campaigns_id', $task->campaign_id)
+                ->whereHas('partner', function ($query) {
+                    $query->where('is_active', 1); // Filter active partners
+                })
+                ->get()
+                ->pluck('partner'); // Extract the partner details
 
-        $clientName = $partners->isNotEmpty() && $partners->first()->campaign && $partners->first()->campaign->client
-            ? $partners->first()->campaign->client->name
-            : 'No client';
+            $clientName = $partners->isNotEmpty() && $partners->first()->campaign && $partners->first()->campaign->client
+                ? $partners->first()->campaign->client->name
+                : 'No client';
 
-        return response()->json([
-            'task' => $task,
-            'partners' => $partners, // Return the partners list
-            'client_name' => $clientName,
-            'campaigns' => Campaigns::all(),
-            'categories' => Category::where('is_active', 1)->get(),
-        ]);
+            return response()->json([
+                'task' => $task,
+                'partners' => $partners, // Return the partners list
+                'client_name' => $clientName,
+                'campaigns' => Campaigns::all(),
+                'categories' => Category::where('is_active', 1)->get(),
+            ]);
+        }
+
+        // For non-AJAX requests, return the normal view
+        $campaigns = Campaigns::all();
+        $categories = Category::where('is_active', 1)->get();
+        return view('tasks.edit', compact('task', 'campaigns', 'categories'));
     }
-
-    // For non-AJAX requests, return the normal view
-    $campaigns = Campaigns::all();
-    $categories = Category::where('is_active', 1)->get();
-    return view('tasks.edit', compact('task', 'campaigns', 'categories'));
-}
 
 
 
@@ -475,7 +478,7 @@ class TasksController extends Controller
     public function getPartnersByCampaign($campaignId)
     {
         // Retrieve the campaign with the client and partners
-        $campaign = Campaigns::with(['client','group'])->find($campaignId);
+        $campaign = Campaigns::with(['client', 'group'])->find($campaignId);
 
         if (!$campaign) {
             return response()->json(['message' => 'Campaign not found'], 404);

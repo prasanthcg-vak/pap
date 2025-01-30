@@ -49,6 +49,10 @@ class Tasks extends Model
     {
         return $this->belongsTo(Image::class, 'image_id');
     }
+    public function task_comments()
+{
+    return $this->hasMany(Comment::class, 'task_id');
+}
 
     public function category()
     {

@@ -18,6 +18,17 @@
         .status span {
             color: red;
         }
+
+        .text-success {
+            color: white !important;
+            background: green;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .text-danger {
+            color: red;
+        }
     </style>
 
     @php
@@ -91,6 +102,9 @@
                                     <span>Assets</span>
                                 </th>
                                 <th class="">
+                                    <span>Comments</span>
+                                </th>
+                                <th class="">
                                     <span>Status</span>
                                 </th>
                                 @if ($hasActionPermission)
@@ -151,6 +165,19 @@
                                         </td>
                                     @endif
                                     <td>{{ $task->image_id ? '1' : '0' }}</td>
+                                    @php
+                                        $totalComments = $task->comments->count();
+                                        $hasUnrepliedComment = $task->comments->contains(function ($comment) {
+                                            return $comment->replies->isEmpty();
+                                        });
+                                    @endphp
+
+                                    <td>
+                                        <span class="{{ $hasUnrepliedComment ? 'text-success' : '' }}">
+                                            {{ $totalComments }}</span>
+
+                                    </td>
+                                    
                                     <td class="">
                                         <span
                                             class="status {{ $task->is_active == 1 ? 'green' : 'red' }}">{{ $task->is_active == 1 ? 'ACTIVE' : 'INACTIVE' }}</span>
@@ -270,7 +297,6 @@
                                     </div>
 
                                 </div>
-
                             </div>
                             @if (Auth::user()->roles->first()->role_level == 6)
                                 <input type="hidden" name="partner_id" value="{{ Auth::id() }}">

@@ -40,6 +40,7 @@ class CommentController extends Controller
         $comment = Comment::create([
             'tasks_id' => $request->task_id,
             'parent_id' => $request->parent_id,
+            'main_comment' => 1,
             'created_by' => auth()->id(), // This can be null for main comments
             'content' => $request->contents,
         ]);
