@@ -30,6 +30,8 @@ class TasksController extends Controller
         $role_level = Auth::user()->roles->first()->role_level;
         $client_id = Auth::user()->client_id;
         $group_id = Auth::user()->group_id;
+
+        // Fetch campaigns based on role
         if ($role_level < 4) {
             $campaigns = Campaigns::all(); // Get all campaigns for the dropdown
         } elseif ($role_level == 6) {
@@ -40,45 +42,44 @@ class TasksController extends Controller
             $campaigns = Campaigns::all()->where('client_id', $client_id);
         }
 
-
-
-
         $categories = Category::where('is_active', 1)->get();
         $assets = AssetType::where('is_active', 1)->get();
         $partners = ClientPartner::with(['client', 'partner'])
             ->where('client_id', $authId)
             ->get();
-        // dd($asset);
-        // $tasks = Tasks::with(['campaign', 'status'])->where('is_active', 1)->get();
+
+        // Fetch tasks based on role
+        $tasksQuery = Tasks::with([
+            'campaign.group',  // Load the group related to the campaign
+            'campaign.client', // Load the client related to the campaign
+            'status'           // Load the status if it's a relation
+        ]);
+
         if ($role_level < 4) {
-            $tasks = Tasks::with([
-                'campaign.group',  // Load the group related to the campaign
-                'campaign.client', // Load the client related to the campaign
-                'status'           // Load the status if it's a relation
-            ])->get();
+            // Super Admin sees all tasks, including those marked for deletion
+            $tasks = $tasksQuery->get();
         } elseif ($role_level == 4) {
-            $tasks = Tasks::with(['campaign.group', 'campaign.client', 'status'])
-                ->whereHas('campaign', function ($query) use ($client_id) {
-                    $query->where('client_id', $client_id);
-                })
-                ->get();
+            // Client Admin sees tasks for their client, excluding those marked for deletion
+            $tasks = $tasksQuery->whereHas('campaign', function ($query) use ($client_id) {
+                $query->where('client_id', $client_id);
+            })->where('marked_for_deletion', false)
+            ->get();
         } elseif ($role_level == 5) {
-            $tasks = Tasks::with(['campaign.group', 'campaign.client', 'status'])
-                ->whereHas('campaign', function ($query) use ($client_id, $group_id) {
-                    $query->where('client_id', $client_id);
-                    // ->where('client_group_id', $group_id);
-                })
-                ->get();
+            // Group Admin sees tasks for their group, excluding those marked for deletion
+            $tasks = $tasksQuery->whereHas('campaign', function ($query) use ($client_id, $group_id) {
+                $query->where('client_id', $client_id);
+            })->where('marked_for_deletion', false)
+            ->get();
         } elseif ($role_level == 6) {
-            $tasks = Tasks::with(['campaign.group', 'campaign.client', 'status', 'campaign.partner'])
-                ->where('partner_id', $authId)
+            // Partner sees tasks assigned to them, excluding those marked for deletion
+            $tasks = $tasksQuery->where('partner_id', $authId)
+                ->where('marked_for_deletion', false)
                 ->get();
         }
-        $comments = comment::with('replies')->where('main_comment', 1)->get();
-        // dd($comments);
-        // dd($tasks);
 
-        return view('tasks.index', compact('tasks', 'campaigns', 'categories', 'assets', 'partners','comments'));
+        $comments = comment::with('replies')->where('main_comment', 1)->get();
+
+        return view('tasks.index', compact('tasks', 'campaigns', 'categories', 'assets', 'partners', 'comments'));
     }
 
 
@@ -467,14 +468,25 @@ class TasksController extends Controller
     public function destroy($id)
     {
 
-        $task = Tasks::find($id);
-        // dd($task);
-        $task->is_active = 0;
-        $task->update();
-        // $tasks->delete();
-        return redirect()->route('tasks.index')->with('success', 'Task soft deleted successfully!');
+        $task = Tasks::findOrFail($id);
+        $role_level = Auth::user()->roles->first()->role_level;
 
+        if ($role_level == 1) {
+            // Super Admin can permanently delete the task
+            $task->forceDelete();
+            return redirect()->back()->with('success', 'Task permanently deleted.');
+        } else {
+            // Non-Super Admin users mark the task for deletion
+            $task->update([
+                'marked_for_deletion' => true,
+                'deleted_by' => Auth::id(),
+            ]);
+            return redirect()->back()->with('success', 'Task marked for deletion.');
+        }
+        // return redirect()->route('tasks.index')->with('success', 'Task soft deleted successfully!');
     }
+
+
     public function getPartnersByCampaign($campaignId)
     {
         // Retrieve the campaign with the client and partners
