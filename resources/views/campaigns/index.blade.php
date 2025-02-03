@@ -95,7 +95,7 @@
                         <tbody>
                             @foreach ($campaigns as $campaign)
                                 <tr>
-                                    
+
 
                                     <td class="">
                                         <span>{{ $campaign->name }}</span>
@@ -155,8 +155,8 @@
                                     </td>
                                     <td>
                                         <span>
-                                            <p class="status {{ $campaign->is_active ? 'green' : 'red' }}">
-                                                {{ $campaign->is_active ? 'Active' : 'Inactive' }}</p>
+                                            <p class="status {{ $campaign->status && $campaign->status->name === 'ACTIVE' ? 'green' : 'red' }}">
+                                                {{ $campaign->status ? $campaign->status->name : 'Unknown' }}</p>
                                         </span>
                                     </td>
                                     @if ($showButton || $editButton || $deleteButton)
@@ -251,12 +251,12 @@
                             </div>
                             <div class="col-xl-4 mb-3 " id="select-status">
                                 <label for="status">Status</label>
-                                <select name="status" class="status form-control">
-                                    <option value="1" selected>ACTIVE</option>
-                                    <option value="2">INACTIVE</option>
-                                    <option value="3">CANCELLED</option>
-                                    <option value="4">COMPLETED</option>
-                                    <option value="5">ARCHIVED</option>
+                                <select name="status_id" id="status_id" class="status form-control">
+                                    <option value="1" id="active" selected>ACTIVE</option>
+                                    <option value="2" id="inactive">INACTIVE</option>
+                                    <option value="3" id="cancelled">CANCELLED</option>
+                                    <option value="4" id="completed">COMPLETED</option>
+                                    <option value="5" class="archived" id="archived">ARCHIVED</option>
                                 </select>
                             </div>
                         </div>
@@ -311,6 +311,22 @@
 
                         </div>
                         <div class="row m-0">
+                            <!-- Staff Multi-Select Dropdown -->
+                            <div class="col-xl-4 mb-3">
+                                <label for="related_partner" class="form-label">Select Staff</label>
+                                <div class="multiselect_dropdown">
+                                    <select name="staff[]" class="selectpicker" id="staff" multiple
+                                        aria-label="size 1 select example" data-selected-text-format="count > 5"
+                                        data-live-search="true">
+                                        <option value="" disabled>Select Staff</option>
+                                        @foreach ($staffs as $staff)
+                                            <option value="{{ $staff->id }}">{{ $staff->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row m-0">
                             <div class="col-md-12 mb-3">
                                 <label for="description">Campaign Brief</label>
                                 <textarea name="description" id="editor" class="form-control" rows="3"
@@ -326,7 +342,7 @@
                                         </div>
                                         <div class="col-sm-8">
                                             <div>
-                                                <input type="checkbox" id="active" name="active" value="active">
+                                                <input type="checkbox" id="isactive" name="active" value="active">
                                                 <label for="active">Active</label><br>
                                             </div>
                                         </div>
@@ -378,7 +394,8 @@
                                                         <span style="font-size:14px;"><img
                                                                 src="assets/images/fi_upload-cloud.svg" alt="">
                                                             Upload Asset</span>
-                                                        <span style="font-size:10px;">(JEPG, PNG, JPG, MP4, PDF, JFIF).</span>
+                                                        <span style="font-size:10px;">(JEPG, PNG, JPG, MP4, PDF,
+                                                            JFIF).</span>
                                                     </div>
                                                 </div>
                                                 <input type="file" name="additional_images[]" class="drop-zone__input"
@@ -562,6 +579,7 @@
                 clientGroups,
                 groupPartners,
                 images,
+                staff, // Staff data added
             } = campaignData;
             const partners = campaign.partner;
 
@@ -573,7 +591,30 @@
             // Populate form fields
             $('#campaign_name').val(campaign.name);
             $('#datepicker').val(campaign.due_date.split(' ')[0]); // Extract date (YYYY-MM-DD)
+            if (campaign.status_id == 3) {
+                document.getElementById('archived').style.display = 'block';
+                document.getElementById('cancelled').style.display = 'block';
+                document.getElementById('active').style.display = 'none';
+                document.getElementById('inactive').style.display = 'none';
+                document.getElementById('completed').style.display = 'none';
 
+            }
+            if (campaign.status_id == 4) {
+                document.getElementById('archived').style.display = 'block';
+                document.getElementById('completed').style.display = 'block';
+                document.getElementById('active').style.display = 'none';
+                document.getElementById('inactive').style.display = 'none';
+                document.getElementById('cancelled').style.display = 'none';
+
+            }
+            if (campaign.status_id == 5) {
+                document.getElementById('archived').style.display = 'block';
+                document.getElementById('completed').style.display = 'none';
+                document.getElementById('active').style.display = 'none';
+                document.getElementById('inactive').style.display = 'none';
+                document.getElementById('cancelled').style.display = 'none';
+
+            }
             // Handle active checkbox
             const isActive = campaign.is_active === 1;
             $('#active').prop('checked', isActive);
@@ -582,6 +623,8 @@
 
             // Set client dropdown value
             $('#client').val(campaign.client_id);
+            $('#status_id').val(campaign.status_id);
+
 
             // Populate client group dropdown
             const $groupDropdown = $('#clientGroup').empty().append(
@@ -621,6 +664,17 @@
             }
             $('.selectpicker').selectpicker('refresh');
 
+            // ========================== Add Staff Selection ========================== //
+            const $staffDropdown = $('#staff'); // Clear staff dropdown
+
+
+            // Set selected staff
+            if (Array.isArray(campaign.staff) && campaign.staff.length > 0) {
+                const selectedStaffIds = campaign.staff.map(st => st.staff_id);
+                $staffDropdown.val(selectedStaffIds);
+            }
+            $('.selectpicker').selectpicker('refresh');
+
             // Set campaign description in CKEditor
             if (window.editor) {
                 window.editor.setData(campaign.description);
@@ -632,28 +686,44 @@
 
             if (Array.isArray(images) && images.length > 0) {
                 images.forEach(asset => {
-                    const thumbnailUrl = asset.thumbnail ?
-                        `${asset.thumbnail}` :
-                        `${asset.image}`;
+                    const thumbnailUrl = asset.thumbnail ? `${asset.thumbnail}` : `${asset.image}`;
 
                     $existingImageDiv.append(`
-                    <div class="col-md-3 col-image" >
-                        <div class="card existing-image-card">
-                            <button type="button" class="btn btn-danger btn-sm mt-2 remove-asset existing-remove-btn" data-id="${asset.id}">X</button>
-                            <div class="drop-zone__thumb" data-label="${asset.file_name}" style="background-image: url(${thumbnailUrl});">
-                            </div>
+                <div class="col-md-3 col-image">
+                    <div class="card existing-image-card">
+                        <button type="button" class="btn btn-danger btn-sm mt-2 remove-asset existing-remove-btn" data-id="${asset.id}">X</button>
+                        <div class="drop-zone__thumb" data-label="${asset.file_name}" style="background-image: url(${thumbnailUrl});">
                         </div>
                     </div>
-                `);
+                </div>
+            `);
                 });
             }
             $existingImageDiv.toggleClass("d-none", campaign.images.length === 0); // Hide if no images
 
             // Display the modal and remove loading indicator
+            // Check if status_id is 3
+            // Check if status_id is 3
+            // Check if status_id is 3
+            if (campaign.status_id == 3 || campaign.status_id == 4 || campaign.status_id == 5) {
+                $('#campaignForm :input').not('#status_id, .create-task, #campaignMethod,[name="_token"],#isactive').prop(
+                    'disabled',
+                    true); // Disable all except status_id & Save button
+
+                $('.selectpicker').selectpicker('refresh'); // Refresh dropdowns
+                if (window.editor) {
+                    window.editor.disableReadOnlyMode('readonlyMode');
+                }
+
+            } else {
+                $('#campaignForm :input').prop('disabled', false); // Enable all fields
+                $('.selectpicker').selectpicker('refresh');
+                document.getElementById('archived').style.display = 'none';
+            }
+
             $('#createcampaign').modal('show');
             $('body').removeClass('loading');
         }
-
 
         $(document).on("click", ".existing-remove-btn", function(e) {
             e.preventDefault();

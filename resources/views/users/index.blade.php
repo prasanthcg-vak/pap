@@ -199,6 +199,15 @@
                                 @enderror
                             </div>
 
+                            <!-- Hidden Checkbox (Default Staff) -->
+                            <div id="staffCheckboxContainer" class="col-lg-12 mt-3" style="display: none;">
+                                <input type="checkbox" id="defaultStaff" name="default_staff" value="1">
+                                <label for="defaultStaff">Default Staff</label>
+                            </div>
+
+
+
+
                             <!-- Group Field -->
                             <div class="col-lg-12" id="client-section"
                                 style="display: {{ isset($data) && ($data->role_id == 4 || $data->role_id == 5 || $data->role_id == 6) ? 'block' : 'none' }} none;">
@@ -339,7 +348,22 @@
 
         }
 
+        function toggleGroupSection() {
+            var roleSelect = document.getElementById("role_id");
+            var staffCheckboxContainer = document.getElementById("staffCheckboxContainer");
 
+            // Show checkbox only when Role ID 3 is selected
+            if (roleSelect.value == "3") {
+                staffCheckboxContainer.style.display = "block";
+            } else {
+                staffCheckboxContainer.style.display = "none";
+            }
+        }
+
+        // Run on page load to handle preselected values
+        document.addEventListener("DOMContentLoaded", function() {
+            toggleGroupSection();
+        });
         $('#userForm').off('submit').on('submit', function(e) {
             e.preventDefault();
 
@@ -406,6 +430,13 @@
             $('#email').val(user.email);
             $('#is_active').prop('checked', user.is_active); // Check/uncheck based on value
             $('#userModalLabel').text('Edit User'); // Set modal title to "Edit User"
+            console.log(user);
+            
+            if (user.default_staff) {
+                $('#defaultStaff').prop('checked', true);
+            } else {
+                $('#defaultStaff').prop('checked', false);
+            }
 
             // Populate the role dropdown
             if (user.roles && user.roles.length > 0) {
@@ -428,7 +459,7 @@
                     // Populate group dropdown
                     const groupDropdown = $('#group_id');
                     groupDropdown.empty().append('<option value="">-- Select Client Group --</option>'); // Reset options
-                    
+
                     $.ajax({
                         url: `/get-clientuser-groups/${user.id}`, // Fetch groups based on client_id
                         type: 'GET',
@@ -439,7 +470,7 @@
                                 let existingOption = groupDropdown.find(
                                     `option[value="${group.group_id}"]`);
                                 // alert(existingOption);
-                                
+
                                 if (existingOption.length) {
                                     existingOption.prop('selected', true);
                                 }

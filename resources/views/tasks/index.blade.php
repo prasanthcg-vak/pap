@@ -20,10 +20,11 @@
         }
 
         .text-success {
-            color: white !important;
-            background: green;
-            padding: 10px;
-            border-radius: 5px;
+            color: green !important;
+            font-weight: 1000;
+            /* background: green; */
+            /* padding: 10px; */
+            /* border-radius: 5px; */
         }
 
         .text-danger {
@@ -177,7 +178,7 @@
                                             {{ $totalComments }}</span>
 
                                     </td>
-                                    
+
                                     <td class="">
                                         <span
                                             class="status {{ $task->is_active == 1 ? 'green' : 'red' }}">{{ $task->is_active == 1 ? 'ACTIVE' : 'INACTIVE' }}</span>
@@ -227,7 +228,7 @@
         <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5">Create Task
+                    <h1 class="modal-title fs-5" id="Create_edit_model">Create Task
                     </h1>
                     {{-- <p class="status green">Active</p> --}}
                     <span class="btn-close" id="model-close" data-dismiss="modal" aria-label="Close"></span>
@@ -333,6 +334,17 @@
                                         </option>
                                     @endforeach
                                 </select>
+                            </div>
+                            <div class="col-xl-4 mb-3">
+                                <label for="related_partner" class="form-label">Select Staff</label>
+                                <div class="multiselect_dropdown">
+                                    <select name="staff[]" class="selectpicker" id="staff" multiple
+                                        aria-label="size 1 select example" data-selected-text-format="count > 5"
+                                        data-live-search="true">
+                                        <option value="" disabled>Select Staff</option>
+
+                                    </select>
+                                </div>
                             </div>
                         </div>
                         <div class="row m-0">
@@ -460,6 +472,7 @@
 
         function openModal() {
             const modal = $('#createTask');
+            $('#Create_edit_model').text('Create Task');
 
             // Reset form
             modal.find('#Model-Form')[0].reset();
@@ -471,15 +484,17 @@
         $(document).on('click', '.edit-task-btn', function() {
             const taskId = $(this).data('id');
             const modal = $('#createTask');
+            $('#Create_edit_model').text('Edit Task');
             modal.modal('show');
 
 
             $('#modalLoader').show(); // Show loader
 
             $.ajax({
-                url: `/tasks/${taskId}/edit`, // Replace with your route
+                url: `/tasks/${taskId}/list_edit`, // Replace with your route
                 method: 'GET',
                 success: function(response) {
+                    console.log(response);
                     const form = modal.find('#Model-Form');
                     form.attr('action', `/tasks/${taskId}`); // Update action to tasks.update route
                     modal.find('#method-field').val('PUT');
@@ -500,7 +515,7 @@
                     // Populate the modal with data
                     modal.find('#campaign-select').val(response.task.campaign_id);
                     modal.find('#client-name').val(response.client_name); // Client name
-                    modal.find('#partner-select').val(response.task.partner_id);
+                    // modal.find('#partner-select').val(response.task.partner_id);
                     modal.find('input[name="name"]').val(response.task.name);
                     modal.find('input[name="date_required"]').val(response.task.date_required);
                     modal.find('input[name="task_urgent"]').prop('checked', response.task.task_urgent);
@@ -524,22 +539,12 @@
     <script>
         $(document).ready(function() {
             var scrollTop = $(".scrollTop");
-
-            // Initialize the datepicker
-            // $("#datepicker").datepicker();
-
-            // $("#uploadAsset").click(function(){
-
-            //     $(".img-upload-con").toggleClass('d-none')
-            // })
-
-
-
         });
 
         document.addEventListener('DOMContentLoaded', function() {
             const campaignDropdown = document.getElementById('campaign-select');
             const partnerDropdown = document.getElementById('partner-select');
+            const staffDropdown = document.getElementById('staff');
             const clientName = document.getElementById('client-name'); // The readonly field for client name
             const groupName = document.getElementById('group-name'); // The readonly field for group name
 
@@ -562,6 +567,7 @@
                         .then(response => response.json())
                         .then(data => {
                             // Populate Client Name
+                            
                             if (clientName) {
                                 clientName.value = data.client?.name || 'No Client';
                             }
@@ -579,7 +585,7 @@
                                     });
                                 } else {
                                     $('#modalLoader').hide();
-                                    alert('No partners found for the selected group.');
+                                    alert('No partners found for the selected Campaign.');
                                 }
                                 partnerDropdown.disabled = false; // Enable after loading
                             }
@@ -590,6 +596,43 @@
                             alert('Failed to fetch partners. Please try again.');
                             if (partnerDropdown) {
                                 partnerDropdown.disabled = false;
+                            }
+
+                            $('#modalLoader').hide();
+                        });
+                    // if (staffDropdown) {
+                    //     staffDropdown.disabled = true; // Disable while fetching
+                    // }
+                    fetch(`/get-staff-by-campaign/${campaignId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            // Populate Client Name
+                            console.log(data);
+
+                            // Populate Partner Dropdown
+                            if (staffDropdown) {
+                                staffDropdown.innerHTML =
+                                    `<option value="" disabled>Select Staff</option>`;
+                                if (data.staffs.length > 0) {
+                                    alert(data.staffs.length);
+                                    data.staffs.forEach(staff => {
+                                        staffDropdown.innerHTML +=
+                                            `<option value="${staff.staff_id}">${staff.staff.name}</option>`;
+                                    });
+                                    $('.selectpicker').selectpicker('refresh');
+                                } else {
+                                    $('#modalLoader').hide();
+                                    alert('No Staff found for the selected Campaign.');
+                                }
+                                staffDropdown.disabled = false; // Enable after loading
+                            }
+                            $('#modalLoader').hide();
+
+                        })
+                        .catch(() => {
+                            alert('Failed to fetch staff. Please try again.');
+                            if (staffDropdown) {
+                                staffDropdown.disabled = false;
                             }
 
                             $('#modalLoader').hide();

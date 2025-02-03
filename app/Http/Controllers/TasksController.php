@@ -5,11 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\AssetType;
 use App\Models\CampaignPartner;
 use App\Models\Campaigns;
+use App\Models\CampaignStaff;
 use App\Models\Category;
 use App\Models\ClientPartner;
 use App\Models\Image;
 use App\Models\comment;
 use App\Models\Tasks;
+use App\Models\TaskStaff;
 use Aws\S3\S3Client;
 use Exception;
 use Illuminate\Http\Request;
@@ -78,7 +80,7 @@ class TasksController extends Controller
         // dd($comments);
         // dd($tasks);
 
-        return view('tasks.index', compact('tasks', 'campaigns', 'categories', 'assets', 'partners','comments'));
+        return view('tasks.index', compact('tasks', 'campaigns', 'categories', 'assets', 'partners', 'comments'));
     }
 
 
@@ -95,6 +97,7 @@ class TasksController extends Controller
      */
     public function store(Request $request)
     {
+
         // Validate the incoming request data
         $validatedData = $request->validate([
             'campaign_id' => 'required',
@@ -104,6 +107,8 @@ class TasksController extends Controller
             'size_width' => 'required|integer',
             'size_height' => 'required|integer',
             'description' => 'required|string',
+            'staff' => 'required|array', // Expecting multiple staff IDs
+
         ]);
         $date = $validatedData['date_required'];
         $formattedDate = $date;
@@ -202,7 +207,7 @@ class TasksController extends Controller
             'PartnerId' => $request->partner_id,
         ]);
         // Create a new task using the validated data
-        Tasks::create([
+        $task = Tasks::create([
             'campaign_id' => (int) $request->campaign_id,
             'name' => $validatedData['name'],
             'date_required' => $formattedDate,
@@ -218,6 +223,12 @@ class TasksController extends Controller
             'status_id' => null, // Set this as needed
             'is_active' => $request->has('is_active') ? 1 : 0,
         ]);
+        foreach ($request->staff as $staff_id) {
+            TaskStaff::create([
+                'task_id' => $task->id,
+                'staff_id' => $staff_id,
+            ]);
+        }
 
 
         // Redirect to the tasks index page with a success message
@@ -245,10 +256,14 @@ class TasksController extends Controller
             $clientName = $partners->isNotEmpty() && $partners->first()->campaign && $partners->first()->campaign->client
                 ? $partners->first()->campaign->client->name
                 : 'No client';
+            // dd($partners);
+
+            $staffs = TaskStaff::with("staff")->where('task_id', $task->id)->get();
 
             return response()->json([
                 'task' => $task,
                 'partners' => $partners, // Return the partners list
+                'staffs' => $staffs,
                 'client_name' => $clientName,
                 'campaigns' => Campaigns::all(),
                 'categories' => Category::where('is_active', 1)->get(),
@@ -261,7 +276,29 @@ class TasksController extends Controller
         return view('tasks.edit', compact('task', 'campaigns', 'categories'));
     }
 
+    public function list_edit(Tasks $task)
+    {
+        if (request()->ajax()) {
+            $partners = CampaignPartner::with("partner")->where('campaigns_id',$task->campaign_id)->get();
+            dd($partners);
 
+            $staffs = TaskStaff::with("staff")->where('task_id', $task->id)->get();
+
+            return response()->json([
+                'task' => $task,
+                'partners' => $partners, // Return the partners list
+                'staffs' => $staffs,
+                'client_name' => $clientName,
+                'campaigns' => Campaigns::all(),
+                'categories' => Category::where('is_active', 1)->get(),
+            ]);
+        }
+
+        // For non-AJAX requests, return the normal view
+        $campaigns = Campaigns::all();
+        $categories = Category::where('is_active', 1)->get();
+        return view('tasks.edit', compact('task', 'campaigns', 'categories'));
+    }
 
 
     /**
@@ -504,6 +541,16 @@ class TasksController extends Controller
             'group' => $campaign->group,
             'client' => $campaign->client,
             'partners' => $partners,
+        ]);
+    }
+    public function getStaffsByCampaign($campaignId)
+    {
+        // Retrieve the campaign with the client and partners
+
+        $staff = CampaignStaff::with("staff")->where("campaign_id", $campaignId)->get();
+        // dd($staff);
+        return response()->json([
+            'staffs' => $staff
         ]);
     }
 
