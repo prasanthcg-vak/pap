@@ -220,6 +220,16 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <div class="Staff-Fields">
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <label>Staff:</label>
+                                            </div>
+                                            <div class="col-md-8">
+                                                <p>{{ $staffs->pluck('staff.name')->filter()->implode(', ') ?: 'N/A' }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="col-lg-4">
                                     <div class="Category-fields">
