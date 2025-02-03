@@ -162,7 +162,9 @@
                                     </td>
                                     @if (!in_array(Auth::user()->roles->first()->role_level, [4, 5, 6]))
                                         <td class="">
-                                            <span>-</span>
+                                            <span>
+                                                {{ $task->taskStaff->pluck('staff.name')->filter()->implode(', ') ?: 'N/A' }}
+                                            </span>
                                         </td>
                                     @endif
                                     <td>{{ $task->image_id ? '1' : '0' }}</td>
@@ -502,15 +504,31 @@
                     const partnerSelect = modal.find('#partner-select');
                     partnerSelect.empty(); // Clear existing options
                     partnerSelect.append(
-                        '<option value="" selected>Select Partner</option>'); // Default option
+                        '<option value="" disabled>Select Partner</option>'); // Default option
                     response.partners.forEach(function(partner) {
                         partnerSelect.append(
-                            `<option value="${partner.id}" ${response.task.partner_id == partner.id ? 'selected' : ''}>
-                        ${partner.name}
+                            `<option value="${partner.partner_id}" ${response.task.partner_id == partner.partner.id ? 'selected' : ''}>
+                        ${partner.partner.name}
                     </option>`
                         );
                     });
+                    const staffSelect = modal.find('#staff');
+                    staffSelect.empty(); // Clear existing options
+                    staffSelect.append(
+                        '<option value="" disabled>Select Staff</option>'); // Default option
+                    response.campaign_staffs.forEach(function(campaign_staff) {
+                        staffSelect.append(
+                            `<option value="${campaign_staff.staff_id}" >
+                        ${campaign_staff.staff.name}
+                    </option>`
+                        );
+                    });
+                    if (Array.isArray(response.task_staffs) && response.task_staffs.length > 0) {
+                        const selectedStaffIds = response.task_staffs.map(st => st.staff_id);
+                        staffSelect.val(selectedStaffIds);
+                    }
                     $('#modalLoader').hide();
+                    console.log(response);
 
                     // Populate the modal with data
                     modal.find('#campaign-select').val(response.task.campaign_id);
@@ -526,6 +544,11 @@
                     modal.find('#size_measurement').val(response.task.size_measurement);
                     modal.find('textarea[name="description"]').val(response.task.description);
                     modal.find('input[name="is_active"]').prop('checked', response.task.is_active);
+                    modal.find('input[name="group_name"]').val(response.group_name);
+                    if (window.editor) {
+                        window.editor.setData(response.task.description);
+                    }
+                    $('.selectpicker').selectpicker('refresh');
 
                 },
                 error: function() {
@@ -567,7 +590,7 @@
                         .then(response => response.json())
                         .then(data => {
                             // Populate Client Name
-                            
+
                             if (clientName) {
                                 clientName.value = data.client?.name || 'No Client';
                             }

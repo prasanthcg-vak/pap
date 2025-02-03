@@ -9,8 +9,20 @@ class Tasks extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'campaign_id', 'name', 'description', 'date_required', 'task_urgent', 
-        'category_id', 'size_width', 'size_height', 'size_measurement', 'status_id', 'asset_id', 'is_active','partner_id','image_id'
+        'campaign_id',
+        'name',
+        'description',
+        'date_required',
+        'task_urgent',
+        'category_id',
+        'size_width',
+        'size_height',
+        'size_measurement',
+        'status_id',
+        'asset_id',
+        'is_active',
+        'partner_id',
+        'image_id'
     ];
 
     protected $dates = ['deleted_at'];
@@ -34,7 +46,7 @@ class Tasks extends Model
     {
         return $this->belongsTo(AssetType::class);
     }
-    
+
     public function assets()
     {
         return $this->hasMany(Asset::class);
@@ -50,9 +62,9 @@ class Tasks extends Model
         return $this->belongsTo(Image::class, 'image_id');
     }
     public function task_comments()
-{
-    return $this->hasMany(Comment::class, 'task_id');
-}
+    {
+        return $this->hasMany(Comment::class, 'task_id');
+    }
 
     public function category()
     {
@@ -68,4 +80,10 @@ class Tasks extends Model
     {
         return $this->belongsTo(Client::class, 'client_id');
     }
+    public function taskStaff()
+    {
+        return $this->hasMany(TaskStaff::class, 'task_id')->with('staff');
+    }
+
+
 }
