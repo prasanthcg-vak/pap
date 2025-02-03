@@ -6,6 +6,7 @@ use App\Models\CampaignPartner;
 use App\Models\ClientGroup;
 use App\Models\ClientGroupPartners;
 use App\Models\ClientPartner;
+use App\Models\DefaultStaff;
 use App\Models\Group;
 use App\Models\GroupClientUsers;
 use App\Models\User;
@@ -28,19 +29,19 @@ class UserController extends Controller
 {
     public function index()
     {
-        $users = User::with('roles', 'group', 'client','clientuser_group.group')
+        $users = User::with('roles', 'group', 'client', 'clientuser_group.group','defaultStaff')
             ->whereDoesntHave('roles', function ($query) {
                 $query->whereIn('role_level', [1, 4]);
             })
             ->get();
-            // dd($users);
+        // dd($users);
         return view('users.index', compact('users'));
     }
 
 
     public function store(Request $request)
     {
-        // Validate the incoming data
+
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
@@ -85,6 +86,15 @@ class UserController extends Controller
             'created_at' => now(),
             'updated_at' => now()
         ]);
+
+        // Validate the incoming data
+        $default_staff_id = $request->has('default_staff') ? $user->id : 0;
+
+        if ($default_staff_id !== 0) {
+            // Insert a new record only if default_staff is checked
+            $default_staff = DefaultStaff::create(["default_staff_id" => $default_staff_id]);
+        }
+
         if ($request->role_id == 5) {
 
             foreach ($request->group_id as $groupId) {
@@ -93,7 +103,7 @@ class UserController extends Controller
                     'group_id' => $groupId
                 ]);
             }
-            
+
         }
         if ($request->role_id == 6) {
 
@@ -174,21 +184,42 @@ class UserController extends Controller
                     ClientPartner::where('partner_id', $user->id)->delete();
                 }
             }
+            $default_staff_id = $request->has('default_staff') ? $user->id : 0;
+
+            // Check if an existing record is present
+            $default_staff = DefaultStaff::where('default_staff_id', $user->id)->first();
+            // dd($default_staff);
+            if ($default_staff) {
+                // dd(true);
+                // Update the existing record
+                if ($default_staff_id !== 0) {
+                    $default_staff->update(["default_staff_id" => $default_staff_id]);
+                } else {
+
+                    $default_staff->delete();
+                }
+            } else {
+                // Create a new record if not exists
+                if ($default_staff_id !== 0) {
+                    DefaultStaff::create(["default_staff_id" => $default_staff_id]);
+                }
+            }
+
             if ($request->role_id == 5) {
                 // Get the existing group IDs for this user
                 $existingGroupIds = GroupClientUsers::where('clientuser_id', $user->id)
                     ->pluck('group_id')
                     ->toArray();
-            
+
                 // Ensure `$request->group_id` is always an array
                 $newGroupIds = is_array($request->group_id) ? $request->group_id : [];
-            
+
                 // Find groups to delete (existing but not in new request)
                 $groupsToDelete = array_diff($existingGroupIds, $newGroupIds);
                 GroupClientUsers::where('clientuser_id', $user->id)
                     ->whereIn('group_id', $groupsToDelete)
                     ->delete();
-            
+
                 // Find groups to add (in new request but not in existing)
                 $groupsToAdd = array_diff($newGroupIds, $existingGroupIds);
                 foreach ($groupsToAdd as $groupId) {
@@ -198,8 +229,8 @@ class UserController extends Controller
                     ]);
                 }
             }
-            
-            
+
+
             // Handle group association for role 6
             // if ($request->role_id == 6) {
             //     ClientGroupPartners::updateOrCreate(
@@ -233,10 +264,6 @@ class UserController extends Controller
             ], 500);
         }
     }
-
-
-
-
     public function destroy($id)
     {
 
@@ -261,7 +288,6 @@ class UserController extends Controller
         $user->save();
         return response()->json(['success' => 'User activation status updated!']);
     }
-
 
     /**
      * Display the current user's profile.

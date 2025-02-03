@@ -174,6 +174,7 @@ Route::middleware(['web', 'auth'])->group(function () {
     Route::get('/get-clientuser-groups/{clientId}', [UserController::class, 'getClientuserGroups']);
     Route::get('/get-partners/{groupId}', [CampaignsController::class, 'getPartners']);
     Route::get('/get-partners-by-campaign/{campaignId}', [TasksController::class, 'getPartnersByCampaign']);
+    Route::get('/get-staff-by-campaign/{campaignId}', [TasksController::class, 'getStaffsByCampaign']);
     Route::get('/pdf/{filename}', [CampaignsController::class, 'showPdf'])->name('show-pdf');
 
     Route::post('/user/{id}/resend-email', [UserController::class, 'resendEmail'])->name('user.resend-email');
@@ -182,6 +183,8 @@ Route::middleware(['web', 'auth'])->group(function () {
     Route::get('/partnerlist/{id}', [ClientGroupController::class, 'partner_list'])->name('partnerlist');
 
     Route::get('/tasks/{task}/edit', [TasksController::class, 'edit'])->name('tasks.edit');
+    Route::get('/tasks/{task}/list_edit', [TasksController::class, 'list_edit'])->name('tasks.list_edit');
+
 
     // Edit Forms Ajax call
     Route::get('/clients/{id}/edit', [ClientController::class, 'edit'])->name('clients.edit');
