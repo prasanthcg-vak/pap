@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\AssetType;
 use App\Models\Campaigns;
+use App\Models\CampaignStaff;
 use App\Models\Category;
 use App\Models\Client;
 use App\Models\ClientGroup;
@@ -13,6 +14,7 @@ use App\Models\Status;
 use App\Models\Tasks;
 use App\Models\Post;
 use App\Models\Image;
+use App\Models\User;
 use App\Models\UserPermissions;
 use App\Models\CampaignPartner;
 use Illuminate\Http\Request;
@@ -43,29 +45,27 @@ class CampaignsController extends Controller
 
         $groups = [];
         $groups = ClientGroup::where("client_id", $client_id)->get();
+        $query = Campaigns::with('images', 'client', 'group');
+
         if ($role_level < 4) {
-            $campaigns = Campaigns::with('images', 'client', 'group', 'tasks')
-                ->orderBy('id', 'asc')
-                ->get();
-        } elseif ($role_level == 4) {
-            $campaigns = Campaigns::with('images', 'client', 'group')
-                ->where("client_id", $client_id)
-                ->orderBy('id', 'asc')
-                ->get();
-        } elseif ($role_level == 5) {
-            $campaigns = Campaigns::with('images', 'client', 'group')
-                ->where("client_id", $client_id)
-                // ->where("client_group_id", $group_id)
-                ->orderBy('id', 'asc')
-                ->get();
-        } elseif ($role_level == 6) {
-            $campaigns = Campaigns::with('images', 'client', 'group', 'partner')
-                ->whereHas('partner', function ($query) use ($authId) {
-                    $query->where('partner_id', $authId);
-                })
-                ->orderBy('id', 'asc')
-                ->get();
+            $query->with('tasks');
+        } elseif ($role_level == 4 || $role_level == 5) {
+            $query->where('client_id', $client_id);
         }
+
+        if ($role_level == 6) {
+            $query->with('partner')
+                ->whereHas('partner', function ($q) use ($authId) {
+                    $q->where('partner_id', $authId);
+                });
+        }
+
+        if ($role_level > 1) {
+            $query->where('status_id', '!=', 5); // Exclude status_id = 5 for role levels > 1
+        }
+
+        $campaigns = $query->orderBy('id', 'asc')->with("status")->get();
+
         $partners = ClientPartner::with([
             'client',
             'partner' => function ($query) {
@@ -74,11 +74,17 @@ class CampaignsController extends Controller
         ])
             ->where('client_id', $authId)
             ->get();
+        $staffs = User::with("roles")
+            ->whereHas("roles", function ($query) {
+                $query->where("role_level", 3);
+            })
+            ->get();
+        // dd($campaigns);
 
         $clients = Client::get();
         $sideBar = 'dashboard';
         $title = 'dashboard';
-        return view('campaigns.index', compact('campaigns', 'partners', 'clients', 'role_level', 'groups', 'client_id'));
+        return view('campaigns.index', compact('campaigns', 'partners', 'clients', 'role_level', 'groups', 'client_id', 'staffs'));
     }
 
     /**
@@ -149,13 +155,13 @@ class CampaignsController extends Controller
 
         // Log incoming request
         Log::info('Incoming campaign request', ['request_data' => $request->all()]);
-
+        // dd($request->staff);
         // Create Campaign entry
         $data = new Campaigns();
         $data->name = $request->name;
         $data->description = $request->description;
         $data->due_date = $request->due_date;
-        $data->status_id = null;
+        $data->status_id = $request->status_id;
         $data->client_id = (int) $request->client;
         $data->client_group_id = (int) $request->clientGroup;
         $data->is_active = 1;
@@ -221,6 +227,14 @@ class CampaignsController extends Controller
                 $campaignPartner->campaigns_id = $data->id;
                 $campaignPartner->partner_id = (int) $partner;
                 $campaignPartner->save();
+            }
+        }
+        if (isset($request->staff)) {
+            foreach ($request->staff as $staff) {
+                $campaignStaff = new CampaignStaff();
+                $campaignStaff->campaign_id = $data->id;
+                $campaignStaff->staff_id = (int) $staff;
+                $campaignStaff->save();
             }
         }
 
@@ -403,7 +417,7 @@ class CampaignsController extends Controller
             ];
         });
         $partners = ClientPartner::all(); // Assuming you have a Partner model
-        return view('campaigns.show', compact('campaign', 'partners','assets','categories' ,'tasks', 'imageUrls','role_level'));
+        return view('campaigns.show', compact('campaign', 'partners', 'assets', 'categories', 'tasks', 'imageUrls', 'role_level'));
     }
 
     public function showTasks($id)
@@ -461,7 +475,7 @@ class CampaignsController extends Controller
             $campaignId = Crypt::decryptString($encryptedId);
 
             // Fetch the campaign details with necessary relationships
-            $campaign = Campaigns::with(['images', 'client', 'group', 'tasks', 'partner'])
+            $campaign = Campaigns::with(['images', 'client', 'group', 'tasks', 'partner', 'staff'])
                 ->findOrFail($campaignId);
 
             // Map the images to include the full URL for both image and thumbnail
@@ -482,15 +496,18 @@ class CampaignsController extends Controller
             // Get partners for the campaign group
             $groupPartners = ClientGroupPartners::with('user')->where('group_id', $campaign->Client_group_id)->get();
 
+            $campaign_staff = CampaignStaff::with("staff")->where("campaign_id", $campaignId)->get();
             // Encrypt the campaign ID for secure usage in the response
             // $campaign->id = Crypt::encryptString($campaign->id);
 
+            // dd($campaign_staff);
             // Return response
             return response()->json([
                 'campaign' => $campaign,
                 'images' => $images,
                 'clientGroups' => $clientGroups,
                 'groupPartners' => $groupPartners,
+                'staff' => $campaign_staff
             ]);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Invalid campaign ID'], 400);
@@ -502,16 +519,25 @@ class CampaignsController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $request->validate([
-            'name' => 'required',
-            'due_date' => 'required|date',
-            'campaign_brief' => 'nullable|string',
-            'additional_images.*' => 'nullable|mimes:jpeg,png,jpg,mp4,pdf,jfif|max:51200',
-            'additional_images' => 'nullable|array',
-            'thumbnail' => 'nullable|array',
-            'thumbnail.*' => 'nullable|mimes:jpeg,png,jpg,jfif|max:10240',
-        ]);
+        $campaign = Campaigns::findOrFail($id);
+        // dd($campaign);
+        if ($campaign->status_id < 3) {
+            $request->validate([
+                'name' => 'required',
+                'due_date' => 'required|date',
+                'campaign_brief' => 'nullable|string',
+                'additional_images.*' => 'nullable|mimes:jpeg,png,jpg,mp4,pdf,jfif|max:51200',
+                'additional_images' => 'nullable|array',
+                'thumbnail' => 'nullable|array',
+                'thumbnail.*' => 'nullable|mimes:jpeg,png,jpg,jfif|max:10240',
+            ]);
+        } else {
+            $campaign->status_id = (int) $request->status_id;
+            $campaign->update();
+            return redirect()->route('campaigns.index')->with('success', 'Campaign updated successfully.');
+        }
 
+        // dd($request->all());
         if ($request->hasFile('additional_images')) {
             $thumbnails = $request->file('thumbnail') ?? [];
             $thumbnailIndex = 0;
@@ -580,6 +606,7 @@ class CampaignsController extends Controller
         $campaign->description = $request->description;
         $campaign->due_date = $request->due_date;
         $campaign->client_id = (int) $request->client;
+        $campaign->status_id = (int) $request->status_id;
         $campaign->client_group_id = (int) $request->clientGroup;
         $campaign->is_active = $request->has('active') ? 1 : 0;
         $campaign->update($request->all());
@@ -614,6 +641,19 @@ class CampaignsController extends Controller
             }
 
         }
+        if (isset($request->staff)) {
+            // Step 1: Delete existing staff assignments for this campaign
+            CampaignStaff::where('campaign_id', $id)->delete();
+
+            // Step 2: Insert new staff assignments
+            foreach ($request->staff as $staff) {
+                CampaignStaff::create([
+                    'campaign_id' => $id,
+                    'staff_id' => (int) $staff
+                ]);
+            }
+        }
+
 
         return redirect()->route('campaigns.index')->with('success', 'Campaign updated successfully.');
     }
@@ -775,7 +815,7 @@ class CampaignsController extends Controller
         $clientGroups = ClientGroup::where('client_id', $clientId)->get();
         return response()->json($clientGroups);
     }
-    
+
 
     public function getPartners($clientId)
     {
@@ -786,7 +826,7 @@ class CampaignsController extends Controller
         ])
             ->where('client_id', $clientId)
             ->get();
-            // dd($partners);
+        // dd($partners);
         return response()->json($partners);
     }
 
@@ -813,5 +853,6 @@ class CampaignsController extends Controller
 
         return response()->json($images);
     }
+
 
 }

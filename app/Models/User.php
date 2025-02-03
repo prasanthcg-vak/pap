@@ -147,4 +147,9 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return Str::slug($name) . rand(1000, 9999);
     }
+    public function defaultStaff()
+    {
+        return $this->hasOne(DefaultStaff::class, 'default_staff_id');
+    }
+
 }
