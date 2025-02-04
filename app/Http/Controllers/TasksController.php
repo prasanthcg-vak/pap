@@ -32,32 +32,30 @@ class TasksController extends Controller
         $role_level = Auth::user()->roles->first()->role_level;
         $client_id = Auth::user()->client_id;
         $group_id = Auth::user()->group_id;
+    
+        // Fetch campaigns based on role
         if ($role_level < 4) {
-            $campaigns = Campaigns::all(); // Get all campaigns for the dropdown
+            $campaigns = Campaigns::all();
         } elseif ($role_level == 6) {
             $campaigns = Campaigns::with('partner')->whereHas('partner', function ($query) use ($authId) {
                 $query->where('partner_id', $authId);
             })->get();
         } else {
-            $campaigns = Campaigns::all()->where('client_id', $client_id);
+            $campaigns = Campaigns::where('client_id', $client_id)->get();
         }
-
-
-
-
+    
         $categories = Category::where('is_active', 1)->get();
         $assets = AssetType::where('is_active', 1)->get();
-        $partners = ClientPartner::with(['client', 'partner'])
-            ->where('client_id', $authId)
-            ->get();
-        // dd($asset);
+        $partners = ClientPartner::with(['client', 'partner'])->where('client_id', $authId)->get();
+    
         $tasksQuery = Tasks::with([
             'campaign.group',
             'campaign.client',
             'status',
-            'taskStaff.staff' // Load task staff and their related user details (if applicable)
+            'taskStaff.staff'
         ]);
-
+    
+        // Filter tasks based on role
         if ($role_level == 4) {
             $tasksQuery->whereHas('campaign', function ($query) use ($client_id) {
                 $query->where('client_id', $client_id);
@@ -65,22 +63,17 @@ class TasksController extends Controller
         } elseif ($role_level == 5) {
             $tasksQuery->whereHas('campaign', function ($query) use ($client_id, $group_id) {
                 $query->where('client_id', $client_id);
-                // ->where('client_group_id', $group_id);
-            });
+            })->where('marked_for_deletion', false);
         } elseif ($role_level == 6) {
-            $tasksQuery->with('campaign.partner')
-                ->where('partner_id', $authId);
+            $tasksQuery->where('partner_id', $authId)->where('marked_for_deletion', false);
         }
-
+    
         $tasks = $tasksQuery->get();
-
-
         $comments = comment::with('replies')->where('main_comment', 1)->get();
-        // dd($comments);
-        // dd($tasks);
-
+    
         return view('tasks.index', compact('tasks', 'campaigns', 'categories', 'assets', 'partners', 'comments'));
     }
+    
 
 
     /**
@@ -523,14 +516,25 @@ class TasksController extends Controller
     public function destroy($id)
     {
 
-        $task = Tasks::find($id);
-        // dd($task);
-        $task->is_active = 0;
-        $task->update();
-        // $tasks->delete();
-        return redirect()->route('tasks.index')->with('success', 'Task soft deleted successfully!');
+        $task = Tasks::findOrFail($id);
+        $role_level = Auth::user()->roles->first()->role_level;
 
+        if ($role_level == 1) {
+            // Super Admin can permanently delete the task
+            $task->forceDelete();
+            return redirect()->back()->with('success', 'Task permanently deleted.');
+        } else {
+            // Non-Super Admin users mark the task for deletion
+            $task->update([
+                'marked_for_deletion' => true,
+                'deleted_by' => Auth::id(),
+            ]);
+            return redirect()->back()->with('success', 'Task marked for deletion.');
+        }
+        // return redirect()->route('tasks.index')->with('success', 'Task soft deleted successfully!');
     }
+
+
     public function getPartnersByCampaign($campaignId)
     {
         // Retrieve the campaign with the client and partners
