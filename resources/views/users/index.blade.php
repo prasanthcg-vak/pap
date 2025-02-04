@@ -344,21 +344,9 @@
             const clientSection = $('#client-section');
             groupSection.hide(); // Hide Group section
             clientSection.hide(); // Hide Client section
-
-
         }
 
-        function toggleGroupSection() {
-            var roleSelect = document.getElementById("role_id");
-            var staffCheckboxContainer = document.getElementById("staffCheckboxContainer");
 
-            // Show checkbox only when Role ID 3 is selected
-            if (roleSelect.value == "3") {
-                staffCheckboxContainer.style.display = "block";
-            } else {
-                staffCheckboxContainer.style.display = "none";
-            }
-        }
 
         // Run on page load to handle preselected values
         document.addEventListener("DOMContentLoaded", function() {
