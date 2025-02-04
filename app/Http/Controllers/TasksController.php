@@ -32,31 +32,30 @@ class TasksController extends Controller
         $role_level = Auth::user()->roles->first()->role_level;
         $client_id = Auth::user()->client_id;
         $group_id = Auth::user()->group_id;
-
+    
         // Fetch campaigns based on role
         if ($role_level < 4) {
-            $campaigns = Campaigns::all(); // Get all campaigns for the dropdown
+            $campaigns = Campaigns::all();
         } elseif ($role_level == 6) {
             $campaigns = Campaigns::with('partner')->whereHas('partner', function ($query) use ($authId) {
                 $query->where('partner_id', $authId);
             })->get();
         } else {
-            $campaigns = Campaigns::all()->where('client_id', $client_id);
+            $campaigns = Campaigns::where('client_id', $client_id)->get();
         }
-
+    
         $categories = Category::where('is_active', 1)->get();
         $assets = AssetType::where('is_active', 1)->get();
-        $partners = ClientPartner::with(['client', 'partner'])
-            ->where('client_id', $authId)
-            ->get();
-        // dd($asset);
+        $partners = ClientPartner::with(['client', 'partner'])->where('client_id', $authId)->get();
+    
         $tasksQuery = Tasks::with([
             'campaign.group',
             'campaign.client',
             'status',
-            'taskStaff.staff' // Load task staff and their related user details (if applicable)
+            'taskStaff.staff'
         ]);
-
+    
+        // Filter tasks based on role
         if ($role_level == 4) {
             $tasksQuery->whereHas('campaign', function ($query) use ($client_id) {
                 $query->where('client_id', $client_id);
@@ -64,28 +63,17 @@ class TasksController extends Controller
         } elseif ($role_level == 5) {
             $tasksQuery->whereHas('campaign', function ($query) use ($client_id, $group_id) {
                 $query->where('client_id', $client_id);
-                // ->where('client_group_id', $group_id);
-            });
-            // Group Admin sees tasks for their group, excluding those marked for deletion
-            $tasks = $tasksQuery->whereHas('campaign', function ($query) use ($client_id, $group_id) {
-                $query->where('client_id', $client_id);
-            })->where('marked_for_deletion', false)
-            ->get();
+            })->where('marked_for_deletion', false);
         } elseif ($role_level == 6) {
-            // Partner sees tasks assigned to them, excluding those marked for deletion
-            $tasks = $tasksQuery->where('partner_id', $authId)
-                ->where('marked_for_deletion', false)
-                ->get();
+            $tasksQuery->where('partner_id', $authId)->where('marked_for_deletion', false);
         }
-
-
+    
         $tasks = $tasksQuery->get();
-
-
         $comments = comment::with('replies')->where('main_comment', 1)->get();
-
-        return view('tasks.index', compact('tasks', 'campaigns', 'categories', 'assets', 'partners',  'comments'));
+    
+        return view('tasks.index', compact('tasks', 'campaigns', 'categories', 'assets', 'partners', 'comments'));
     }
+    
 
 
     /**
