@@ -22,7 +22,8 @@ class Tasks extends Model
         'asset_id',
         'is_active',
         'partner_id',
-        'image_id'
+        'image_id',
+        'deleted_by', 'marked_for_deletion',
     ];
 
     protected $dates = ['deleted_at'];

@@ -161,32 +161,36 @@ function task_count()
     $role_level = Auth::user()->roles->first()->role_level;
     $client_id = Auth::user()->client_id;
     $group_id = Auth::user()->group_id;
+
+    // Base query for tasks
+    $tasksQuery = Tasks::query();
+
+    // Apply filters based on user role
     if ($role_level < 4) {
-        $tasks = Tasks::with([
-            'campaign.group',  // Load the group related to the campaign
-            'campaign.client', // Load the client related to the campaign
-            'status'           // Load the status if it's a relation
-        ])->get();
+        // Super Admin: Count all tasks, including those marked for deletion
+        $tasksQuery->with(['campaign.group', 'campaign.client', 'status']);
     } elseif ($role_level == 4) {
-        $tasks = Tasks::with(['campaign.group', 'campaign.client', 'status'])
+        // Client Admin: Count tasks for their client, excluding marked for deletion
+        $tasksQuery->with(['campaign.group', 'campaign.client', 'status'])
             ->whereHas('campaign', function ($query) use ($client_id) {
                 $query->where('client_id', $client_id);
             })
-            ->get();
+            ->where('marked_for_deletion', false);
     } elseif ($role_level == 5) {
-        $tasks = Tasks::with(['campaign.group', 'campaign.client', 'status'])
+        // Group Admin: Count tasks for their group, excluding marked for deletion
+        $tasksQuery->with(['campaign.group', 'campaign.client', 'status'])
             ->whereHas('campaign', function ($query) use ($client_id, $group_id) {
                 $query->where('client_id', $client_id);
-                // ->where('client_group_id', $group_id);
+                // ->where('client_group_id', $group_id); // Uncomment if needed
             })
-            ->get();
+            ->where('marked_for_deletion', false);
     } elseif ($role_level == 6) {
-        $tasks = Tasks::with(['campaign.group', 'campaign.client', 'status', 'campaign.partner'])
+        // Partner: Count tasks assigned to them, excluding marked for deletion
+        $tasksQuery->with(['campaign.group', 'campaign.client', 'status', 'campaign.partner'])
             ->where('partner_id', $authId)
-            ->get();
+            ->where('marked_for_deletion', false);
     }
-    $task_count = count($tasks);
 
-    // dd($campaign_count);
-    return $task_count;
+    // Get the count of tasks
+    return $tasksQuery->count();
 }
