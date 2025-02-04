@@ -236,6 +236,7 @@ function toggleGroupSection() {
   const clientSection = $('#client-section'); // Select client section using jQuery
   const clientDropdown = $('#client_id_inUser'); // Client dropdown
   const groupDropdown = $('#group_id'); // Group dropdown
+  const staffCheckboxContainer = $("#staffCheckboxContainer");
 
   if (roleSelect.length) { // Check if roleSelect exists
     // Reset the client and group dropdowns
@@ -254,6 +255,14 @@ function toggleGroupSection() {
       groupSection.hide(); // Hide group section
     }
   }
+  // var roleSelect = document.getElementById("role_id");
+
+  // Show checkbox only when Role ID 3 is selected
+  if (roleSelect.val() == "3") {
+    staffCheckboxContainer.show();
+  } else {
+    staffCheckboxContainer.hide();
+  }
 }
 
 
@@ -264,9 +273,10 @@ $(document).ready(function () {
   if (roleSelect.length) {
     // Initialize visibility on page load
     toggleGroupSection();
-
     // Attach change event to role dropdown
     roleSelect.on('change', toggleGroupSection);
+  }
+  else {
   }
 });
 
@@ -399,7 +409,7 @@ $(document).ready(function () {
       clientGroupDropdown.empty().append('<option value="">-- Select Client Group --</option>').prop('disabled', true);
 
       if (clientId) {
-              $('#modalLoader').show();
+        $('#modalLoader').show();
         $.ajax({
           url: `/get-client-groups/${clientId}`, // Laravel route for client groups
           type: 'GET',

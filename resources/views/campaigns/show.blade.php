@@ -193,7 +193,7 @@
                                                     @endif
                                                     @if (!in_array(Auth::user()->roles->first()->role_level, [4, 5, 6]))
                                                         <td>
-                                                            staff
+                                                            {{ $task->taskStaff->pluck('staff.name')->filter()->implode(', ') ?: 'N/A' }}
                                                         </td>
                                                     @endif
 

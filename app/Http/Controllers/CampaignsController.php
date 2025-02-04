@@ -2,6 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\CampaignCancelled;
+use App\Mail\CampaignCompleted;
+use App\Mail\CampaignStatusInactive;
+use App\Mail\CampaignStatusUpdate;
+use App\Mail\NewCampaignNotification;
 use App\Models\AssetType;
 use App\Models\Campaigns;
 use App\Models\CampaignStaff;
@@ -29,6 +34,7 @@ use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Str;
 use Aws\S3\S3Client;
 use Exception;
+use Mail;
 
 class CampaignsController extends Controller
 {
@@ -109,6 +115,18 @@ class CampaignsController extends Controller
      */
     public function store(Request $request)
     {
+        $accountName = "Prasanth";
+        $campaignName = 'Sample Campaign 1';
+        $clientName = 'Client 1';
+        $campaignUrl = url('/campaigns/' . 1); // Replace with actual campaign ID
+
+        // Mail::to("devtester004422@gmail.com")->send(new NewCampaignNotification($accountName, $campaignName, $clientName, $campaignUrl));
+        // Mail::to("devtester004422@gmail.com")->send(new CampaignStatusUpdate($accountName, $campaignName, $clientName, $campaignUrl));
+        // Mail::to("devtester004422@gmail.com")->send(new CampaignStatusInactive($accountName, $campaignName, $clientName, $campaignUrl));
+        // Mail::to("devtester004422@gmail.com")->send(new CampaignCancelled($accountName, $campaignName, $clientName, $campaignUrl));
+        // Mail::to("devtester004422@gmail.com")->send(new CampaignCompleted($accountName, $campaignName, $clientName, $campaignUrl));
+
+        // dd("done");
         $request->validate([
             'name' => 'required',
             'description' => 'required',
@@ -237,6 +255,7 @@ class CampaignsController extends Controller
                 $campaignStaff->save();
             }
         }
+        Mail::to("devtester004422@gmail.com")->send(new NewCampaignNotification($accountName, $campaignName, $clientName, $campaignUrl));
 
         return redirect()->route('campaigns.index')->with('success', 'Campaign created successfully.');
     }
@@ -398,13 +417,13 @@ class CampaignsController extends Controller
     public function show($id)
     {
         $campaign = Campaigns::with('group')->findOrFail($id);
-        $tasks = Tasks::with('status')->where('campaign_id', $id)->get();
+        $tasks = Tasks::with('status', 'taskStaff.staff')->where('campaign_id', $id)->get();
         $role_level = Auth::user()->roles->first()->role_level;
 
         $images = Image::where('campaign_id', $id)->get(['id', 'file_name', 'path', 'file_type', 'thumbnail_path']);
         $categories = Category::where('is_active', 1)->get();
         $assets = AssetType::where('is_active', 1)->get();
-        $campaignStaffs = CampaignStaff::with("staff")->where("campaign_id",$id)->get();
+        $campaignStaffs = CampaignStaff::with("staff")->where("campaign_id", $id)->get();
         // Retrieve the URLs for each image
         $imageUrls = $images->map(function ($image) {
             return [
@@ -417,7 +436,7 @@ class CampaignsController extends Controller
             ];
         });
         $partners = ClientPartner::all(); // Assuming you have a Partner model
-        return view('campaigns.show', compact('campaign', 'partners', 'assets', 'categories', 'tasks', 'imageUrls', 'role_level','campaignStaffs'));
+        return view('campaigns.show', compact('campaign', 'partners', 'assets', 'categories', 'tasks', 'imageUrls', 'role_level', 'campaignStaffs'));
     }
 
     public function showTasks($id)
