@@ -49,24 +49,23 @@ class TasksController extends Controller
         $partners = ClientPartner::with(['client', 'partner'])
             ->where('client_id', $authId)
             ->get();
-
-        // Fetch tasks based on role
+        // dd($asset);
         $tasksQuery = Tasks::with([
-            'campaign.group',  // Load the group related to the campaign
-            'campaign.client', // Load the client related to the campaign
-            'status'           // Load the status if it's a relation
+            'campaign.group',
+            'campaign.client',
+            'status',
+            'taskStaff.staff' // Load task staff and their related user details (if applicable)
         ]);
 
-        if ($role_level < 4) {
-            // Super Admin sees all tasks, including those marked for deletion
-            $tasks = $tasksQuery->get();
-        } elseif ($role_level == 4) {
-            // Client Admin sees tasks for their client, excluding those marked for deletion
-            $tasks = $tasksQuery->whereHas('campaign', function ($query) use ($client_id) {
+        if ($role_level == 4) {
+            $tasksQuery->whereHas('campaign', function ($query) use ($client_id) {
                 $query->where('client_id', $client_id);
-            })->where('marked_for_deletion', false)
-            ->get();
+            });
         } elseif ($role_level == 5) {
+            $tasksQuery->whereHas('campaign', function ($query) use ($client_id, $group_id) {
+                $query->where('client_id', $client_id);
+                // ->where('client_group_id', $group_id);
+            });
             // Group Admin sees tasks for their group, excluding those marked for deletion
             $tasks = $tasksQuery->whereHas('campaign', function ($query) use ($client_id, $group_id) {
                 $query->where('client_id', $client_id);
@@ -78,6 +77,10 @@ class TasksController extends Controller
                 ->where('marked_for_deletion', false)
                 ->get();
         }
+
+
+        $tasks = $tasksQuery->get();
+
 
         $comments = comment::with('replies')->where('main_comment', 1)->get();
 
@@ -280,16 +283,25 @@ class TasksController extends Controller
     public function list_edit(Tasks $task)
     {
         if (request()->ajax()) {
-            $partners = CampaignPartner::with("partner")->where('campaigns_id',$task->campaign_id)->get();
-            dd($partners);
-
-            $staffs = TaskStaff::with("staff")->where('task_id', $task->id)->get();
+            $partners = CampaignPartner::with("partner")->where('campaigns_id', $task->campaign_id)->get();
+            $campaignClient = Campaigns::with("client", "group")->where("id", $task->campaign_id)->first();
+            if ($campaignClient) {
+                $clientName = $campaignClient->client->name;
+                $groupName = $campaignClient->group->name;
+            } else {
+                $clientName = "";
+                $groupName = "";
+            }
+            $campaignStaffs = CampaignStaff::with("staff")->where("campaign_id", $task->campaign_id)->get();
+            $taskStaffs = TaskStaff::with("staff")->where('task_id', $task->id)->get();
 
             return response()->json([
                 'task' => $task,
                 'partners' => $partners, // Return the partners list
-                'staffs' => $staffs,
+                'task_staffs' => $taskStaffs,
+                'campaign_staffs' => $campaignStaffs,
                 'client_name' => $clientName,
+                'group_name' => $groupName,
                 'campaigns' => Campaigns::all(),
                 'categories' => Category::where('is_active', 1)->get(),
             ]);
@@ -322,6 +334,7 @@ class TasksController extends Controller
         }
         $categories = Category::where('is_active', 1)->get();
         $assets = AssetType::where('is_active', 1)->get();
+        $staffs = TaskStaff::with("staff")->where('task_id', $task->id)->get();
 
         $partners = CampaignPartner::with([
             'campaign.client',
@@ -347,7 +360,7 @@ class TasksController extends Controller
         $imageUrl = $image
             ? Storage::disk('backblaze')->url($image->path)
             : null;
-        return view('tasks.show', compact('task', 'campaigns', 'categories', 'assets', 'partners', 'imageUrl'));
+        return view('tasks.show', compact('task', 'campaigns', 'categories', 'assets', 'partners', 'imageUrl','staffs'));
     }
 
 
@@ -398,6 +411,7 @@ class TasksController extends Controller
             'partner_id' => 'required|integer',
             'category_id' => 'required|integer',
             'asset_id' => 'nullable|integer',
+            'staff' => 'array',
         ]);
 
         // Retrieve the existing task
@@ -488,7 +502,16 @@ class TasksController extends Controller
             'status_id' => null,
             'is_active' => $request->has('is_active') ? 1 : 0,
         ]);
-
+        TaskStaff::where('task_id', $task->id)->delete(); // Delete old assignments
+        // Insert new assignments
+        if ($request->has('staff')) {
+            foreach ($request->staff as $staff_id) {
+                TaskStaff::create([
+                    'task_id' => $task->id,
+                    'staff_id' => $staff_id,
+                ]);
+            }
+        }
         // Log the successful update
         Log::info('Task updated successfully', ['task_id' => $task->id]);
 

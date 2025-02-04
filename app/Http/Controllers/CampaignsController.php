@@ -404,7 +404,7 @@ class CampaignsController extends Controller
         $images = Image::where('campaign_id', $id)->get(['id', 'file_name', 'path', 'file_type', 'thumbnail_path']);
         $categories = Category::where('is_active', 1)->get();
         $assets = AssetType::where('is_active', 1)->get();
-
+        $campaignStaffs = CampaignStaff::with("staff")->where("campaign_id",$id)->get();
         // Retrieve the URLs for each image
         $imageUrls = $images->map(function ($image) {
             return [
@@ -417,7 +417,7 @@ class CampaignsController extends Controller
             ];
         });
         $partners = ClientPartner::all(); // Assuming you have a Partner model
-        return view('campaigns.show', compact('campaign', 'partners', 'assets', 'categories', 'tasks', 'imageUrls', 'role_level'));
+        return view('campaigns.show', compact('campaign', 'partners', 'assets', 'categories', 'tasks', 'imageUrls', 'role_level','campaignStaffs'));
     }
 
     public function showTasks($id)
