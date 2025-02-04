@@ -155,7 +155,8 @@
                                     </td>
                                     <td>
                                         <span>
-                                            <p class="status {{ $campaign->status && $campaign->status->name === 'ACTIVE' ? 'green' : 'red' }}">
+                                            <p
+                                                class="status {{ $campaign->status && $campaign->status->name === 'ACTIVE' ? 'green' : 'red' }}">
                                                 {{ $campaign->status ? $campaign->status->name : 'Unknown' }}</p>
                                         </span>
                                     </td>
@@ -252,11 +253,14 @@
                             <div class="col-xl-4 mb-3 " id="select-status">
                                 <label for="status">Status</label>
                                 <select name="status_id" id="status_id" class="status form-control">
-                                    <option value="1" id="active" selected>ACTIVE</option>
-                                    <option value="2" id="inactive">INACTIVE</option>
-                                    <option value="3" id="cancelled">CANCELLED</option>
-                                    <option value="4" id="completed">COMPLETED</option>
-                                    <option value="5" class="archived" id="archived">ARCHIVED</option>
+                                    @foreach ($status as $key => $stat)
+                                        <option value="{{ $stat->id }}" id="{{ strtolower($stat->name) }}"
+                                            {{ $key === 0 ? 'selected' : '' }}>
+                                            {{ $stat->name }}
+                                        </option>
+                                    @endforeach
+
+
                                 </select>
                             </div>
                         </div>
@@ -334,7 +338,7 @@
                             </div>
                         </div>
                         <div class="row m-0 ">
-                            <div class="col-3" id="active_block" style="display: none;">
+                            {{-- <div class="col-3" id="active_block" style="display: none;">
                                 <div class="profile-con add-partner-status">
                                     <div class="row">
                                         <div class="col-sm-4">
@@ -348,7 +352,7 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            </div> --}}
                             <div class="row row-cols-1 row-cols-md-3 g-4 d-none" id="existingImageDiv">
                             </div>
                             <div class="sic-action-btns d-flex justify-content-lg-end  flex-wrap mt-4">

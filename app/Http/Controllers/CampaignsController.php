@@ -86,11 +86,11 @@ class CampaignsController extends Controller
             })
             ->get();
         // dd($campaigns);
-
+        $status = Status::get();
         $clients = Client::get();
         $sideBar = 'dashboard';
         $title = 'dashboard';
-        return view('campaigns.index', compact('campaigns', 'partners', 'clients', 'role_level', 'groups', 'client_id', 'staffs'));
+        return view('campaigns.index', compact('campaigns','status', 'partners', 'clients', 'role_level', 'groups', 'client_id', 'staffs'));
     }
 
     /**
@@ -115,18 +115,12 @@ class CampaignsController extends Controller
      */
     public function store(Request $request)
     {
-        $accountName = "Prasanth";
-        $campaignName = 'Sample Campaign 1';
-        $clientName = 'Client 1';
-        $campaignUrl = url('/campaigns/' . 1); // Replace with actual campaign ID
 
-        // Mail::to("devtester004422@gmail.com")->send(new NewCampaignNotification($accountName, $campaignName, $clientName, $campaignUrl));
         // Mail::to("devtester004422@gmail.com")->send(new CampaignStatusUpdate($accountName, $campaignName, $clientName, $campaignUrl));
         // Mail::to("devtester004422@gmail.com")->send(new CampaignStatusInactive($accountName, $campaignName, $clientName, $campaignUrl));
         // Mail::to("devtester004422@gmail.com")->send(new CampaignCancelled($accountName, $campaignName, $clientName, $campaignUrl));
         // Mail::to("devtester004422@gmail.com")->send(new CampaignCompleted($accountName, $campaignName, $clientName, $campaignUrl));
 
-        // dd("done");
         $request->validate([
             'name' => 'required',
             'description' => 'required',
@@ -255,7 +249,20 @@ class CampaignsController extends Controller
                 $campaignStaff->save();
             }
         }
-        Mail::to("devtester004422@gmail.com")->send(new NewCampaignNotification($accountName, $campaignName, $clientName, $campaignUrl));
+
+        $superuser = User::with('roles')->whereHas('roles', function ($query) {
+            $query->where('role_level', 1);
+        })->first();
+        $clientDetails = Client::with('users.user')->where('id', $request->client)->first();
+        $accountName = $superuser->name;
+        $campaignName = $request->name;
+        $clientName = $clientDetails->name;
+        $campaignUrl = url('/campaigns/' . $data->id); // Replace with actual campaign ID
+
+        Mail::to($superuser->email)->send(new NewCampaignNotification($accountName, $campaignName, $clientName, $campaignUrl));
+        if ($clientDetails->users) {
+            Mail::to($clientDetails->users->first()->user->email)->send(new NewCampaignNotification($accountName, $campaignName, $clientName, $campaignUrl));
+        }
 
         return redirect()->route('campaigns.index')->with('success', 'Campaign created successfully.');
     }
@@ -670,6 +677,61 @@ class CampaignsController extends Controller
                     'campaign_id' => $id,
                     'staff_id' => (int) $staff
                 ]);
+            }
+        }
+
+        $superuser = User::with('roles')->whereHas('roles', function ($query) {
+            $query->where('role_level', 1);
+        })->first();
+
+        $clientDetails = Client::with('users.user')->where('id', $request->client)->first();
+
+        $accountName = $superuser->name;
+        $campaignName = $request->name;
+        $clientName = $clientDetails->name;
+        $campaignUrl = url('/campaigns/' . $campaign->id); // Replace with actual campaign ID
+
+        // Determine which email class to send
+        switch ($request->status_id) {
+            case 2:
+                $mailable = new CampaignStatusInactive($accountName, $campaignName, $clientName, $campaignUrl);
+                break;
+            case 3:
+                $mailable = new CampaignCancelled($accountName, $campaignName, $clientName, $campaignUrl);
+                break;
+            case 4:
+                $mailable = new CampaignCompleted($accountName, $campaignName, $clientName, $campaignUrl);
+                break;
+            default:
+                $mailable = new NewCampaignNotification($accountName, $campaignName, $clientName, $campaignUrl);
+                break;
+        }
+
+        switch ($request->status_id) {
+            case 2:
+                $clientmailable = new CampaignStatusInactive($clientName, $campaignName, $clientName, $campaignUrl);
+                break;
+            case 3:
+                $clientmailable = new CampaignCancelled($clientName, $campaignName, $clientName, $campaignUrl);
+                break;
+            case 4:
+                $clientmailable = new CampaignCompleted($clientName, $campaignName, $clientName, $campaignUrl);
+                break;
+            default:
+                $clientmailable = new NewCampaignNotification($clientName, $campaignName, $clientName, $campaignUrl);
+                break;
+        }
+
+
+        // Send email to superuser
+        Mail::to($superuser->email)->send($mailable);
+
+        // Send email to all related client users
+        if ($clientDetails->users) {
+            foreach ($clientDetails->users as $clientUser) {
+                if ($clientUser->user) {
+                    Mail::to($clientUser->user->email)->send($clientmailable);
+                }
             }
         }
 
