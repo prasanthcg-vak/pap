@@ -15,6 +15,7 @@ use App\Models\Client;
 use App\Models\ClientGroup;
 use App\Models\ClientGroupPartners;
 use App\Models\ClientPartner;
+use App\Models\DefaultStaff;
 use App\Models\Status;
 use App\Models\Tasks;
 use App\Models\Post;
@@ -115,7 +116,14 @@ class CampaignsController extends Controller
      */
     public function store(Request $request)
     {
-
+        if (!isset($data['staff']) || empty($data['staff'])) {
+            // Retrieve default staff from the 'default_staffs' table
+            $defaultStaff = DefaultStaff::pluck('default_staff_id')->toArray();
+        
+            // Add default staff to the request data
+            $request['staff'] = $defaultStaff;
+        }
+// dd($request->all());
         // Mail::to("devtester004422@gmail.com")->send(new CampaignStatusUpdate($accountName, $campaignName, $clientName, $campaignUrl));
         // Mail::to("devtester004422@gmail.com")->send(new CampaignStatusInactive($accountName, $campaignName, $clientName, $campaignUrl));
         // Mail::to("devtester004422@gmail.com")->send(new CampaignCancelled($accountName, $campaignName, $clientName, $campaignUrl));
