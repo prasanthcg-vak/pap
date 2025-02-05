@@ -521,7 +521,7 @@ class CampaignsController extends Controller
 
             // Get partners for the campaign group
             $groupPartners = ClientGroupPartners::with('user')->where('group_id', $campaign->Client_group_id)->get();
-
+            $clientPartners = ClientPartner::with('partner')->where('client_id', $campaign->client_id)->get();
             $campaign_staff = CampaignStaff::with("staff")->where("campaign_id", $campaignId)->get();
             // Encrypt the campaign ID for secure usage in the response
             // $campaign->id = Crypt::encryptString($campaign->id);
@@ -532,7 +532,7 @@ class CampaignsController extends Controller
                 'campaign' => $campaign,
                 'images' => $images,
                 'clientGroups' => $clientGroups,
-                'groupPartners' => $groupPartners,
+                'clientPartners' => $clientPartners,
                 'staff' => $campaign_staff
             ]);
         } catch (\Exception $e) {
@@ -734,8 +734,6 @@ class CampaignsController extends Controller
                 }
             }
         }
-
-
         return redirect()->route('campaigns.index')->with('success', 'Campaign updated successfully.');
     }
 

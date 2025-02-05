@@ -35,7 +35,6 @@ class ClientController extends Controller
 
     public function store(Request $request)
     {
-
         try {
             // Validate incoming request
             $validatedData = $request->validate([

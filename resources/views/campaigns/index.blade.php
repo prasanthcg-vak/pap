@@ -581,7 +581,7 @@
             const {
                 campaign,
                 clientGroups,
-                groupPartners,
+                clientPartners,
                 images,
                 staff, // Staff data added
             } = campaignData;
@@ -650,10 +650,10 @@
 
             // Populate related partner dropdown
             const $partnerDropdown = $('#related_partner').empty().prop('disabled', false);
-            if (Array.isArray(groupPartners) && groupPartners.length > 0) {
-                groupPartners.forEach(partner => {
+            if (Array.isArray(clientPartners) && clientPartners.length > 0) {
+                clientPartners.forEach(partner => {
                     $partnerDropdown.append(
-                        `<option value="${partner.user.id}">${partner.user.name}</option>`
+                        `<option value="${partner.partner.id}">${partner.partner.name}</option>`
                     );
                 });
             } else {
