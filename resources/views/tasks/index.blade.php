@@ -637,7 +637,7 @@
                                 staffDropdown.innerHTML =
                                     `<option value="" disabled>Select Staff</option>`;
                                 if (data.staffs.length > 0) {
-                                    alert(data.staffs.length);
+                                    // alert(data.staffs.length);
                                     data.staffs.forEach(staff => {
                                         staffDropdown.innerHTML +=
                                             `<option value="${staff.staff_id}">${staff.staff.name}</option>`;
