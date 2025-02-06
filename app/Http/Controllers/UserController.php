@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\WelcomeEmail;
 use App\Models\CampaignPartner;
 use App\Models\ClientGroup;
 use App\Models\ClientGroupPartners;
@@ -122,7 +123,11 @@ class UserController extends Controller
 
 
         // Attempt to send email
-        Mail::to($request->email)->send(new UserPasswordMail($randomPassword));
+        $loginUrl = url('/login'); // Replace with actual login URL
+    
+        Mail::to($request->email)->send(new WelcomeEmail($request->name, $randomPassword, $loginUrl));
+    
+        // Mail::to($request->email)->send(new UserPasswordMail($randomPassword));
 
         return response()->json(['success' => 'User created successfully']);
 
@@ -423,7 +428,10 @@ class UserController extends Controller
                 'profile_picture' => $filePath,
             ]);
         }
-        Mail::to($request->partner_email)->send(new UserPasswordMail($randomPassword));
+        $loginUrl = url('/login'); // Replace with actual login URL
+        Mail::to($request->partner_email)->send(new WelcomeEmail($request->partner_name, $randomPassword, $loginUrl));
+
+        // Mail::to($request->partner_email)->send(new UserPasswordMail($randomPassword));
 
         // Send the password to the partner (via email or other means)
         // You can send an email to the partner with the generated password
