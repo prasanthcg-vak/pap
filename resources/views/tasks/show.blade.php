@@ -153,6 +153,12 @@
                                 </ul>
                             </div>
                         @endif
+                        @if (session('success'))
+                            <div class="alert alert-success">
+                                {{ session('success') }}
+                            </div>
+                        @endif
+
                         <div class="heading_text">
                             <a href="{{ url()->previous() }}" class="btn btn-secondary ms-4" style="float: right;">
                                 <i class="fa fa-arrow-left"></i>
@@ -161,7 +167,7 @@
 
                                 <h3> Task Name: {{ strtoupper($task->name ?? 'N/A') }}</h3>
                                 <p class="status {{ $task->is_active == 1 ? 'green' : 'red' }} ">
-                                    {{ $task->is_active == 1 ? 'ACTIVE' : 'INACTIVE' }} </p>
+                                    {{ $task->is_active == 1 ? 'ACTIVE' : 'INACTIVE' }} || NEW </p>
                             </div>
                         </div>
                         <!-- Task info details -->
@@ -284,9 +290,8 @@
                                 </div>
                                 <form>
                                     <a href="#" class="create-task-btn" data-toggle="modal"
-                                        data-target="#createTask" onclick=""><span>Create
-                                            Versioning</span> <i class="fa-solid fa-plus"></i></a>
-
+                                        data-target="#createVersioning"onclick="openVersionModal()"><span></span> <i
+                                            class="fa-solid fa-plus"></i>NEW</a>
                                 </form>
 
                             </div>
@@ -313,19 +318,20 @@
                                         </tr>
                                     </thead>
                                     <tbody>
+                                        @foreach ($versioning as $version)
                                         <tr>
-                                            {{-- <td class="library-img">
+                                            <td class="library-img">
                                                 <span><img class="img-fluid" src="public/assets/images/profile-image.svg"
                                                         alt=""></span>
                                             </td>
                                             <td>
-                                                <span>4/08/24 15:23</span>
+                                                <span>{{ $version->created_at->format('d/m/y H:i') }}</span>
                                             </td>
                                             <td class="">
-                                                <span>Ne vendit es molo quam qui am cum... </span>
+                                                <span>{{$version->description}} </span>
                                             </td>
                                             <td>
-                                                <span>Working</span>
+                                                <span>{{$version->versionStatus->status}}</span>
                                             </td>
                                             <td class="library-action task">
                                                 <div class="action-btn-icons">
@@ -336,9 +342,11 @@
                                                     <button class="btn thumbs-up"><i
                                                             class="fa-solid fa-thumbs-up"></i></button>
                                                 </div>
-                                            </td> --}}
-                                            <td style="text-align: center;">No data found</td>
+                                            </td>
+                                            {{-- <td style="text-align: center;">No data found</td> --}}
                                         </tr>
+                                        @endforeach
+                                        
                                         {{-- <tr>
                                             <td class="library-img">
                                                 <span><img class="img-fluid"
@@ -438,7 +446,7 @@
                                             <input type="hidden" name="task_id" value="{{ $task->id }}">
                                             <div class="comments-header">
                                                 <div class="profile-fields">
-                                                    <img src="{{ asset(Auth::user()->profile_picture) }}"
+                                                    <img src="{{ Auth::user()->profile_picture ? asset(Auth::user()->profile_picture) : asset('assets/images/Image.png') }}"
                                                         alt="profile-image">
                                                 </div>
                                                 <div class="comment-input-fields">
@@ -549,7 +557,8 @@
                                                                                         @endif
                                                                                     </div>
                                                                                 </div>
-                                                                                <p class="reply-content mt-2">{{ $reply->content }}
+                                                                                <p class="reply-content mt-2">
+                                                                                    {{ $reply->content }}
                                                                                 </p>
                                                                                 <!-- Edit Reply Form (Initially Hidden) -->
                                                                                 <div class="edit-reply-section mt-3"
@@ -859,6 +868,88 @@
         </div>
     </div>
 
+    {{-- VERSIONING MODAL --}}
+    <div class="modal fade createVersioning-modal" id="createVersioning" tabindex="-1" aria-labelledby="ModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="Versioning_model">Asset : {{ $task->name }} |
+                        {{ $task->category->category_name ?? 'N/A' }} | {{ $task->asset()->first()->type_name ?? 'N/A' }}
+                        | {{ $task->size_width ?? 'N/A' }}(w) x
+                        {{ $task->size_height ?? 'N/A' }}(h) {{ $task->size_measurement }}
+                    </h1>
+                    {{-- <p class="status green">Active</p> --}}
+                    <span class="btn-close" id="model-close" data-dismiss="modal" aria-label="Close"></span>
+                </div>
+                <div id="modalLoader" class="modal-loader" style="display: none;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <form id="Model-Form" action="{{ route('task-versions.store') }}" method="POST"
+                        enctype="multipart/form-data">
+                        @csrf
+                        <div class="img-upload-con ">
+                            <div class="main upload--col w-100">
+                                <div class="drop-zone">
+                                    <div class="drop-zone__prompt">
+                                        <div class="drop-zone_color-txt">
+                                            <span><img src="assets/images/Image.png" alt=""></span> <br />
+                                            <span><img src="assets/images/fi_upload-cloud.svg" alt=""> Upload
+                                                Asset</span>
+                                        </div>
+                                        <div class="file-format">
+                                            <p>File Format <b>JEPG, PNG, JPG, MP4, PDF</b></p>
+                                        </div>
+                                    </div>
+                                    <input type="file" name="myFile" class="drop-zone__input">
+                                </div>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px; justify-content: space-between;">
+                            <div>VERSION : 0</div>
+                            <div>Status : NEW</div>
+                            <div>New Status :
+                                <select name="versioning_status">
+                                    <option value="0">Status</option>
+                                    <option value="1">Started</option>
+                                    <option value="2">Draft</option>
+                                </select>
+                                <input type="hidden" name="task_id" value="{{ $task->id }}">
+                            </div>
+                        </div>
+                        <div class="p-4 comments-section task-table-info ">
+                            <div class="comments-header">
+
+                                <div class="profile-fields">
+                                    <img src="{{ Auth::user()->profile_picture ? asset(Auth::user()->profile_picture) : asset('assets/images/Image.png') }}"
+                                        alt="profile-image">
+                                </div>
+                                <div class="comment-input-fields">
+                                    <input type="text" name="contents" placeholder="Add a Description" required>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="sic-action-btns d-flex justify-content-md-end justify-content-center flex-wrap">
+
+                            <div class="sic-btn">
+                                <a class="btn link-asset" href="#" id="cancel">Cancel</a>
+                            </div>
+                            <div class="sic-btn">
+                                <button class="btn download" id="save">Save</button>
+                            </div>
+                        </div>
+
+                </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+    </div>
 @endsection
 @section('script')
     <script>
@@ -867,6 +958,10 @@
         // });
         function openModal() {
             $('#createTask').modal('show');
+        }
+
+        function openVersionModal() {
+            $('#createVersioning').modal('show');
         }
     </script>
 
@@ -979,8 +1074,8 @@
                            ${
                             userRoleLevel !== 3
                                     ? `<button class="btn btn-danger btn-sm delete-reply" data-id="${response.comment.id}">
-                                                                                            <i class="fas fa-trash"></i>
-                                                                                        </button>`
+                                                                                                                <i class="fas fa-trash"></i>
+                                                                                                            </button>`
                                     : ''
                             }
                         </div>
@@ -1075,9 +1170,9 @@
                                                 userRoleLevel !== 3
                                                         ?
                                                     `<button class="btn btn-danger btn-sm delete-reply"
-                                                                                                        data-id="${response.comment.id}">
-                                                                                                        <i class="fas fa-trash"></i>
-                                                                                                    </button>`
+                                                                                                                            data-id="${response.comment.id}">
+                                                                                                                            <i class="fas fa-trash"></i>
+                                                                                                                        </button>`
                                                       : ''
                                                 }
                                                 </div>
@@ -1127,10 +1222,10 @@
                             const $replySection = $form.closest('.media-body');
                             $replySection.find('.reply-content').text(updatedContent).show();
                             $replySection.find('.edit-reply-section')
-                        .hide(); // Hide the edit form
+                                .hide(); // Hide the edit form
                             alert('Reply updated successfully!');
                             $form.closest('.media-body').find('.reply-content').text(
-                                    response.comment.content);
+                                response.comment.content);
                         }
                     },
                     error: function(xhr) {

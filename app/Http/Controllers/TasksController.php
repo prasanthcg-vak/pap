@@ -12,6 +12,7 @@ use App\Models\Image;
 use App\Models\comment;
 use App\Models\Tasks;
 use App\Models\TaskStaff;
+use App\Models\TaskVersion;
 use Aws\S3\S3Client;
 use Exception;
 use Illuminate\Http\Request;
@@ -67,6 +68,7 @@ class TasksController extends Controller
         } elseif ($role_level == 6) {
             $tasksQuery->where('partner_id', $authId)->where('marked_for_deletion', false);
         }
+        
     
         $tasks = $tasksQuery->get();
         $comments = comment::with('replies')->where('main_comment', 1)->get();
@@ -348,7 +350,10 @@ class TasksController extends Controller
         $imageUrl = $image
             ? Storage::disk('backblaze')->url($image->path)
             : null;
-        return view('tasks.show', compact('task', 'campaigns', 'categories', 'assets', 'partners', 'imageUrl','staffs'));
+
+            $versioning = TaskVersion::with('versionStatus','asset','versionStatus','staff')->get();
+        // dd($versioning);
+        return view('tasks.show', compact('task', 'campaigns', 'categories', 'assets', 'partners', 'imageUrl','staffs','versioning'));
     }
 
 

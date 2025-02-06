@@ -77,7 +77,7 @@
             }
 
             // Remove all dynamically added `upload--col` divs except the first one
-            $('.upload--col').not(':first').remove();
+            $('.upload--col').not(':first, .main').remove();
 
             // Hide thumbnail upload for videos/PDFs
             $('.thumbnail-upload').hide();

@@ -1,13 +1,22 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Your Account Password</title>
-</head>
-<body>
-    <h1>Hello,</h1>
-    <p>Welcome to our platform. Here is your password:</p>
-    <p><strong>Password:</strong> {{ $password }}</p>
-    <p>Please change your password after logging in.</p>
-    <p>Best Regards,<br>Your Company</p>
-</body>
-</html>
+@component('mail::message')
+# Hi {{ $accountName }},
+
+Welcome to the Digital Asset Portal.  
+
+You have been given access to this Portal by **{{ $clientCompany }}** to help support your **{{ $clientCompany }}** marketing campaigns.  
+
+Please find below your Portal password:  
+
+**Password:** {{ $password }}  
+
+Please ensure you keep this password stored in a safe place. If you lose or forget your password, you will be able to generate a new one from the website login page.  
+
+@component('mail::button', ['url' => $loginUrl])
+Login Now
+@endcomponent
+
+Kind regards,  
+**The Digital Asset Portal Team**  
+
+[Visit Our Website]({{ $websiteUrl }})
+@endcomponent

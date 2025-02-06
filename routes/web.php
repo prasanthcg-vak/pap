@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\VerificationController;
 use App\Http\Controllers\CampaignsController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\TaskVersionController;
 use App\Models\User;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Support\Facades\Route;
@@ -188,6 +189,14 @@ Route::middleware(['web', 'auth'])->group(function () {
 
     // Edit Forms Ajax call
     Route::get('/clients/{id}/edit', [ClientController::class, 'edit'])->name('clients.edit');
+    Route::prefix('task-versions')->group(function () {
+        Route::get('/', [TaskVersionController::class, 'index'])->name('task-versions.index');
+        Route::post('/', [TaskVersionController::class, 'store'])->name('task-versions.store');
+        Route::get('/{taskVersion}', [TaskVersionController::class, 'show'])->name('task-versions.show');
+        Route::put('/{taskVersion}', [TaskVersionController::class, 'update'])->name('task-versions.update');
+        Route::delete('/{taskVersion}', [TaskVersionController::class, 'destroy'])->name('task-versions.destroy');
+    });
+    
 });
 
 // Route::get('/share/{post}', [PostController::class, 'share'])->name('posts.share');

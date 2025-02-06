@@ -123,7 +123,6 @@ class CampaignsController extends Controller
             // Add default staff to the request data
             $request['staff'] = $defaultStaff;
         }
-// dd($request->all());
         // Mail::to("devtester004422@gmail.com")->send(new CampaignStatusUpdate($accountName, $campaignName, $clientName, $campaignUrl));
         // Mail::to("devtester004422@gmail.com")->send(new CampaignStatusInactive($accountName, $campaignName, $clientName, $campaignUrl));
         // Mail::to("devtester004422@gmail.com")->send(new CampaignCancelled($accountName, $campaignName, $clientName, $campaignUrl));
