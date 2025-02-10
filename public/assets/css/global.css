@@ -2050,6 +2050,10 @@ th.active {
     width: 150px;
 }
 
+.common-table tr img.img-fluid {
+    width: 100px;
+}
+
 .action-btn-group {
     display: flex;
     align-items: center;

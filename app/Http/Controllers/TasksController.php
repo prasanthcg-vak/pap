@@ -13,6 +13,7 @@ use App\Models\comment;
 use App\Models\Tasks;
 use App\Models\TaskStaff;
 use App\Models\TaskVersion;
+use App\Models\VersioningStatus;
 use Aws\S3\S3Client;
 use Exception;
 use Illuminate\Http\Request;
@@ -350,10 +351,33 @@ class TasksController extends Controller
         $imageUrl = $image
             ? Storage::disk('backblaze')->url($image->path)
             : null;
+            $versioning_status = VersioningStatus::get();
 
-            $versioning = TaskVersion::with('versionStatus','asset','versionStatus','staff')->get();
-        // dd($versioning);
-        return view('tasks.show', compact('task', 'campaigns', 'categories', 'assets', 'partners', 'imageUrl','staffs','versioning'));
+            $versioning = TaskVersion::with([
+                'versionStatus',
+                'asset',
+                'staff',
+            ])->get()->map(function ($taskVersion) {
+                return [
+                    'id' => $taskVersion->id,
+                    'status' => $taskVersion->versionStatus ? $taskVersion->versionStatus : null,
+                    'asset' => $taskVersion->asset ? [
+                        'id' => $taskVersion->asset->id,
+                        'file_name' => $taskVersion->asset->file_name,
+                        'image' => $taskVersion->asset->path ? Storage::disk('backblaze')->url($taskVersion->asset->path) : null,
+                        'thumbnail' => $taskVersion->asset->thumbnail_path
+                            ? Storage::disk('backblaze')->url($taskVersion->asset->thumbnail_path)
+                            : null,
+                    ] : null, // Ensure asset exists
+                    'staff' => $taskVersion->staff ? $taskVersion->staff : null,
+                    'description' => $taskVersion->description,
+                    'created_at' => $taskVersion->created_at ? $taskVersion->created_at->format('Y-m-d H:i:s') : null,
+                    'updated_at' => $taskVersion->updated_at ? $taskVersion->updated_at->format('Y-m-d H:i:s') : null,
+                ];
+            });
+            
+                    // dd($versioning);
+        return view('tasks.show', compact('task', 'campaigns', 'categories', 'assets', 'partners', 'imageUrl','staffs','versioning','versioning_status'));
     }
 
 

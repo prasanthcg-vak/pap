@@ -319,112 +319,36 @@
                                     </thead>
                                     <tbody>
                                         @foreach ($versioning as $version)
-                                        <tr>
-                                            <td class="library-img">
-                                                <span><img class="img-fluid" src="public/assets/images/profile-image.svg"
-                                                        alt=""></span>
-                                            </td>
-                                            <td>
-                                                <span>{{ $version->created_at->format('d/m/y H:i') }}</span>
-                                            </td>
-                                            <td class="">
-                                                <span>{{$version->description}} </span>
-                                            </td>
-                                            <td>
-                                                <span>{{$version->versionStatus->status}}</span>
-                                            </td>
-                                            <td class="library-action task">
-                                                <div class="action-btn-icons">
-                                                    <button class="btn search"><i class='bx bx-search-alt-2'></i></button>
-                                                    <button class="btn edit"><i class='bx bx-edit'></i></button>
-                                                    <button class="btn comment"><i
-                                                            class='bx bx-message-dots'></i></button>
-                                                    <button class="btn thumbs-up"><i
-                                                            class="fa-solid fa-thumbs-up"></i></button>
-                                                </div>
-                                            </td>
-                                            {{-- <td style="text-align: center;">No data found</td> --}}
-                                        </tr>
+                                            <tr>
+                                                <td class="library-img">
+                                                    <span>
+                                                        <img class="img-fluid"
+                                                            src="{{ optional($version['asset'])['image'] ?? asset('path-to-default-image.jpg') }}"
+                                                            alt="Asset Image">
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <span>{{ $version['created_at'] ?? 'N/A' }}</span>
+                                                </td>
+                                                <td class="">
+                                                    <span>{{ $version['description'] ?? 'No Description' }}</span>
+                                                </td>
+                                                <td>
+                                                    <span>{{ $version['status']['status'] ?? 'N/A' }}</span>
+                                                </td>
+                                                <td class="library-action task">
+                                                    <div class="action-btn-icons">
+                                                        <button class="btn edit edit-task-version"
+                                                            data-id="{{ $version['id'] }}" data-toggle="modal"
+                                                            data-target="#createVersioning">
+                                                            <i class='bx bx-edit'></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
                                         @endforeach
-                                        
-                                        {{-- <tr>
-                                            <td class="library-img">
-                                                <span><img class="img-fluid"
-                                                        src="assets/images/automated-prompt-generation-with-generative-ai 1.png"
-                                                        alt=""></span>
-                                            </td>
-                                            <td>
-                                                <span>4/08/24 15:23</span>
-                                            </td>
-                                            <td class="">
-                                                <span>Ne vendit es molo quam qui am cum... </span>
-                                            </td>
-                                            <td>
-                                                <span>Working</span>
-                                            </td>
-                                            <td class="library-action task">
-                                                <div class="action-btn-icons">
-                                                    <button class="btn search"><i class='bx bx-search-alt-2'></i></button>
-                                                    <button class="btn edit"><i class='bx bx-edit'></i></button>
-                                                    <button class="btn comment"><i
-                                                            class='bx bx-message-dots'></i></button>
-                                                    <button class="btn thumbs-up"><i
-                                                            class="fa-solid fa-thumbs-up"></i></button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="library-img">
-                                                <span><img class="img-fluid"
-                                                        src="assets/images/automated-prompt-generation-with-generative-ai 1.png"
-                                                        alt=""></span>
-                                            </td>
-                                            <td>
-                                                <span>4/08/24 15:23</span>
-                                            </td>
-                                            <td class="">
-                                                <span>Ne vendit es molo quam qui am cum... </span>
-                                            </td>
-                                            <td>
-                                                <span>Working</span>
-                                            </td>
-                                            <td class="library-action task">
-                                                <div class="action-btn-icons">
-                                                    <button class="btn search"><i class='bx bx-search-alt-2'></i></button>
-                                                    <button class="btn edit"><i class='bx bx-edit'></i></button>
-                                                    <button class="btn comment"><i
-                                                            class='bx bx-message-dots'></i></button>
-                                                    <button class="btn thumbs-up"><i
-                                                            class="fa-solid fa-thumbs-up"></i></button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="library-img">
-                                                <span><img class="img-fluid"
-                                                        src="assets/images/automated-prompt-generation-with-generative-ai 1.png"
-                                                        alt=""></span>
-                                            </td>
-                                            <td>
-                                                <span>4/08/24 15:23</span>
-                                            </td>
-                                            <td class="">
-                                                <span>Ne vendit es molo quam qui am cum... </span>
-                                            </td>
-                                            <td>
-                                                <span>Working</span>
-                                            </td>
-                                            <td class="library-action task">
-                                                <div class="action-btn-icons">
-                                                    <button class="btn search"><i class='bx bx-search-alt-2'></i></button>
-                                                    <button class="btn edit"><i class='bx bx-edit'></i></button>
-                                                    <button class="btn comment"><i
-                                                            class='bx bx-message-dots'></i></button>
-                                                    <button class="btn thumbs-up"><i
-                                                            class="fa-solid fa-thumbs-up"></i></button>
-                                                </div>
-                                            </td>
-                                        </tr> --}}
+
+
                                     </tbody>
                                 </table>
                             </div>
@@ -888,7 +812,7 @@
                     </div>
                 </div>
                 <div class="modal-body">
-                    <form id="Model-Form" action="{{ route('task-versions.store') }}" method="POST"
+                    <form id="Task-Versions-Form" action="{{ route('task-versions.store') }}" method="POST"
                         enctype="multipart/form-data">
                         @csrf
                         <div class="img-upload-con ">
@@ -904,18 +828,23 @@
                                             <p>File Format <b>JEPG, PNG, JPG, MP4, PDF</b></p>
                                         </div>
                                     </div>
-                                    <input type="file" name="myFile" class="drop-zone__input">
+                                    <input type="file" name="versioning-file" class="drop-zone__input">
                                 </div>
                             </div>
                         </div>
                         <div style="display: flex; align-items: center; gap: 10px; justify-content: space-between;">
-                            <div>VERSION : 0</div>
-                            <div>Status : NEW</div>
+                            <div id="version_number">VERSION : <span></span> </div>
+                            <div id="versioning_stats">Status : <span></span></div>
                             <div>New Status :
                                 <select name="versioning_status">
-                                    <option value="0">Status</option>
-                                    <option value="1">Started</option>
-                                    <option value="2">Draft</option>
+                                    <option value="0" disabled selected>Status</option>
+                                    @foreach ($versioning_status as $status)
+                                        @if (
+                                            (Auth::user()->roles->first()->role_level == 3 && in_array($status->id, [2, 3])) ||
+                                                (Auth::user()->roles->first()->role_level != 3 && in_array($status->id, [4, 5, 6])))
+                                            <option value="{{ $status->id }}">{{ $status->status }}</option>
+                                        @endif
+                                    @endforeach
                                 </select>
                                 <input type="hidden" name="task_id" value="{{ $task->id }}">
                             </div>
@@ -928,9 +857,10 @@
                                         alt="profile-image">
                                 </div>
                                 <div class="comment-input-fields">
-                                    <input type="text" name="contents" placeholder="Add a Description" required>
+                                    <input type="text" name="description" placeholder="Add a Description" required>
                                 </div>
                             </div>
+                            <div id="comment-section"></div>
 
                         </div>
                         <div class="sic-action-btns d-flex justify-content-md-end justify-content-center flex-wrap">
@@ -944,6 +874,7 @@
                         </div>
 
                 </div>
+
                 </form>
             </div>
 
@@ -1030,11 +961,6 @@
                 }
             });
 
-        });
-
-
-        $(document).ready(function() {
-
             // Handle Comment Submission via AJAX
             $('#commentForm').on('submit', function(e) {
                 e.preventDefault(); // Prevent default form submission
@@ -1074,8 +1000,8 @@
                            ${
                             userRoleLevel !== 3
                                     ? `<button class="btn btn-danger btn-sm delete-reply" data-id="${response.comment.id}">
-                                                                                                                <i class="fas fa-trash"></i>
-                                                                                                            </button>`
+                                                                                                                                                                                <i class="fas fa-trash"></i>
+                                                                                                                                                                            </button>`
                                     : ''
                             }
                         </div>
@@ -1130,7 +1056,6 @@
             });
 
             // Event delegation for dynamically added reply forms
-            // Event delegation for dynamically added reply forms
             $('#comments-list').on('submit', '.replyForm', function(e) {
                 e.preventDefault(); // Prevent the form's default submission
 
@@ -1170,9 +1095,9 @@
                                                 userRoleLevel !== 3
                                                         ?
                                                     `<button class="btn btn-danger btn-sm delete-reply"
-                                                                                                                            data-id="${response.comment.id}">
-                                                                                                                            <i class="fas fa-trash"></i>
-                                                                                                                        </button>`
+                                                                                                                                                                                            data-id="${response.comment.id}">
+                                                                                                                                                                                            <i class="fas fa-trash"></i>
+                                                                                                                                                                                        </button>`
                                                       : ''
                                                 }
                                                 </div>
@@ -1234,10 +1159,7 @@
                     },
                 });
             });
-        });
-    </script>
-    <script>
-        $(document).ready(function() {
+
 
             $('.editForm').on('submit', function(e) {
                 e.preventDefault();
@@ -1269,6 +1191,104 @@
                     },
                 });
             });
+            $(".edit-task-version").on("click", function() {
+                let taskVersionId = $(this).data("id");
+                $("#createVersioning").modal("show");
+                $('#modalLoader').show();
+
+                $.ajax({
+                    url: "/task-versions/" + taskVersionId + "/edit",
+                    type: "GET",
+                    success: function(response) {
+                        // Change modal title to "Edit"
+                        $("#Versioning_model").text("Edit Task Version");
+                        $("#version_number span").text(response.version_number);
+                        // Update form action to PUT for updating
+                        $("#Task-Versions-Form").attr("action", "/task-versions/" + taskVersionId);
+                        $("#Task-Versions-Form").append(
+                            '<input type="hidden" name="_method" value="PUT">');
+
+                        // Populate form fields with response data
+                        $("input[name='description']").val(response.description);
+                        $("select[name='versioning_status']").val(response
+                            .versioning_status_id);
+                        $("input[name='task_id']").val(response.task_id);
+
+                        // Display the asset if it exists
+                        if (response.image) {
+                            $(".img-upload-con").html(`
+                    <div class="main upload--col w-100">
+                        <div class="drop-zone">
+                            <div class="drop-zone__thumb" data-label="${response.image.file_name}" style="background-image: url(${response.image.image});">
+                            </div>
+                        </div>
+                    </div>
+                `);
+                        }
+
+                        // Display comments and replies
+                        let commentContainer = $("#comment-section");
+                        commentContainer.html(""); // Clear previous comments
+
+                        if (response.comments && response.comments.length > 0) {
+    let commentHTML = "";
+    console.log(response.comments);
+
+    response.comments.forEach(comment => {
+        if (!comment.parent_id) {
+            // Main comment
+            commentHTML += `
+                <div class="media mb-4 border-bottom pb-3 mt-4">
+                    <img class="mr-3 rounded-circle" alt="User Profile Image"
+                        src="${comment.user_profile_picture}" style="width: 50px; height: 50px;" />
+                    <div class="media-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h5 class="mb-0">${comment.created_by_name}</h5>
+                                <small class="text-muted">${comment.created_at}</small>
+                            </div>
+                        </div>
+                        <p class="mt-2 comment-content">${comment.content}</p>
+                        <!-- Display Replies -->
+                        <div class="replies">`;
+
+            // Loop through replies for the current comment
+            comment.replies.forEach(reply => {
+                    commentHTML += `
+                        <div class="media mt-4">
+                            <img class="mr-3 rounded-circle" alt="User Profile Image"
+                                src="${reply.user_profile_picture}" style="width: 40px; height: 40px;" />
+                            <div class="media-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h6 class="mb-0">${reply.created_by_name}</h6>
+                                        <small class="text-muted">${reply.created_at}</small>
+                                    </div>
+                                </div>
+                                <p class="reply-content mt-2">${reply.content}</p>
+                            </div>
+                        </div>`;
+            });
+
+            commentHTML += `</div></div></div>`; // Close comment and replies section
+        }
+    });
+
+    commentContainer.html(commentHTML);
+} else {
+    commentContainer.html("<p>No comments yet.</p>");
+}
+
+                        // Hide modal loader
+                        $('#modalLoader').hide();
+                    },
+                    error: function(xhr) {
+                        alert("Error loading data");
+                        $('#modalLoader').hide();
+                    }
+                });
+            });
+
         });
 
         document.addEventListener('DOMContentLoaded', function() {

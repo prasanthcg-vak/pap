@@ -36,11 +36,15 @@ class TaskVersion extends Model
 
     public function comment()
     {
-        return $this->belongsTo(Comment::class);
+        return $this->belongsTo(Comment::class,'comment_id');
     }
 
     public function asset()
     {
         return $this->belongsTo(Image::class);
+    }
+    public function images()
+    {
+        return $this->belongsTo(Image::class, 'asset_id');
     }
 }

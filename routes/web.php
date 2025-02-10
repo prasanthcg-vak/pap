@@ -195,6 +195,8 @@ Route::middleware(['web', 'auth'])->group(function () {
         Route::get('/{taskVersion}', [TaskVersionController::class, 'show'])->name('task-versions.show');
         Route::put('/{taskVersion}', [TaskVersionController::class, 'update'])->name('task-versions.update');
         Route::delete('/{taskVersion}', [TaskVersionController::class, 'destroy'])->name('task-versions.destroy');
+        Route::get('{id}/edit', [TaskVersionController::class, 'edit']);
+
     });
     
 });
