@@ -30,5 +30,9 @@ class Image extends Model
     {
         return $this->hasMany(Post::class, 'image_id');
     }
+    public function versioning()
+    {
+        return $this->hasMany(TaskVersion::class, 'asset_id');
+    }
 
 }
