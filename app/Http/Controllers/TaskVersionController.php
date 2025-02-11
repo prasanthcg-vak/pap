@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\TaskNotification;
 use App\Models\Comment;
 use App\Models\Image;
+use App\Models\Tasks;
 use App\Models\TaskVersion;
+use App\Models\VersioningStatus;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Aws\S3\S3Client;
@@ -12,6 +15,7 @@ use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Mail;
 use Validator;
 
 class TaskVersionController extends Controller
@@ -37,11 +41,12 @@ class TaskVersionController extends Controller
      */
     public function store(Request $request)
     {
-        // dd($request->all());
         $staff_id = Auth::id();
 
         // Store the uploaded file in Backblaze B2
-        $image = new Image();
+        $image_id = null;
+        $latestVersion = TaskVersion::where('task_id', $request->task_id)
+            ->max('version_number') ?? 0; // Default to 0 if no versions exis
 
         if ($request->hasFile('versioning-file')) {
             try {
@@ -99,6 +104,7 @@ class TaskVersionController extends Controller
                 $image->file_type = $file_type;
                 $image->thumbnail_path = $thumbnailPath; // Save thumbnail path
                 $image->save();
+                $image_id = $image->id;
 
                 Log::info('File uploaded successfully', ['file_id' => $image->id]);
 
@@ -106,14 +112,16 @@ class TaskVersionController extends Controller
                 Log::error('File upload error', ['error_message' => $e->getMessage()]);
                 return response()->json(['error' => 'File upload failed: ' . $e->getMessage()], 500);
             }
+
         }
 
-        $image_id = $image->id;
+
         $taskVersion = new TaskVersion();
         $taskVersion->task_id = $request->task_id;
         $taskVersion->staff_id = $staff_id;
         $taskVersion->versioning_status_id = $request->versioning_status;
         $taskVersion->comment_id = null;
+        $taskVersion->version_number = $latestVersion + 1;
         $taskVersion->description = $request->description;
         $taskVersion->asset_id = $image_id;
         $taskVersion->save();
@@ -125,8 +133,13 @@ class TaskVersionController extends Controller
             'created_by' => $staff_id, // Authenticated user
             'content' => $request->description, // Use description as comment content
         ]);
+
+
+        $statusName = VersioningStatus::where('id', $request->versioning_status)->value('status');
+        $task = Tasks::with('campaign.client')->findOrFail($request->task_id);
+        Mail::to("devtester004422@gmail.com")->send(new TaskNotification($task, $statusName));
+
         return redirect()->back()->with('success', 'Task Version created successfully!');
-        // dd($image_id);
     }
     private function uploadToS3($file, $filePath)
     {
@@ -216,6 +229,7 @@ class TaskVersionController extends Controller
      */
     public function update(Request $request, $id)
     {
+
         try {
             $staff_id = Auth::id();
             $taskVersion = TaskVersion::findOrFail($id); // Find the task version
@@ -272,7 +286,7 @@ class TaskVersionController extends Controller
                     $image = Image::find($taskVersion->asset_id);
                 } else {
                     $image = new Image();
-                    $taskVersion->asset_id = $image->id; // Associate new asset
+                     // Associate new asset
                 }
 
                 $image->path = $filePath;
@@ -281,6 +295,7 @@ class TaskVersionController extends Controller
                 $image->file_type = $file_type;
                 $image->thumbnail_path = $thumbnailPath;
                 $image->save();
+                $taskVersion->asset_id = $image->id;
             }
 
             // Update associated comment if exists
@@ -304,7 +319,20 @@ class TaskVersionController extends Controller
             }
 
             $taskVersion->save(); // Save task version updates
+            $task = Tasks::find($request->task_id);
 
+            if ($task) {
+                $image = Image::find($taskVersion->asset_id);
+                if ($image) {
+                    if ($request->versioning_status == 5) {
+                        $image->campaign_id = $task->campaign_id;
+                        $image->save();
+                    } else {
+                        $image->campaign_id = null;
+                        $image->save();
+                    }
+                }
+            }
             return redirect()->back()->with('success', 'Task Version updated successfully!');
         } catch (\Exception $e) {
             Log::error('Update error', ['error_message' => $e->getMessage()]);

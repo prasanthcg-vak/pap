@@ -116,6 +116,9 @@ function _user_permission_modules($module, $sub_module, $role_id)
 {
     return UserPermissions::where('permission_id', $module)->where('modules_id', $sub_module)->where('role_id', $role_id)->count();
 }
+function auth_user_role_level(){
+    return Auth::user()->roles->first()->role_level;
+}
 
 function campaigns_count()
 {
