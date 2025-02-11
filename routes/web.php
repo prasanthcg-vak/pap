@@ -189,6 +189,7 @@ Route::middleware(['web', 'auth'])->group(function () {
 
     // Edit Forms Ajax call
     Route::get('/clients/{id}/edit', [ClientController::class, 'edit'])->name('clients.edit');
+    
     Route::prefix('task-versions')->group(function () {
         Route::get('/', [TaskVersionController::class, 'index'])->name('task-versions.index');
         Route::post('/', [TaskVersionController::class, 'store'])->name('task-versions.store');

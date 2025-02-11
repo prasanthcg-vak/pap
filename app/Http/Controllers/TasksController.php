@@ -360,6 +360,7 @@ class TasksController extends Controller
             ])->get()->map(function ($taskVersion) {
                 return [
                     'id' => $taskVersion->id,
+                    'version_number' => $floatVersion = number_format($taskVersion->version_number, 1, '.', ''),
                     'status' => $taskVersion->versionStatus ? $taskVersion->versionStatus : null,
                     'asset' => $taskVersion->asset ? [
                         'id' => $taskVersion->asset->id,
