@@ -288,11 +288,19 @@
                                     <h3>VERSIONING</h3>
 
                                 </div>
-                                <form>
-                                    <a href="#" class="create-task-btn" data-toggle="modal"
-                                        data-target="#createVersioning"onclick="openVersionModal()"><span></span> <i
-                                            class="fa-solid fa-plus"></i>NEW</a>
-                                </form>
+                                @php
+                                    $lastVersion = $versioning->last(); // Assuming $versions is a collection or array
+                                @endphp
+
+                                @if ($lastVersion && $lastVersion['status']['id'] != 5 && auth_user_role_level() == 3)
+                                    <form>
+                                        <a href="#" class="create-task-btn" data-toggle="modal"
+                                            data-target="#createVersioning" onclick="openVersionModal()">
+                                            <span></span> <i class="fa-solid fa-plus"></i>NEW
+                                        </a>
+                                    </form>
+                                @endif
+
 
                             </div>
                             <!-- campaigns-contents -->
@@ -303,6 +311,9 @@
                                             <th class="">
                                                 <span>thumbnail</span>
                                             </th>
+                                            <th class="">
+                                                <span>Version</span>
+                                            </th>
                                             <th>
                                                 <span>Date/Time</span>
                                             </th>
@@ -312,9 +323,11 @@
                                             <th>
                                                 <span>status</span>
                                             </th>
+                                            {{-- @if ($version['status']['id'] != 5) --}}
                                             <th class="">
                                                 <span>action</span>
                                             </th>
+                                            {{-- @endif --}}
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -323,9 +336,12 @@
                                                 <td class="library-img">
                                                     <span>
                                                         <img class="img-fluid"
-                                                            src="{{ optional($version['asset'])['image'] ?? asset('path-to-default-image.jpg') }}"
+                                                            src="{{ optional($version['asset'])['image'] ?? asset('/assets/images/thumbnail.jpg') }}"
                                                             alt="Asset Image">
                                                     </span>
+                                                </td>
+                                                <td>
+                                                    {{ $version['version_number'] }}
                                                 </td>
                                                 <td>
                                                     <span>{{ $version['created_at'] ?? 'N/A' }}</span>
@@ -336,15 +352,19 @@
                                                 <td>
                                                     <span>{{ $version['status']['status'] ?? 'N/A' }}</span>
                                                 </td>
+
                                                 <td class="library-action task">
-                                                    <div class="action-btn-icons">
-                                                        <button class="btn edit edit-task-version"
-                                                            data-id="{{ $version['id'] }}" data-toggle="modal"
-                                                            data-target="#createVersioning">
-                                                            <i class='bx bx-edit'></i>
-                                                        </button>
-                                                    </div>
+                                                    @if ($loop->last && $version['status']['id'] != 5)
+                                                        <div class="action-btn-icons">
+                                                            <button class="btn edit edit-task-version"
+                                                                data-id="{{ $version['id'] }}" data-toggle="modal"
+                                                                data-target="#createVersioning">
+                                                                <i class='bx bx-edit'></i>
+                                                            </button>
+                                                        </div>
+                                                    @endif
                                                 </td>
+
                                             </tr>
                                         @endforeach
 
@@ -393,7 +413,7 @@
                                                         @foreach ($task->comments->sortByDesc('created_at') as $comment)
                                                             <div class="media mb-4 border-bottom pb-3">
                                                                 <img class="mr-3 rounded-circle" alt="User Profile Image"
-                                                                    src="{{ asset($comment->user->profile_picture) }}"
+                                                                    src="{{ asset($comment->user->profile_picture ?? 'assets/images/image.png') }}"
                                                                     style="width: 50px; height: 50px;" />
                                                                 <div class="media-body">
                                                                     <div class="d-flex justify-content-between">
@@ -833,8 +853,8 @@
                             </div>
                         </div>
                         <div style="display: flex; align-items: center; gap: 10px; justify-content: space-between;">
-                            <div id="version_number">VERSION : <span></span> </div>
-                            <div id="versioning_stats">Status : <span></span></div>
+                            <div id="version_number">VERSION : <span>0</span> </div>
+                            <div id="versioning_status">Status : <span>NEW</span></div>
                             <div>New Status :
                                 <select name="versioning_status">
                                     <option value="0" disabled selected>Status</option>
@@ -892,6 +912,9 @@
         }
 
         function openVersionModal() {
+            // Reset the form inside the modal
+            $('#Task-Versions-Form')[0].reset(); // Works if form has an ID
+            // Show the modal
             $('#createVersioning').modal('show');
         }
     </script>
@@ -1000,8 +1023,8 @@
                            ${
                             userRoleLevel !== 3
                                     ? `<button class="btn btn-danger btn-sm delete-reply" data-id="${response.comment.id}">
-                                                                                                                                                                                <i class="fas fa-trash"></i>
-                                                                                                                                                                            </button>`
+                                                                                                                                                                                        <i class="fas fa-trash"></i>
+                                                                                                                                                                                    </button>`
                                     : ''
                             }
                         </div>
@@ -1095,9 +1118,9 @@
                                                 userRoleLevel !== 3
                                                         ?
                                                     `<button class="btn btn-danger btn-sm delete-reply"
-                                                                                                                                                                                            data-id="${response.comment.id}">
-                                                                                                                                                                                            <i class="fas fa-trash"></i>
-                                                                                                                                                                                        </button>`
+                                                                                                                                                                                                    data-id="${response.comment.id}">
+                                                                                                                                                                                                    <i class="fas fa-trash"></i>
+                                                                                                                                                                                                </button>`
                                                       : ''
                                                 }
                                                 </div>
@@ -1203,8 +1226,10 @@
                         // Change modal title to "Edit"
                         $("#Versioning_model").text("Edit Task Version");
                         $("#version_number span").text(response.version_number);
+                        $("#versioning_status span").text(response.versioning_status_name);
                         // Update form action to PUT for updating
-                        $("#Task-Versions-Form").attr("action", "/task-versions/" + taskVersionId);
+                        $("#Task-Versions-Form").attr("action", "/task-versions/" +
+                            taskVersionId);
                         $("#Task-Versions-Form").append(
                             '<input type="hidden" name="_method" value="PUT">');
 
@@ -1231,16 +1256,16 @@
                         commentContainer.html(""); // Clear previous comments
 
                         if (response.comments && response.comments.length > 0) {
-    let commentHTML = "";
-    console.log(response.comments);
+                            let commentHTML = "";
+                            console.log(response.comments);
 
-    response.comments.forEach(comment => {
-        if (!comment.parent_id) {
-            // Main comment
-            commentHTML += `
+                            response.comments.forEach(comment => {
+                                if (!comment.parent_id) {
+                                    // Main comment
+                                    commentHTML += `
                 <div class="media mb-4 border-bottom pb-3 mt-4">
                     <img class="mr-3 rounded-circle" alt="User Profile Image"
-                        src="${comment.user_profile_picture}" style="width: 50px; height: 50px;" />
+                        src="/assets/images/image.png" style="width: 50px; height: 50px;" />
                     <div class="media-body">
                         <div class="d-flex justify-content-between">
                             <div>
@@ -1252,12 +1277,16 @@
                         <!-- Display Replies -->
                         <div class="replies">`;
 
-            // Loop through replies for the current comment
-            comment.replies.forEach(reply => {
-                    commentHTML += `
+                                    // Loop through replies for the current comment
+                                    comment.replies.forEach(reply => {
+                                        let profilePicture = reply
+                                            .user_profile_picture ?
+                                            reply.user_profile_picture :
+                                            'assets/images/image.png';
+                                        commentHTML += `
                         <div class="media mt-4">
                             <img class="mr-3 rounded-circle" alt="User Profile Image"
-                                src="${reply.user_profile_picture}" style="width: 40px; height: 40px;" />
+                                src="/assets/images/image.png" style="width: 40px; height: 40px;" />
                             <div class="media-body">
                                 <div class="d-flex justify-content-between">
                                     <div>
@@ -1268,16 +1297,17 @@
                                 <p class="reply-content mt-2">${reply.content}</p>
                             </div>
                         </div>`;
-            });
+                                    });
 
-            commentHTML += `</div></div></div>`; // Close comment and replies section
-        }
-    });
+                                    commentHTML +=
+                                        `</div></div></div>`; // Close comment and replies section
+                                }
+                            });
 
-    commentContainer.html(commentHTML);
-} else {
-    commentContainer.html("<p>No comments yet.</p>");
-}
+                            commentContainer.html(commentHTML);
+                        } else {
+                            commentContainer.html("<p>No comments yet.</p>");
+                        }
 
                         // Hide modal loader
                         $('#modalLoader').hide();

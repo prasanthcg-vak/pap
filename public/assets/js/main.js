@@ -497,4 +497,27 @@ $(document).ready(function () {
     $(this).parent('.full-text').siblings('.truncated-text').show(); // Show truncated text
     $(this).parent('.full-text').siblings('.read-more').show(); // Show "Read more"
   });
+
+
+  $(".layout-btn").click(function() {
+    var targetTable = $(".acc-view");
+
+    // Remove 'active' class from all buttons and add it to the clicked button
+    $(".layout-btn").removeClass("active");
+    $(this).addClass("active");
+      
+    // Remove existing view classes
+    targetTable.removeClass("grid-view list-view table-view");
+
+    // Apply the selected view
+    if ($(this).hasClass("list")) {
+      targetTable.addClass("list-view");
+    } 
+    else if ($(this).hasClass("grid")) {
+      targetTable.addClass("grid-view");
+    }
+    else if ($(this).hasClass("table")) {
+      targetTable.addClass("table-view");
+    }
+  });
 });

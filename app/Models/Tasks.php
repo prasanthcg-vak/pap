@@ -23,7 +23,8 @@ class Tasks extends Model
         'is_active',
         'partner_id',
         'image_id',
-        'deleted_by', 'marked_for_deletion',
+        'deleted_by',
+        'marked_for_deletion',
     ];
 
     protected $dates = ['deleted_at'];
@@ -36,6 +37,10 @@ class Tasks extends Model
     public function status()
     {
         return $this->belongsTo(Status::class);
+    }
+    public function task_status()
+    {
+        return $this->belongsTo(TaskStatus::class,'status_id');
     }
 
     public function categorys()
@@ -84,6 +89,10 @@ class Tasks extends Model
     public function taskStaff()
     {
         return $this->hasMany(TaskStaff::class, 'task_id')->with('staff');
+    }
+    public function taskImage()
+    {
+        return $this->hasMany(TaskImage::class, 'task_id')->with('sharedAssets');
     }
 
 

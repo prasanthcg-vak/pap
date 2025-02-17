@@ -17,6 +17,7 @@ use App\Models\ClientGroupPartners;
 use App\Models\ClientPartner;
 use App\Models\DefaultStaff;
 use App\Models\Status;
+use App\Models\TaskImage;
 use App\Models\Tasks;
 use App\Models\Post;
 use App\Models\Image;
@@ -478,24 +479,48 @@ class CampaignsController extends Controller
     public function assetsList($id)
     {
         $campaign = Campaigns::findOrFail($id);
-        $assets = Image::with('campaign')
-            // ->whereNotNull('campaign_id')
-            ->where('campaign_id', $id)
-            ->get()
-            ->map(function ($image) {
-                return [
-                    'id' => $image->id,
-                    'file_name' => $image->file_name,
-                    // 'image_type' => pathinfo($image->file_name, PATHINFO_EXTENSION), 
-                    'image_type' => $image->file_type,
-                    'image' => Storage::disk('backblaze')->url($image->path) ?? null,
-                    'campaign_name' => $image->campaign ? $image->campaign->name : 'No Campaign',
-                    'campaign_id' => $image->campaign_id,
-                    'campaign_status' => $image->campaign ? $image->campaign->is_active : null,
-                ];
-            });
-
-        return view('campaigns.list', compact('assets', 'campaign'));
+        $assets = TaskImage::with('task.category', 'task.campaign.partner.partner','task.task_status','sharedAssets')
+            ->whereHas('task.campaign', function ($query) use ($id) {
+                $query->where('id', $id);
+            })
+            ->get();
+        
+        // Group assets by category
+        $groupedAssets = $assets->groupBy(function ($asset) {
+            return $asset->task->category->category_name ?? 'Uncategorized';
+        });     
+        // dd($groupedAssets);   
+        // Format data
+        $formattedAssets = $groupedAssets->map(function ($images, $category) {
+            return [
+                'category' => $category,
+                'count' => $images->count(),
+                'images' => $images->map(function ($image) {
+                    return [
+                        'id' => $image->id,
+                        'file_name' => $image->file_name,
+                        'image_type' => $image->file_type,
+                        'image' => Storage::disk('backblaze')->url($image->path) ?? null,
+                        'task_name' => $image->task->task_name ?? 'No Task Name',
+                        'campaign_name' => $image->task->campaign->name ?? 'No Campaign',
+                        'campaign_id' => $image->task->campaign_id ?? null,
+                        'campaign_status' => $image->task->campaign->is_active ?? null,
+                        'size' => '1200*630px', // Example, update dynamically if needed
+                        'status' => $image->task->task_status->name ?? 'Pending', // Fetch from DB or use a default
+                        'type' => $image->task->asset->type_name ?? 'Unknown', // Fetch Asset Type Name
+                        'category_name' => $image->task->category->category_name ?? 'Uncategorized',
+                        'partners' => $image->task->campaign->partner->map(function ($partner) {
+                            return [
+                                'id' => $partner->id,
+                                'name' => $partner->partner->name,
+                            ];
+                        })->toArray(), // Convert partners list to an array
+                    ];
+                }),
+            ];
+        });
+        
+        return view('campaigns.list', compact( 'campaign','groupedAssets'));
     }
 
     /**
