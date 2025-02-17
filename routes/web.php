@@ -24,6 +24,7 @@ use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ClientGroupController;
 use App\Http\Controllers\AdminController;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\SharedAssetController;
 
 
 Route::get('/', function () {
@@ -189,7 +190,7 @@ Route::middleware(['web', 'auth'])->group(function () {
 
     // Edit Forms Ajax call
     Route::get('/clients/{id}/edit', [ClientController::class, 'edit'])->name('clients.edit');
-    
+
     Route::prefix('task-versions')->group(function () {
         Route::get('/', [TaskVersionController::class, 'index'])->name('task-versions.index');
         Route::post('/', [TaskVersionController::class, 'store'])->name('task-versions.store');
@@ -197,9 +198,12 @@ Route::middleware(['web', 'auth'])->group(function () {
         Route::put('/{taskVersion}', [TaskVersionController::class, 'update'])->name('task-versions.update');
         Route::delete('/{taskVersion}', [TaskVersionController::class, 'destroy'])->name('task-versions.destroy');
         Route::get('{id}/edit', [TaskVersionController::class, 'edit']);
-
     });
-    
+
+    Route::post('/shared-assets/save', [SharedAssetController::class, 'store'])->name('shared-assets.save');
+    Route::post('/shared-assets/update', [SharedAssetController::class, 'updateSharedAssets'])->name('shared-assets.update');
+
+
 });
 
 // Route::get('/share/{post}', [PostController::class, 'share'])->name('posts.share');

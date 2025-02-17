@@ -10,6 +10,7 @@ use App\Models\Category;
 use App\Models\ClientPartner;
 use App\Models\Image;
 use App\Models\comment;
+use App\Models\TaskImage;
 use App\Models\Tasks;
 use App\Models\TaskStaff;
 use App\Models\TaskVersion;
@@ -116,7 +117,7 @@ class TasksController extends Controller
 
 
         // Store the uploaded file in Backblaze B2
-        $image = new Image();
+        $image = new TaskImage();
 
         if ($request->hasFile('myFile')) {
             try {
@@ -170,6 +171,7 @@ class TasksController extends Controller
                     $image->path = $filePath; // Assuming you have a 'path' column in your 'images' table
                     $image->file_name = $randomName; // Store the random name if needed
                     $image->file_type = $file_type;
+                    $image->category_id	 = (int) $request->category_id;
                     $image->save();
 
                     // Log successful storage
@@ -224,8 +226,10 @@ class TasksController extends Controller
                 'staff_id' => $staff_id,
             ]);
         }
-
-
+        if ($request->hasFile('myFile')) {
+        $image->task_id = $task->id;
+        $image->save();
+        }
         // Redirect to the tasks index page with a success message
         return redirect()->route('tasks.index')->with('success', 'Task created successfully!');
     }
@@ -489,7 +493,7 @@ class TasksController extends Controller
                     $image->file_type = $file_type;
                     $image->save();
                 } else {
-                    $image = new Image();
+                    $image = new TaskImage();
                     $image->path = $filePath;
                     $image->file_name = $randomName;
                     $image->file_type = $file_type;

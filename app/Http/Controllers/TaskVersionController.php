@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Mail\TaskNotification;
 use App\Models\Comment;
 use App\Models\Image;
+use App\Models\TaskImage;
 use App\Models\Tasks;
 use App\Models\TaskVersion;
 use App\Models\VersioningStatus;
@@ -190,6 +191,7 @@ class TaskVersionController extends Controller
         } else {
             $image = null; // No image found
         }
+        $statusName = VersioningStatus::where('id', $taskVersion->versioning_status_id)->value('status');
 
 
         return response()->json([
@@ -198,6 +200,7 @@ class TaskVersionController extends Controller
             'version_number' => $taskVersion->version_number,
             'image' => $image,
             'versioning_status_id' => $taskVersion->versioning_status_id,
+            'versioning_status_name' => $statusName,
             'description' => $taskVersion->description,
             'asset_url' => $taskVersion->asset ? asset('storage/' . $taskVersion->asset->path) : null,
             'comments' => $taskVersion->comment()->with('replies', 'user')->get()->map(function ($comment) {
@@ -283,7 +286,7 @@ class TaskVersionController extends Controller
 
                 // Update or create asset record
                 if ($taskVersion->asset_id) {
-                    $image = Image::find($taskVersion->asset_id);
+                    $image = TaskImage::find($taskVersion->asset_id);
                 } else {
                     $image = new Image();
                      // Associate new asset
@@ -322,17 +325,21 @@ class TaskVersionController extends Controller
             $task = Tasks::find($request->task_id);
 
             if ($task) {
-                $image = Image::find($taskVersion->asset_id);
+                $image = TaskImage::find($taskVersion->asset_id);
                 if ($image) {
                     if ($request->versioning_status == 5) {
-                        $image->campaign_id = $task->campaign_id;
+                        $image->approved = 1;
                         $image->save();
                     } else {
-                        $image->campaign_id = null;
+                        $image->approved = 0;
                         $image->save();
                     }
                 }
             }
+            $statusName = VersioningStatus::where('id', $request->versioning_status)->value('status');
+            $task = Tasks::with('campaign.client')->findOrFail($request->task_id);
+            Mail::to("devtester004422@gmail.com")->send(new TaskNotification($task, $statusName));
+    
             return redirect()->back()->with('success', 'Task Version updated successfully!');
         } catch (\Exception $e) {
             Log::error('Update error', ['error_message' => $e->getMessage()]);
