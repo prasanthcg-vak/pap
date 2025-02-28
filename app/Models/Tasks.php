@@ -65,7 +65,7 @@ class Tasks extends Model
 
     public function image()
     {
-        return $this->belongsTo(Image::class, 'image_id');
+        return $this->belongsTo(TaskImage::class, 'image_id');
     }
     public function task_comments()
     {
