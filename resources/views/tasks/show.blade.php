@@ -268,14 +268,22 @@
                                         <p>{!! $task->description ??
                                             '<span style="color: gray; font-style: italic;">No description available for this task.</span>' !!}</p>
                                     </div>
-                                    {{-- <div class="upload-contents">
+                                    <div class="upload-contents">
                                         <label>Uploads:</label>
                                         <div class="upload-content-links">
-                                            <a href="#">Stockimage01.jpg</a>
-                                            <a href="#">Worddocument.doc</a>
-                                            <a href="#">example.pdf</a>
+                                            @php
+                                                $firstImage = $task->taskImage->first();
+                                            @endphp
+
+                                            @if ($firstImage)
+                                                <a href="{{ Storage::disk('backblaze')->url($firstImage->path) }}">
+                                                    {{ $firstImage->file_name ?? 'Unnamed File' }}
+                                                </a>
+                                            @else
+                                                <span>No image available</span>
+                                            @endif
                                         </div>
-                                    </div> --}}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -292,7 +300,7 @@
                                     $lastVersion = $versioning->last(); // Assuming $versions is a collection or array
                                 @endphp
 
-                                @if ($lastVersion && $lastVersion['status']['id'] != 5 && auth_user_role_level() == 3)
+                                @if ((!$lastVersion || $lastVersion['status']['id'] != 5) && auth_user_role_level() == 3)
                                     <form>
                                         <a href="#" class="create-task-btn" data-toggle="modal"
                                             data-target="#createVersioning" onclick="openVersionModal()">
@@ -300,6 +308,7 @@
                                         </a>
                                     </form>
                                 @endif
+
 
 
                             </div>
@@ -892,14 +901,11 @@
                                 <button class="btn download" id="save">Save</button>
                             </div>
                         </div>
-
+                    </form>
                 </div>
 
-                </form>
             </div>
-
         </div>
-    </div>
     </div>
 @endsection
 @section('script')
@@ -1023,8 +1029,8 @@
                            ${
                             userRoleLevel !== 3
                                     ? `<button class="btn btn-danger btn-sm delete-reply" data-id="${response.comment.id}">
-                                                                                                                                                                                        <i class="fas fa-trash"></i>
-                                                                                                                                                                                    </button>`
+                                                                                                                                                                                                                <i class="fas fa-trash"></i>
+                                                                                                                                                                                                            </button>`
                                     : ''
                             }
                         </div>
@@ -1118,9 +1124,9 @@
                                                 userRoleLevel !== 3
                                                         ?
                                                     `<button class="btn btn-danger btn-sm delete-reply"
-                                                                                                                                                                                                    data-id="${response.comment.id}">
-                                                                                                                                                                                                    <i class="fas fa-trash"></i>
-                                                                                                                                                                                                </button>`
+                                                                                                                                                                                                                            data-id="${response.comment.id}">
+                                                                                                                                                                                                                            <i class="fas fa-trash"></i>
+                                                                                                                                                                                                                        </button>`
                                                       : ''
                                                 }
                                                 </div>

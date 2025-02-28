@@ -78,7 +78,7 @@ class TaskVersionController extends Controller
                 }
 
                 // Initialize Image model
-                $image = new Image();
+                $image = new TaskImage();
 
                 // Generate a random file name
                 $randomName = Str::random(10) . '.' . $file->getClientOriginalExtension();
@@ -179,7 +179,7 @@ class TaskVersionController extends Controller
         $taskVersion = TaskVersion::with('images')->findOrFail($id);
         $image = $taskVersion->images; // Directly fetch related images
 
-        if ($image instanceof \App\Models\Image) {
+        if ($image instanceof \App\Models\TaskImage) {
             $image = [
                 'id' => $image->id,
                 'file_name' => $image->file_name,
@@ -288,8 +288,8 @@ class TaskVersionController extends Controller
                 if ($taskVersion->asset_id) {
                     $image = TaskImage::find($taskVersion->asset_id);
                 } else {
-                    $image = new Image();
-                     // Associate new asset
+                    $image = new TaskImage();
+                    // Associate new asset
                 }
 
                 $image->path = $filePath;
@@ -326,25 +326,132 @@ class TaskVersionController extends Controller
 
             if ($task) {
                 $image = TaskImage::find($taskVersion->asset_id);
+                $taskimage = TaskImage::find($task->image_id);
+
+                // dd($taskVersion->asset_id);
                 if ($image) {
                     if ($request->versioning_status == 5) {
                         $image->approved = 1;
+                        $taskimage->approved = 1;
                         $image->save();
+                        $taskimage->save();
                     } else {
                         $image->approved = 0;
                         $image->save();
+                        $taskimage->approved = 0;
+                        $taskimage->save();
                     }
                 }
             }
             $statusName = VersioningStatus::where('id', $request->versioning_status)->value('status');
             $task = Tasks::with('campaign.client')->findOrFail($request->task_id);
             Mail::to("devtester004422@gmail.com")->send(new TaskNotification($task, $statusName));
-    
+
             return redirect()->back()->with('success', 'Task Version updated successfully!');
         } catch (\Exception $e) {
             Log::error('Update error', ['error_message' => $e->getMessage()]);
             return response()->json(['error' => 'Update failed: ' . $e->getMessage()], 500);
         }
+    }
+
+    public function creative_request(Request $request)
+    {
+        $old_task = Tasks::findOrFail($request->task_id);
+
+        // Duplicate the task
+        $newTask = $old_task->replicate();
+        $newTask->created_at = now();
+        $newTask->updated_at = now();
+        $newTask->save();
+
+        $newTaskId = $newTask->id; // Get new task ID
+
+        $staff_id = Auth::id();
+        $image_id = null;
+        $latestVersion = TaskVersion::where('task_id', $newTaskId)
+            ->max('version_number') ?? 0;
+
+        if ($request->hasFile('versioning-file')) {
+            try {
+                $file = $request->file('versioning-file');
+                $extension = $file->getClientOriginalExtension();
+                $isVideoOrPdf = in_array($extension, ['mp4', 'pdf']);
+
+                $thumbnailPath = null;
+                if ($isVideoOrPdf) {
+                    if (!$request->hasFile('thumbnail')) {
+                        return back()->withErrors([
+                            'thumbnail' => "A thumbnail is required for video or PDF files (File: {$file->getClientOriginalName()})."
+                        ])->withInput();
+                    }
+
+                    $thumbnail = $request->file('thumbnail');
+                    $thumbnailValidation = Validator::make(
+                        ['thumbnail' => $thumbnail],
+                        ['thumbnail' => 'required|mimes:jpeg,png,jpg|max:10240']
+                    );
+
+                    if ($thumbnailValidation->fails()) {
+                        return back()->withErrors($thumbnailValidation->errors())->withInput();
+                    }
+                }
+
+                $image = new TaskImage();
+                $randomName = Str::random(10) . '.' . $file->getClientOriginalExtension();
+                $filePath = 'images/' . $randomName;
+
+                $this->uploadToS3($file, $filePath);
+
+                $file_type = in_array($extension, ['jpg', 'jpeg', 'png']) ? 'image' :
+                    ($extension === 'pdf' ? 'document' : 'video');
+
+                if ($isVideoOrPdf) {
+                    $thumbnailName = 'thumb_' . Str::random(10) . '.' . $thumbnail->getClientOriginalExtension();
+                    $thumbnailPath = 'images/' . $thumbnailName;
+                    $this->uploadToS3($thumbnail, $thumbnailPath);
+                }
+
+                $image->path = $filePath;
+                $image->task_id = $newTaskId; // Assign to new task
+                $image->file_name = $randomName;
+                $image->file_type = $file_type;
+                $image->thumbnail_path = $thumbnailPath;
+                $image->save();
+                $image_id = $image->id;
+
+                Log::info('File uploaded successfully', ['file_id' => $image->id]);
+
+            } catch (\Exception $e) {
+                Log::error('File upload error', ['error_message' => $e->getMessage()]);
+                return response()->json(['error' => 'File upload failed: ' . $e->getMessage()], 500);
+            }
+        }
+
+        // Create Task Version for new task
+        $taskVersion = new TaskVersion();
+        $taskVersion->task_id = $newTaskId; // Use new task ID
+        $taskVersion->staff_id = $staff_id;
+        $taskVersion->versioning_status_id = $request->versioning_status;
+        $taskVersion->comment_id = null;
+        $taskVersion->version_number = $latestVersion + 1;
+        $taskVersion->description = $request->description;
+        $taskVersion->asset_id = $image_id;
+        $taskVersion->is_creative_request = 1;
+        $taskVersion->save();
+
+        // Add a new comment for the new task
+        $comment = Comment::create([
+            'tasks_id' => $newTaskId, // Use new task ID
+            'parent_id' => null,
+            'main_comment' => 1,
+            'created_by' => $staff_id,
+            'content' => $request->description,
+        ]);
+
+        $statusName = VersioningStatus::where('id', $request->versioning_status)->value('status');
+        $task = Tasks::with('campaign.client')->findOrFail($newTaskId);
+
+        return redirect()->back()->with('success', 'Creative request created successfully with a new task!');
     }
 
 

@@ -722,7 +722,10 @@
             } else {
                 $('#campaignForm :input').prop('disabled', false); // Enable all fields
                 $('.selectpicker').selectpicker('refresh');
-                document.getElementById('archived').style.display = 'none';
+                const archived = document.getElementById('archived');
+                if (archived) {
+                    archived.style.display = 'none';
+                }
             }
 
             $('#createcampaign').modal('show');

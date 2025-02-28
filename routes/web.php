@@ -198,6 +198,7 @@ Route::middleware(['web', 'auth'])->group(function () {
         Route::put('/{taskVersion}', [TaskVersionController::class, 'update'])->name('task-versions.update');
         Route::delete('/{taskVersion}', [TaskVersionController::class, 'destroy'])->name('task-versions.destroy');
         Route::get('{id}/edit', [TaskVersionController::class, 'edit']);
+        Route::post('/creative-request', [TaskVersionController::class, 'creative_request'])->name('task-versions.creative_request');
     });
 
     Route::post('/shared-assets/save', [SharedAssetController::class, 'store'])->name('shared-assets.save');

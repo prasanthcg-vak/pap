@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
+
     <div class="CM-main-content">
         <div class="container-fluid p-0">
             <!--Single Image Container-->

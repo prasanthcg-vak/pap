@@ -108,7 +108,11 @@
         // document.getElementById('inactive_header_block').style.display = 'none';
         // document.getElementById('select-status').style.display = 'none';
 
-        document.getElementById('archived').style.display = 'none';
+        const archived = document.getElementById('archived');
+        if(archived){
+            archived.style.display = 'none';
+        }
+       
 
         // Hide existing image
         document.getElementById('existingImageDiv').style.display = 'none';

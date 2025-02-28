@@ -41,10 +41,10 @@ class TaskVersion extends Model
 
     public function asset()
     {
-        return $this->belongsTo(Image::class);
+        return $this->belongsTo(TaskImage::class);
     }
     public function images()
     {
-        return $this->belongsTo(Image::class, 'asset_id');
+        return $this->belongsTo(TaskImage::class, 'asset_id');
     }
 }

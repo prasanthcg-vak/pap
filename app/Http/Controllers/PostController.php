@@ -72,24 +72,24 @@ class PostController extends Controller
             ]);
             abort(500, 'An error occurred while preparing the post for sharing.');
         }
-    }   
+    }
 
     public function shareToTwitter($identifier)
     {
         // Find post by slug or GUID
         $post = Post::with('image')->where('slug', $identifier)->orWhere('guid', $identifier)->first();
-    
+
         // Handle post not found
         if (!$post) {
             \Log::warning("Post not found with identifier: $identifier");
             abort(404, 'Post not found.');
         }
-    
+
         // Prepare data for sharing
         $message = $post->description;
         $assetUrl = Storage::disk('backblaze')->url($post->image->path);
         $hashtags = 'Laravel,Backblaze';
-    
+
         // Generate the Twitter share URL
         $twitterShareUrl = sprintf(
             'https://twitter.com/intent/tweet?text=%s&url=%s&hashtags=%s',
@@ -97,45 +97,56 @@ class PostController extends Controller
             urlencode($assetUrl),
             urlencode($hashtags)
         );
-    
+
         // Pass the Twitter share URL to the view
         return view('your-view-file', [
             'twitterShareUrl' => $twitterShareUrl,
             'post' => $post, // Pass post for additional data
         ]);
     }
-    
+
     public function createPost(Request $request)
     {
         // Validate the incoming request
         $validated = $request->validate([
-            'image' => 'required|integer|exists:images,id', // Ensures the image ID exists
+            'image' => 'required|integer', // Ensures the image ID exists
             'task_id' => 'required|integer', // Ensure task_id exists in the tasks table
         ]);
 
         // Fetch the task description
         $description = '';
         $title = '';
-        if($request->post_type === 'task'){
+        if ($request->post_type === 'task') {
             $task = Tasks::find($validated['task_id']);
             if ($task || $description) {
                 $description = $task['description'];
                 $title = $task['name'];
             }
-        }else{
+        } else {
             $campaigns = Campaigns::find($validated['task_id']);
             if ($campaigns || $description) {
                 $description = $campaigns['description'];
                 $title = $campaigns['name'];
             }
         }
+        $post = Post::where('image_id', $request->image)->first();
 
-        // Create the post
-        $post = Post::create([
-            'title' => $title ? $title : '',
-            'description' => $description,
-            'image_id' => $validated['image'],
-        ]);
+        if (!$post) {
+            // Create the post only if it doesn't exist
+            $post = Post::create([
+                'title' => $title ?? '',
+                'description' => $description,
+                'image_id' => $request->image,
+            ]);
+        }
+
+
+        // // Create the post
+        // $post = Post::create([
+        //     'title' => $title ? $title : '',
+        //     'description' => $description,
+        //     'image_id' => $validated['image'],
+        // ]);
 
         $postUrl = route('posts.share', $post->slug);
 

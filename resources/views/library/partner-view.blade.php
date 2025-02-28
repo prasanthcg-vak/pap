@@ -65,6 +65,10 @@
                                                                 <p>{{ $image->task->name ?? 'No Name' }}</p>
                                                             </div>
                                                             <div class="list-acc-status">
+                                                                <p>Approved
+                                                                    <span>{{ \Carbon\Carbon::parse($image->task->updated_at)->format('Y-m-d') }}
+                                                                    </span>
+                                                                </p>|
                                                                 <p>Status:
                                                                     @if ($imageSharedAssetsExist)
                                                                         Shared
@@ -78,7 +82,7 @@
                                                                             </svg>
                                                                         </div>
                                                                     @else
-                                                                        Not Shared
+                                                                        Ended
                                                                         <div class="crew-mark minus">
                                                                             <i class="fa-solid fa-exclamation"></i>
                                                                         </div>
@@ -137,7 +141,6 @@
                                                                         </div>
                                                                         <div class="col-sm-6">
                                                                             <p class="profile-data">
-
                                                                                 {{ $image->task->task_status->name }}</p>
                                                                         </div>
                                                                         <div class="col-12">
@@ -184,122 +187,41 @@
 
 
                                                                 <div class="col-lg-4">
-                                                                    <form action="{{ route('shared-assets.save') }}"
-                                                                        method="POST">
-                                                                        @csrf
-                                                                        <div class="row">
-                                                                            <div class="col-12">
-                                                                                <p class="profile-label">Share with
-                                                                                    Partners
-                                                                                </p>
-                                                                            </div>
-                                                                            <div class="col-12">
-                                                                                <div class="row partner-scroll">
-                                                                                    @foreach ($image->task->campaign->partner as $partner)
-                                                                                        <div
-                                                                                            class="col-sm-6 d-flex align-items-center gap-2">
-                                                                                            @php
-                                                                                                $sharedPartnerIds = $image->sharedAssets
-                                                                                                    ->pluck(
-                                                                                                        'partner_id',
-                                                                                                    )
-                                                                                                    ->toArray();
-                                                                                            @endphp
-                                                                                            <input
-                                                                                                class="form-check-input mt-0"
-                                                                                                type="checkbox"
-                                                                                                name="partners[]"
-                                                                                                {{ in_array($partner->partner->id, $sharedPartnerIds) ? 'checked' : '' }}
-                                                                                                value="{{ $partner->partner->id }}"
-                                                                                                {{ $imageSharedAssetsExist ? 'disabled' : '' }}>
-                                                                                            <p class="profile-data">
-                                                                                                {{ $partner->partner->name }}
-                                                                                            </p>
-                                                                                        </div>
-                                                                                    @endforeach
-                                                                                </div>
-                                                                            </div>
-                                                                            <input type="hidden" name="asset_id"
-                                                                                value="{{ $image->id }}">
-                                                                            <input type="hidden" name="task_id"
-                                                                                value="{{ $image->task->id }}">
-                                                                            @php
-                                                                                // Check if sharedAssets exist and get the first entry's start_date and end_date
-                                                                                $sharedAsset = $image->sharedAssets->first();
-                                                                            @endphp
+                                                                    <div class="row">
+                                                                        @php
+                                                                            // Check if sharedAssets exist and get the first entry's start_date and end_date
+                                                                            $sharedAsset = $image->sharedAssets->first();
+                                                                        @endphp
 
-                                                                            <div class="col-sm-6">
-                                                                                <p class="profile-label">Start Date:</p>
-                                                                            </div>
-                                                                            <div class="col-sm-6">
-                                                                                <input type="date" id="start_date"
-                                                                                    name="start_date" class="date"
-                                                                                    value="{{ $sharedAsset ? \Carbon\Carbon::parse($sharedAsset->start_date)->format('Y-m-d') : '' }}"
-                                                                                    {{ $imageSharedAssetsExist ? 'readonly' : '' }}>
-                                                                            </div>
+                                                                        <div class="col-sm-6">
+                                                                            <p class="profile-label">Start Date:</p>
+                                                                        </div>
+                                                                        <div class="col-sm-6">
+                                                                            {{ $sharedAsset ? \Carbon\Carbon::parse($sharedAsset->start_date)->format('Y-m-d') : '' }}
+                                                                        </div>
 
-                                                                            <div class="col-sm-6">
-                                                                                <p class="profile-label">End Date:</p>
-                                                                            </div>
-                                                                            <div class="col-sm-6">
-                                                                                <input type="date" id="end_date"
-                                                                                    name="end_date" class="date"
-                                                                                    value="{{ $sharedAsset && $sharedAsset->end_date ? \Carbon\Carbon::parse($sharedAsset->end_date)->format('Y-m-d') : '' }}">
-                                                                            </div>
+                                                                        <div class="col-sm-6">
+                                                                            <p class="profile-label">End Date:</p>
+                                                                        </div>
+                                                                        <div class="col-sm-6">
+                                                                            {{ $sharedAsset && $sharedAsset->end_date ? \Carbon\Carbon::parse($sharedAsset->end_date)->format('Y-m-d') : '' }}
+                                                                        </div>
 
 
-                                                                            <div
-                                                                                class="col-12 mt-3 sic-action-btns d-flex justify-content-end flex-wrap">
-                                                                                <div class="sic-btn">
-                                                                                    @if ($imageSharedAssetsExist)
-                                                                                        <a class="btn create-task view-asset"
-                                                                                            data-bs-toggle="modal"
-                                                                                            data-bs-target="#asset-view-modal"
-                                                                                            data-task-id="{{ $image->task->id }}"
-                                                                                            data-image-id="{{ $image->id }}"
-                                                                                            data-name="{{ $image->task->name ?? 'No Name' }}"
-                                                                                            data-campaign= "{{ $image->task->campaign->name }}"
-                                                                                            data-status="{{ $imageSharedAssetsExist ? 'Shared' : 'Not Shared' }}"
-                                                                                            data-category="{{ $categoryName }}"
-                                                                                            data-type="{{ $image->task->asset->type_name }}"
-                                                                                            data-size="{{ $image->task->size_width }}x{{ $image->task->size_height }} {{ $image->task->size_measurement }}"
-                                                                                            data-start-date="{{ $sharedAsset ? \Carbon\Carbon::parse($sharedAsset->start_date)->format('Y-m-d') : '' }}"
-                                                                                            data-end-date="{{ $sharedAsset && $sharedAsset->end_date ? \Carbon\Carbon::parse($sharedAsset->end_date)->format('Y-m-d') : '' }}"
-                                                                                            data-image="{{ Storage::disk('backblaze')->url($image->path) }}"
-                                                                                            data-partners="{{ json_encode($image->task->campaign->partner) }}"
-                                                                                            data-shared-assets="{{ json_encode($image->sharedAssets->pluck('partner_id')->toArray()) }}"
-                                                                                            data-image-shared-assets="{{ $imageSharedAssetsExist }}"
-                                                                                            data-link="www.website.com/link-to-asset"
-                                                                                            data-notes={{ $image->additional_notes }}>
-                                                                                            View
-                                                                                        </a>
-                                                                                    @else
-                                                                                        <a class="btn create-task edit-asset"
-                                                                                            data-bs-toggle="modal"
-                                                                                            data-bs-target="#asset-edit-modal"
-                                                                                            data-task-id="{{ $image->task->id }}"
-                                                                                            data-image-id="{{ $image->id }}"
-                                                                                            data-name="{{ $image->task->name ?? 'No Name' }}"
-                                                                                            data-campaign= "{{ $image->task->campaign->name }}"
-                                                                                            data-status="{{ $imageSharedAssetsExist ? 'Shared' : 'Not Shared' }}"
-                                                                                            data-category="{{ $categoryName }}"
-                                                                                            data-type="{{ $image->task->asset->type_name }}"
-                                                                                            data-size="{{ $image->task->size_width }}x{{ $image->task->size_height }} {{ $image->task->size_measurement }}"
-                                                                                            data-image="{{ Storage::disk('backblaze')->url($image->path) }}"
-                                                                                            data-partners="{{ json_encode($image->task->campaign->partner) }}"
-                                                                                            data-link="www.website.com/link-to-asset"
-                                                                                            data-notes="Additional public facing notes go here">
-                                                                                            Edit
-                                                                                        </a>
-                                                                                    @endif
-
-
-                                                                                    <button
-                                                                                        class="btn download">Update</button>
-                                                                                </div>
+                                                                        <div
+                                                                            class="col-12 mt-3 sic-action-btns d-flex justify-content-end flex-wrap">
+                                                                            <div class="sic-btn">
+                                                                                <a href="#" class="create-task-btn"
+                                                                                    data-toggle="modal"
+                                                                                    data-target="#createVersioning"
+                                                                                    onclick="openVersionModal({{ $image->task->id }})">
+                                                                                    <span></span> <i
+                                                                                        class="fa-solid fa-plus"></i>Creative
+                                                                                    Request
+                                                                                </a>
                                                                             </div>
                                                                         </div>
-                                                                    </form>
+                                                                    </div>
                                                                 </div>
 
 
@@ -346,18 +268,20 @@
                                                                         <span>{{ $image->task->name }} </span>
                                                                     </td>
                                                                     <td class="library-camp-title">
-                                                                        <span>Campaign 5</span>
+                                                                        <span>{{ $image->task->campaign->name }}</span>
                                                                     </td>
                                                                     <td class="library-file-name">
-                                                                        <span>Web Banner</span>
+                                                                        <span>{{ $categoryName }}</span>
                                                                     </td>
 
                                                                     <td class="library-file-size">
-                                                                        <span>1200*600px
+                                                                        <span>{{ $image->task->size_width }}x{{ $image->task->size_height }}
+                                                                            {{ $image->task->size_measurement }}
                                                                         </span>
                                                                     </td>
                                                                     <td class="library-file-date">
-                                                                        <span>12/01/2025
+                                                                        <span>
+                                                                            {{ $sharedAsset && $sharedAsset->end_date ? \Carbon\Carbon::parse($sharedAsset->end_date)->format('Y-m-d') : '' }}
                                                                         </span>
                                                                     </td>
                                                                     <td class="library-status">
@@ -402,32 +326,12 @@
                                                                             data-link="www.website.com/link-to-asset"
                                                                             data-notes={{ $image->additional_notes }}><i
                                                                                 class="bx bx-search-alt-2"></i></button>
-                                                                        <button class="btn new-link"
-                                                                            onclick="openlinkmodel(this)"
-                                                                            data-url="{{ $image->post_url }}"
-                                                                            data-linkedin="{{ $image->social_links['linkedin'] }}"
-                                                                            data-facebook="{{ $image->social_links['facebook'] }}"
-                                                                            data-twitter="{{ $image->social_links['twitter'] }}"
-                                                                            data-reddit="{{ $image->social_links['reddit'] }}">
-                                                                            <i class="fa-solid fa-link"></i>
+                                                                        <button class="btn download-btn"
+                                                                            data-url="{{ Storage::disk('backblaze')->url($image->path) }}"
+                                                                            aria-label="Download ">
+                                                                            <i class='bx bx-download'></i>
                                                                         </button>
-                                                                        <button class="btn edit "
-                                                                            {{ $imageSharedAssetsExist ? 'disabled' : '' }}
-                                                                            data-bs-toggle="modal"
-                                                                            data-bs-target="#asset-edit-modal"
-                                                                            data-task-id="{{ $image->task->id }}"
-                                                                            data-image-id="{{ $image->id }}"
-                                                                            data-name="{{ $image->task->name ?? 'No Name' }}"
-                                                                            data-campaign= "{{ $image->task->campaign->name }}"
-                                                                            data-status="{{ $imageSharedAssetsExist ? 'Shared' : 'Not Shared' }}"
-                                                                            data-category="{{ $categoryName }}"
-                                                                            data-type="{{ $image->task->asset->type_name }}"
-                                                                            data-size="{{ $image->task->size_width }}x{{ $image->task->size_height }} {{ $image->task->size_measurement }}"
-                                                                            data-image="{{ Storage::disk('backblaze')->url($image->path) }}"
-                                                                            data-partners="{{ json_encode($image->task->campaign->partner) }}"
-                                                                            data-link="www.website.com/link-to-asset"
-                                                                            data-notes="Additional public facing notes go here">
-                                                                            <i class="bx bx-edit"></i></button>
+
                                                                     </td>
                                                                 </tr>
                                                             @endforeach
@@ -545,23 +449,7 @@
                                                                                     data-reddit="{{ $image->social_links['reddit'] }}">
                                                                                     <i class="fa-solid fa-link"></i>
                                                                                 </button>
-                                                                                <button class="btn edit "
-                                                                                    {{ $imageSharedAssetsExist ? 'disabled' : '' }}
-                                                                                    data-bs-toggle="modal"
-                                                                                    data-bs-target="#asset-edit-modal"
-                                                                                    data-task-id="{{ $image->task->id }}"
-                                                                                    data-image-id="{{ $image->id }}"
-                                                                                    data-name="{{ $image->task->name ?? 'No Name' }}"
-                                                                                    data-campaign= "{{ $image->task->campaign->name }}"
-                                                                                    data-status="{{ $imageSharedAssetsExist ? 'Shared' : 'Not Shared' }}"
-                                                                                    data-category="{{ $categoryName }}"
-                                                                                    data-type="{{ $image->task->asset->type_name }}"
-                                                                                    data-size="{{ $image->task->size_width }}x{{ $image->task->size_height }} {{ $image->task->size_measurement }}"
-                                                                                    data-image="{{ Storage::disk('backblaze')->url($image->path) }}"
-                                                                                    data-partners="{{ json_encode($image->task->campaign->partner) }}"
-                                                                                    data-link="www.website.com/link-to-asset"
-                                                                                    data-notes="Additional public facing notes go here">
-                                                                                    <i class="bx bx-edit"></i></button>
+
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -684,14 +572,6 @@
                                     <div class="col-sm-6">
                                         <p class="profile-data" id="modal-campaign-name"></p>
                                     </div>
-                                    <div class="col-12">
-                                        <p class="profile-label">Share with Partners</p>
-                                    </div>
-                                    <div class="col-12">
-                                        <div class="row partner-scroll" id="partner-list">
-                                            <!-- Dynamic partner list will be populated here -->
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
 
@@ -785,162 +665,85 @@
             </div>
         </div>
     </div>
-    <div class="modal fade campaign-modal" id="asset-edit-modal" tabindex="-1" aria-labelledby="asset-edit-modal"
+    {{-- VERSIONING MODAL --}}
+    <div class="modal fade createVersioning-modal" id="createVersioning" tabindex="-1" aria-labelledby="ModalLabel"
         aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="edit-exampleModalLabel">ASSET: <span id="edit-asset-name"></span>
+                    <h1 class="modal-title fs-5" id="Versioning_model">Asset :
                     </h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    {{-- <p class="status green">Active</p> --}}
+                    <span class="btn-close" id="model-close" data-dismiss="modal" aria-label="Close"></span>
                 </div>
-                <form action="{{ route('shared-assets.update') }}" method="POST">
-                    @csrf
-                    <input type="hidden" id="asset_id" name="asset_id">
-                    <input type="hidden" id="task_id" name="task_id">
-
-
-                    <div class="modal-body task-modal-details">
-                        <div class="edit-modal-content list-item-con">
-                            <div class="list-item-img">
-                                <img id="edit-asset-image" src="" alt="Asset Image">
-                            </div>
-                            <div class="list-item-head">
-                                <div class="list-acc-title">
-                                    <p id="edit-modal-task-name"></p>
-                                </div>
-                                <div class="list-acc-status">
-                                    <p id="edit-modal-approval-date"></p>
-                                    <p>|</p>
-                                    <p id="edit-modal-status">Status: Not Shared</p>
-                                    <div class="crew-mark minus">
-                                        <i class="fa-solid fa-exclamation"></i>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-lg-6">
-                                    <div class="row align-items-center">
-                                        <div class="col-sm-6">
-                                            <p class="profile-label">Campaign:</p>
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <p class="profile-data" id="edit-modal-campaign-name"></p>
-                                        </div>
-                                        <div class="col-12">
-                                            <p class="profile-label">Share with Partners</p>
-                                        </div>
-                                        <div class="col-12">
-                                            <div class="row partner-scroll" id="edit-partner-list">
-                                                <!-- Dynamic partner list will be populated here -->
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="col-lg-6">
-                                    <div class="row">
-                                        <div class="col-sm-6">
-                                            <p class="profile-label">Start Date:</p>
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <input type="date" id="edit-start-date" name="edit-start-date"
-                                                class="date">
-
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <p class="profile-label">End Date:</p>
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <input type="date" id="edit-end-date" name="edit-end-date"
-                                                class="date">
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <p class="profile-label">Category:</p>
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <p class="profile-data" id="edit-modal-category"></p>
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <p class="profile-label">Type:</p>
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <p class="profile-data" id="edit-modal-type"></p>
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <p class="profile-label">Dimension:</p>
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <p class="profile-data" id="edit-modal-dimension"></p>
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <p class="profile-label">Size:</p>
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <p class="profile-data" id="edit-modal-size">320kb</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-lg-6">
-                                <div class="row">
-                                    <div class="col-12">
-                                        <p class="profile-data"> <span>Direct Link:</span> (link appears once asset has
-                                            been
-                                            shared) <i class="fa-solid fa-link"></i></p>
-                                    </div>
-                                    <div class="col-sm-6">
-                                        <p class="profile-data">Send To:</p>
-                                    </div>
-                                    <div class="col-sm-6">
-                                        <div class="social-links">
-                                            <ul>
-                                                <li><a href="#" id="edit-linkedinShare" target="_blank"
-                                                        aria-label="Share on LinkedIn"><i
-                                                            class="fa-brands fa-linkedin"></i></a></li>
-                                                <li><a href="#" id="edit-facebookShare" target="_blank"
-                                                        aria-label="Share on Facebook"><i
-                                                            class="fa-brands fa-facebook"></i></a></li>
-                                                <li><a href="#" id="edit-twitterShare" target="_blank"
-                                                        aria-label="Share on Twitter"><i
-                                                            class="fa-brands fa-x-twitter"></i></a></li>
-                                                <li><a href="#" id="edit-redditShare" target="_blank"
-                                                        aria-label="Share on Reddit"><i
-                                                            class="fa-brands fa-reddit-alien"></i></a></li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                    <div class="col-12">
-                                        <p class="profile-label">Additional Notes:</p>
-                                    </div>
-                                    <div class="col-12 ">
-                                        <textarea class="form-control edit-textarea" placeholder="Leave a comment here" id="floatingTextarea"
-                                            name="additionalnotes"></textarea>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="sic-action-btns d-flex justify-content-md-end justify-content-center flex-wrap mt-3">
-                            <div class="sic-btn">
-                                <button class="btn download" id="save" type="submit">
-                                    Update
-                                </button>
-                            </div>
-                            <div class="sic-btn">
-                                <button class="btn link-asset" id="cancel" data-bs-dismiss="modal"
-                                    aria-label="Close">
-                                    cancel
-                                </button>
-                            </div>
-                        </div>
+                <div id="modalLoader" class="modal-loader" style="display: none;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="sr-only">Loading...</span>
                     </div>
-                </form>
+                </div>
+                <div class="modal-body">
+                    <form id="Task-Versions-Form" action="{{ route('task-versions.creative_request') }}" method="POST"
+                        enctype="multipart/form-data">
+                        @csrf
+                        <div class="img-upload-con ">
+                            <div class="main upload--col w-100">
+                                <div class="drop-zone">
+                                    <div class="drop-zone__prompt">
+                                        <div class="drop-zone_color-txt">
+                                            <span><img src="assets/images/Image.png" alt=""></span> <br />
+                                            <span><img src="assets/images/fi_upload-cloud.svg" alt=""> Upload
+                                                Asset</span>
+                                        </div>
+                                        <div class="file-format">
+                                            <p>File Format <b>JEPG, PNG, JPG, MP4, PDF</b></p>
+                                        </div>
+                                    </div>
+                                    <input type="file" name="versioning-file" class="drop-zone__input">
+                                </div>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px; justify-content: space-between;">
+                            <div id="version_number">VERSION : <span>1</span> </div>
+                            <div id="versioning_status">Status : <span>NEW</span></div>
+                            <input type="hidden" name="task_id" id="versioning_task_id" value="">
+                            <div>New Status :
+                                <select name="versioning_status">
+                                    <option value="1" selected>NEW</option>
+
+
+                                </select>
+                                {{-- <input type="hidden" name="task_id" value="{{ $task->id }}"> --}}
+                            </div>
+                        </div>
+                        <div class="p-4 comments-section task-table-info ">
+                            <div class="comments-header">
+
+                                <div class="profile-fields">
+                                    <img src="{{ Auth::user()->profile_picture ? asset(Auth::user()->profile_picture) : asset('assets/images/Image.png') }}"
+                                        alt="profile-image">
+                                </div>
+                                <div class="comment-input-fields">
+                                    <input type="text" name="description" placeholder="Add a Description" required>
+                                </div>
+                            </div>
+                            <div id="comment-section"></div>
+
+                        </div>
+                        <div class="sic-action-btns d-flex justify-content-md-end justify-content-center flex-wrap">
+
+                            <div class="sic-btn">
+                                <a class="btn link-asset" href="#" id="cancel">Cancel</a>
+                            </div>
+                            <div class="sic-btn">
+                                <button class="btn download" id="save">Save</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
             </div>
         </div>
     </div>
-
 
 
 
@@ -951,46 +754,6 @@
 @section('script')
     <script>
         const viewModal = document.getElementById('asset-view-modal');
-        const editModal = document.getElementById('asset-edit-modal');
-
-        editModal.addEventListener('show.bs.modal', (event) => {
-            const button = event.relatedTarget; // Button that triggered the modal
-            const assetName = button.getAttribute('data-name');
-            const taskId = button.getAttribute('data-task-id');
-            const imageId = button.getAttribute('data-image-id');
-            const taskName = button.getAttribute('data-task-name');
-            const category = button.getAttribute('data-category');
-            const type = button.getAttribute('data-type');
-            const size = button.getAttribute('data-size');
-            const campaignName = button.getAttribute('data-campaign');
-            const image = button.getAttribute('data-image');
-            const partners = JSON.parse(button.getAttribute('data-partners'));
-
-            const partnerListContainer = document.getElementById('edit-partner-list');
-            partnerListContainer.innerHTML = '';
-
-            document.getElementById('asset_id').value = imageId;
-            document.getElementById('task_id').value = taskId;
-            document.getElementById('edit-modal-task-name').textContent = assetName;
-            document.getElementById('edit-modal-campaign-name').textContent = campaignName;
-            document.getElementById('edit-modal-category').textContent = category;
-            document.getElementById('edit-modal-type').textContent = type;
-            document.getElementById('edit-modal-dimension').textContent = size;
-            document.getElementById('edit-asset-image').src = image;
-
-            partners.forEach((partner) => {
-                const div = document.createElement('div');
-                div.classList.add('col-sm-6', 'd-flex', 'align-items-center', 'gap-2');
-                div.innerHTML = `
-            <input class="form-check-input mt-0" type="checkbox" name="partners[]"
-                value="${partner.partner.id}">
-            <p class="profile-data">${partner.partner.name}</p>
-            `;
-
-                partnerListContainer.appendChild(div);
-            });
-        });
-
         viewModal.addEventListener('show.bs.modal', (event) => {
             const button = event.relatedTarget; // Button that triggered the modal
             const assetName = button.getAttribute('data-name');
@@ -1005,13 +768,10 @@
             const endDate = button.getAttribute('data-end-date');
             const image = button.getAttribute('data-image');
             const link = button.getAttribute('data-link');
-            const partners = JSON.parse(button.getAttribute('data-partners'));
             const sharedAssets = JSON.parse(button.getAttribute('data-shared-assets'));
             const imageSharedAssetsExist = button.getAttribute('data-image-shared-assets') === '1';
 
             const socialLinks = button.getAttribute('data-social-links'); // Expecting a comma-separated list
-            const partnerListContainer = document.getElementById('partner-list');
-            partnerListContainer.innerHTML = '';
 
             // Populate modal fields
             // document.getElementById('asset-name').textContent = assetName;
@@ -1059,23 +819,7 @@
                 }
             });
 
-            partners.forEach((partner) => {
-                const div = document.createElement('div');
-                div.classList.add('col-sm-6', 'd-flex', 'align-items-center', 'gap-2');
 
-                const isChecked = sharedAssets.includes(partner.partner.id);
-                const isDisabled = imageSharedAssetsExist ? 'disabled' : '';
-
-                div.innerHTML = `
-                <input class="form-check-input mt-0" type="checkbox" name="partners[]"
-                    value="${partner.partner.id}" 
-                    ${isChecked ? 'checked' : ''}
-                    ${isDisabled}>
-                <p class="profile-data">${partner.partner.name}</p>
-            `;
-
-                partnerListContainer.appendChild(div);
-            });
             // Additional Notes
             document.getElementById('notes').value = button.getAttribute('data-notes');
         });
@@ -1188,6 +932,17 @@
 
             // Show a confirmation message
             alert('Public URL copied to clipboard!');
+        }
+
+        function openVersionModal(taskId) {
+            // Reset the form inside the modal
+            $('#Task-Versions-Form')[0].reset(); // Works if form has an ID
+
+            // Show the modal
+            $('#createVersioning').modal('show');
+
+            // Set the value of the input field
+            $('#versioning_task_id').val(taskId);
         }
     </script>
 @endsection

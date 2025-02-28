@@ -9,7 +9,7 @@ use App\Models\CampaignStaff;
 use App\Models\Category;
 use App\Models\ClientPartner;
 use App\Models\Image;
-use App\Models\comment;
+use App\Models\Comment;
 use App\Models\TaskImage;
 use App\Models\Tasks;
 use App\Models\TaskStaff;
@@ -35,7 +35,7 @@ class TasksController extends Controller
         $role_level = Auth::user()->roles->first()->role_level;
         $client_id = Auth::user()->client_id;
         $group_id = Auth::user()->group_id;
-    
+
         // Fetch campaigns based on role
         if ($role_level < 4) {
             $campaigns = Campaigns::all();
@@ -46,18 +46,18 @@ class TasksController extends Controller
         } else {
             $campaigns = Campaigns::where('client_id', $client_id)->get();
         }
-    
+
         $categories = Category::where('is_active', 1)->get();
         $assets = AssetType::where('is_active', 1)->get();
         $partners = ClientPartner::with(['client', 'partner'])->where('client_id', $authId)->get();
-    
+
         $tasksQuery = Tasks::with([
             'campaign.group',
             'campaign.client',
             'status',
             'taskStaff.staff'
         ]);
-    
+
         // Filter tasks based on role
         if ($role_level == 4) {
             $tasksQuery->whereHas('campaign', function ($query) use ($client_id) {
@@ -69,15 +69,18 @@ class TasksController extends Controller
             })->where('marked_for_deletion', false);
         } elseif ($role_level == 6) {
             $tasksQuery->where('partner_id', $authId)->where('marked_for_deletion', false);
+        } elseif ($role_level == 3) {
+            $tasksQuery->whereHas('taskStaff', function ($query) use ($authId) {
+                $query->where('staff_id', $authId);
+            });
         }
-        
-    
+
         $tasks = $tasksQuery->get();
-        $comments = comment::with('replies')->where('main_comment', 1)->get();
-    
+        $comments = Comment::with('replies')->where('main_comment', 1)->get();
+
         return view('tasks.index', compact('tasks', 'campaigns', 'categories', 'assets', 'partners', 'comments'));
     }
-    
+
 
 
     /**
@@ -171,7 +174,7 @@ class TasksController extends Controller
                     $image->path = $filePath; // Assuming you have a 'path' column in your 'images' table
                     $image->file_name = $randomName; // Store the random name if needed
                     $image->file_type = $file_type;
-                    $image->category_id	 = (int) $request->category_id;
+                    $image->category_id = (int) $request->category_id;
                     $image->save();
 
                     // Log successful storage
@@ -217,7 +220,7 @@ class TasksController extends Controller
             'asset_id' => (int) $request->asset_id,
             'size_measurement' => $request->size_measurement,
             'description' => $validatedData['description'],
-            'status_id' => null, // Set this as needed
+            'status_id' => 1, // Set this as needed
             'is_active' => $request->has('is_active') ? 1 : 0,
         ]);
         foreach ($request->staff as $staff_id) {
@@ -227,8 +230,9 @@ class TasksController extends Controller
             ]);
         }
         if ($request->hasFile('myFile')) {
-        $image->task_id = $task->id;
-        $image->save();
+
+            $image->task_id = $task->id;
+            $image->save();
         }
         // Redirect to the tasks index page with a success message
         return redirect()->route('tasks.index')->with('success', 'Task created successfully!');
@@ -349,40 +353,40 @@ class TasksController extends Controller
 
         // Fetch the associated image for the task
         $image = $task->image_id
-            ? Image::find($task->image_id)
+            ? TaskImage::find($task->image_id)
             : null;
 
         $imageUrl = $image
             ? Storage::disk('backblaze')->url($image->path)
             : null;
-            $versioning_status = VersioningStatus::get();
+        $versioning_status = VersioningStatus::get();
 
-            $versioning = TaskVersion::with([
-                'versionStatus',
-                'asset',
-                'staff',
-            ])->get()->map(function ($taskVersion) {
-                return [
-                    'id' => $taskVersion->id,
-                    'version_number' => $floatVersion = number_format($taskVersion->version_number, 1, '.', ''),
-                    'status' => $taskVersion->versionStatus ? $taskVersion->versionStatus : null,
-                    'asset' => $taskVersion->asset ? [
-                        'id' => $taskVersion->asset->id,
-                        'file_name' => $taskVersion->asset->file_name,
-                        'image' => $taskVersion->asset->path ? Storage::disk('backblaze')->url($taskVersion->asset->path) : null,
-                        'thumbnail' => $taskVersion->asset->thumbnail_path
-                            ? Storage::disk('backblaze')->url($taskVersion->asset->thumbnail_path)
-                            : null,
-                    ] : null, // Ensure asset exists
-                    'staff' => $taskVersion->staff ? $taskVersion->staff : null,
-                    'description' => $taskVersion->description,
-                    'created_at' => $taskVersion->created_at ? $taskVersion->created_at->format('Y-m-d H:i:s') : null,
-                    'updated_at' => $taskVersion->updated_at ? $taskVersion->updated_at->format('Y-m-d H:i:s') : null,
-                ];
-            });
-            
-                    // dd($versioning);
-        return view('tasks.show', compact('task', 'campaigns', 'categories', 'assets', 'partners', 'imageUrl','staffs','versioning','versioning_status'));
+        $versioning = TaskVersion::with([
+            'versionStatus',
+            'asset',
+            'staff',
+        ])->where('task_id', $task->id)->get()->map(function ($taskVersion) {
+            return [
+                'id' => $taskVersion->id,
+                'version_number' => $floatVersion = number_format($taskVersion->version_number, 1, '.', ''),
+                'status' => $taskVersion->versionStatus ? $taskVersion->versionStatus : null,
+                'asset' => $taskVersion->asset ? [
+                    'id' => $taskVersion->asset->id,
+                    'file_name' => $taskVersion->asset->file_name,
+                    'image' => $taskVersion->asset->path ? Storage::disk('backblaze')->url($taskVersion->asset->path) : null,
+                    'thumbnail' => $taskVersion->asset->thumbnail_path
+                        ? Storage::disk('backblaze')->url($taskVersion->asset->thumbnail_path)
+                        : null,
+                ] : null, // Ensure asset exists
+                'staff' => $taskVersion->staff ? $taskVersion->staff : null,
+                'description' => $taskVersion->description,
+                'created_at' => $taskVersion->created_at ? $taskVersion->created_at->format('Y-m-d H:i:s') : null,
+                'updated_at' => $taskVersion->updated_at ? $taskVersion->updated_at->format('Y-m-d H:i:s') : null,
+            ];
+        });
+
+
+        return view('tasks.show', compact('task', 'campaigns', 'categories', 'assets', 'partners', 'imageUrl', 'staffs', 'versioning', 'versioning_status'));
     }
 
 
@@ -421,6 +425,7 @@ class TasksController extends Controller
     // }
     public function update(Request $request, $id)
     {
+
         // Validate the incoming request data
         $validatedData = $request->validate([
             'campaign_id' => 'required',
@@ -487,7 +492,7 @@ class TasksController extends Controller
 
                 // Update the image in the database
                 if ($task->image_id) {
-                    $image = Image::findOrFail($task->image_id);
+                    $image = TaskImage::findOrFail($task->image_id);
                     $image->path = $filePath;
                     $image->file_name = $randomName;
                     $image->file_type = $file_type;
