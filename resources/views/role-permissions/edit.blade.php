@@ -30,7 +30,7 @@
                                     <input class="form-check-input" type="checkbox" name="permissions[]" value="{{ $permission->id }}" id="permission-{{ $permission->id }}"
                                     {{ $role->permissions->contains($permission->id) ? 'checked' : '' }} >
                                     <label class="form-check-label" for="permission-{{ $permission->id }}">
-                                        {{ $permission->label }}
+                                        {{ $permission->description }}
                                     </label>
                                     <!-- <small class="text-muted">{{ $permission->description }}</small> -->
                                 </div>

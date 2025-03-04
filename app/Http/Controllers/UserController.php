@@ -148,7 +148,7 @@ class UserController extends Controller
             // Additional validation for roles
             if (in_array($request->role_id, [4, 5, 6])) {
                 $request->validate(['client_id' => 'required']);
-                if ($request->role_id == 6) {
+                if ($request->role_id == 5) {
                     $request->validate(['group_id' => 'required']);
                 }
             } else {

@@ -169,30 +169,55 @@ function task_count()
     $tasksQuery = Tasks::query();
 
     // Apply filters based on user role
-    if ($role_level < 4) {
-        // Super Admin: Count all tasks, including those marked for deletion
-        $tasksQuery->with(['campaign.group', 'campaign.client', 'status']);
-    } elseif ($role_level == 4) {
-        // Client Admin: Count tasks for their client, excluding marked for deletion
-        $tasksQuery->with(['campaign.group', 'campaign.client', 'status'])
-            ->whereHas('campaign', function ($query) use ($client_id) {
-                $query->where('client_id', $client_id);
-            })
-            ->where('marked_for_deletion', false);
+    // if ($role_level < 4) {
+    //     // Super Admin: Count all tasks, including those marked for deletion
+    //     $tasksQuery->with(['campaign.group', 'campaign.client', 'status']);
+    // } elseif ($role_level == 4) {
+    //     // Client Admin: Count tasks for their client, excluding marked for deletion
+    //     $tasksQuery->with(['campaign.group', 'campaign.client', 'status'])
+    //         ->whereHas('campaign', function ($query) use ($client_id) {
+    //             $query->where('client_id', $client_id);
+    //         })
+    //         ->where('marked_for_deletion', false);
+    // } elseif ($role_level == 5) {
+    //     // Group Admin: Count tasks for their group, excluding marked for deletion
+    //     $tasksQuery->with(['campaign.group', 'campaign.client', 'status'])
+    //         ->whereHas('campaign', function ($query) use ($client_id, $group_id) {
+    //             $query->where('client_id', $client_id);
+    //             // ->where('client_group_id', $group_id); // Uncomment if needed
+    //         })
+    //         ->where('marked_for_deletion', false);
+    // } elseif ($role_level == 6) {
+    //     // Partner: Count tasks assigned to them, excluding marked for deletion
+    //     $tasksQuery->with(['campaign.group', 'campaign.client', 'status', 'campaign.partner'])
+    //         ->where('partner_id', $authId)
+    //         ->where('marked_for_deletion', false);
+    // }
+    $tasksQuery = Tasks::with([
+        'campaign.group',
+        'campaign.client',
+        'status',
+        'taskStaff.staff'
+    ]);
+
+    // Filter tasks based on role
+    if ($role_level == 4) {
+        $tasksQuery->whereHas('campaign', function ($query) use ($client_id) {
+            $query->where('client_id', $client_id);
+        });
     } elseif ($role_level == 5) {
-        // Group Admin: Count tasks for their group, excluding marked for deletion
-        $tasksQuery->with(['campaign.group', 'campaign.client', 'status'])
-            ->whereHas('campaign', function ($query) use ($client_id, $group_id) {
-                $query->where('client_id', $client_id);
-                // ->where('client_group_id', $group_id); // Uncomment if needed
-            })
-            ->where('marked_for_deletion', false);
+        $tasksQuery->whereHas('campaign', function ($query) use ($client_id, $group_id) {
+            $query->where('client_id', $client_id);
+        })->where('marked_for_deletion', false);
     } elseif ($role_level == 6) {
-        // Partner: Count tasks assigned to them, excluding marked for deletion
-        $tasksQuery->with(['campaign.group', 'campaign.client', 'status', 'campaign.partner'])
-            ->where('partner_id', $authId)
-            ->where('marked_for_deletion', false);
+        $tasksQuery->where('partner_id', $authId)->where('marked_for_deletion', false);
+    } elseif ($role_level == 3) {
+        $tasksQuery->whereHas('taskStaff', function ($query) use ($authId) {
+            $query->where('staff_id', $authId);
+        });
     }
+
+    $tasks = $tasksQuery->get();
 
     // Get the count of tasks
     return $tasksQuery->count();
