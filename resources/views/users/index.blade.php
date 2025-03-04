@@ -384,6 +384,8 @@
 
                     if (xhr.status === 422) { // Validation error
                         let errors = xhr.responseJSON.errors;
+                        console.log(response);
+                        
 
                         // Clear all previous error messages and 'is-invalid' classes
                         $('.text-danger').remove(); // Remove previous error messages
