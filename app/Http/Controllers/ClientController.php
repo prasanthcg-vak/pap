@@ -25,13 +25,8 @@ class ClientController extends Controller
             }
         ])->get();
 
-        // dd($clients[0]->users->first()->user->name);
-
-
         return view('clients.index', compact('clients'));
     }
-
-
 
     public function store(Request $request)
     {
@@ -65,11 +60,8 @@ class ClientController extends Controller
                 'logo' => $filePath,
                 'is_active' => $validatedData['is_active'] ?? 0,
             ]);
-            // dd($client);
 
             $clientId = $client->id;
-
-
 
             // Create the client admin user
             $user = User::create([
@@ -95,7 +87,6 @@ class ClientController extends Controller
             ]);
 
             DB::commit();
-            // dd("test");
             return response()->json(['success' => 'Client and Client Admin created successfully'], 201);
 
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -126,7 +117,6 @@ class ClientController extends Controller
         try {
             $client = Client::with(['users'])->findOrFail($id);
 
-            // dd($client);
             // Optionally, customize the response structure
             return response()->json([
                 'id' => $client->id,
@@ -145,7 +135,6 @@ class ClientController extends Controller
             return response()->json(['error' => 'An error occurred while fetching client data'], 500);
         }
     }
-
 
     public function update(Request $request, $id)
     {
@@ -176,8 +165,6 @@ class ClientController extends Controller
                 ]);
             }
 
-
-
             // Begin transaction
             DB::beginTransaction();
 
@@ -197,7 +184,6 @@ class ClientController extends Controller
                     unlink(public_path($client->logo));
                 }
             }
-            // dd($client);
             // Update the client details
             $client->update([
                 'name' => $validatedData['name'],
@@ -255,9 +241,6 @@ class ClientController extends Controller
                 );
 
             }
-            // Sync the role for the user
-
-
             DB::commit();
 
             return response()->json(['success' => 'Client and Client Admin updated successfully'], 200);
@@ -283,7 +266,6 @@ class ClientController extends Controller
         }
     }
 
-
     public function destroy($id)
     {
         try {
@@ -304,7 +286,6 @@ class ClientController extends Controller
                         if ($user) {
                             // Delete roles associated with the user
                             DB::table('role_user')->where("user_id", $clientadmin->user_id)->delete();
-
                             // Delete the user
                             $user->delete();
                         }
@@ -316,7 +297,6 @@ class ClientController extends Controller
                 $client->delete();
             }
 
-
             return redirect()->route('clients.index')->with('success', 'Client Group deleted successfully');
         } catch (\ModelNotFoundException $e) {
             return response()->json(['error' => 'Client not found'], 404);
@@ -325,7 +305,6 @@ class ClientController extends Controller
             return response()->json(['error' => 'An error occurred while deleting the client'], 500);
         }
     }
-
 
 }
 
