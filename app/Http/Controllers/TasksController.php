@@ -8,6 +8,8 @@ use App\Models\Campaigns;
 use App\Models\CampaignStaff;
 use App\Models\Category;
 use App\Models\ClientPartner;
+use App\Models\DefaultStaff;
+use App\Models\GroupClientUsers;
 use App\Models\Image;
 use App\Models\Comment;
 use App\Models\TaskImage;
@@ -35,6 +37,7 @@ class TasksController extends Controller
         $role_level = Auth::user()->roles->first()->role_level;
         $client_id = Auth::user()->client_id;
         $group_id = Auth::user()->group_id;
+        $clientuser_groups = GroupClientUsers::where("clientuser_id", $authId)->pluck('group_id')->toArray();
 
         // Fetch campaigns based on role
         if ($role_level < 4) {
@@ -44,6 +47,9 @@ class TasksController extends Controller
                 $query->where('partner_id', $authId);
             })->get();
         } else {
+            if($role_level == 5){
+                $campaigns = Campaigns::where('client_id', $client_id)->get();
+            }
             $campaigns = Campaigns::where('client_id', $client_id)->get();
         }
 
@@ -66,6 +72,7 @@ class TasksController extends Controller
         } elseif ($role_level == 5) {
             $tasksQuery->whereHas('campaign', function ($query) use ($client_id, $group_id) {
                 $query->where('client_id', $client_id);
+                // Apply group_id filter only if user has groups
             })->where('marked_for_deletion', false);
         } elseif ($role_level == 6) {
             $tasksQuery->where('partner_id', $authId)->where('marked_for_deletion', false);
@@ -74,8 +81,15 @@ class TasksController extends Controller
                 $query->where('staff_id', $authId);
             });
         }
+        if ($role_level == 5) {
+            $tasksQuery->whereHas('campaign.group', function ($query) use ($clientuser_groups) {
+                $query->whereIn('id', $clientuser_groups);
+            });
+        }
 
         $tasks = $tasksQuery->get();
+        // dd($tasks);
+        // dd($tasks[0]->campaign->group->id);
         $comments = Comment::with('replies')->where('main_comment', 1)->get();
 
         return view('tasks.index', compact('tasks', 'campaigns', 'categories', 'assets', 'partners', 'comments'));
@@ -103,10 +117,10 @@ class TasksController extends Controller
             'name' => 'required|string|max:255',
             'date_required' => 'required|date',
             // 'task_urgent' => 'sometimes|boolean',
-            'size_width' => 'required|integer',
-            'size_height' => 'required|integer',
+            // 'size_width' => 'integer',
+            // 'size_height' => 'integer',
             'description' => 'required|string',
-            'staff' => 'required|array', // Expecting multiple staff IDs
+            // 'staff' => 'array', // Expecting multiple staff IDs
 
         ]);
         $date = $validatedData['date_required'];
@@ -117,6 +131,13 @@ class TasksController extends Controller
         Log::info('Incoming request for image upload', [
             'request_data' => $request->all(),
         ]);
+        if (!isset($data['staff']) || empty($data['staff'])) {
+            // Retrieve default staff from the 'default_staffs' table
+            $defaultStaff = DefaultStaff::pluck('default_staff_id')->toArray();
+
+            // Add default staff to the request data
+            $request['staff'] = $defaultStaff;
+        }
 
 
         // Store the uploaded file in Backblaze B2
@@ -212,18 +233,18 @@ class TasksController extends Controller
             'name' => $validatedData['name'],
             'date_required' => $formattedDate,
             'task_urgent' => $request->has('task_urgent') ? 1 : 0, // Convert checkbox value
-            'size_width' => $validatedData['size_width'],
-            'size_height' => $validatedData['size_height'],
+            'size_width' => $validatedData['size_width'] ?? null,
+            'size_height' => $validatedData['size_height'] ?? null,
             'image_id' => $image_id,
-            'partner_id' => (int) $request->partner_id,
-            'category_id' => (int) $request->category_id,
-            'asset_id' => (int) $request->asset_id,
-            'size_measurement' => $request->size_measurement,
+            'partner_id' => (int) $request->partner_id ?? null,
+            'category_id' => (int) $request->category_id ?? null,
+            'asset_id' => (int) $request->asset_id ?? null,
+            'size_measurement' => $request->size_measurement ?? null,
             'description' => $validatedData['description'],
             'status_id' => 1, // Set this as needed
             'is_active' => $request->has('is_active') ? 1 : 0,
         ]);
-        foreach ($request->staff as $staff_id) {
+        foreach ($request->staff ?? [] as $staff_id) {
             TaskStaff::create([
                 'task_id' => $task->id,
                 'staff_id' => $staff_id,
@@ -431,16 +452,16 @@ class TasksController extends Controller
             'campaign_id' => 'required',
             'name' => 'required|string|max:255',
             'date_required' => 'required|date',
-            'size_width' => 'required|integer',
-            'size_height' => 'required|integer',
-            'size_measurement' => 'required|string',
             'description' => 'required|string',
-            'partner_id' => 'required|integer',
-            'category_id' => 'required|integer',
-            'asset_id' => 'nullable|integer',
-            'staff' => 'array',
         ]);
 
+        if (!isset($data['staff']) || empty($data['staff'])) {
+            // Retrieve default staff from the 'default_staffs' table
+            $defaultStaff = DefaultStaff::pluck('default_staff_id')->toArray();
+
+            // Add default staff to the request data
+            $request['staff'] = $defaultStaff;
+        }
         // Retrieve the existing task
         $task = Tasks::findOrFail($id);
 
@@ -519,12 +540,12 @@ class TasksController extends Controller
             'name' => $validatedData['name'],
             'date_required' => $formattedDate,
             'task_urgent' => $request->has('task_urgent') ? 1 : 0, // Convert checkbox value
-            'size_width' => $validatedData['size_width'],
-            'size_height' => $validatedData['size_height'],
-            'size_measurement' => $validatedData['size_measurement'],
-            'partner_id' => (int) $request->partner_id,
-            'category_id' => (int) $request->category_id,
-            'asset_id' => (int) $request->asset_id,
+            'size_width' => $validatedData['size_width'] ?? null,
+            'size_height' => $validatedData['size_height'] ?? null,
+            'size_measurement' => $validatedData['size_measurement'] ?? null,
+            'partner_id' => (int) $request->partner_id ?? null,
+            'category_id' => (int) $request->category_id ?? null,
+            'asset_id' => (int) $request->asset_id ?? null,
             'description' => $validatedData['description'],
             'status_id' => null,
             'is_active' => $request->has('is_active') ? 1 : 0,

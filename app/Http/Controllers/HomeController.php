@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\GroupClientUsers;
 use App\Models\Image;
 use App\Models\Tasks;
 use App\Models\Campaigns;
@@ -35,6 +36,7 @@ class HomeController extends Controller
         $role_level = Auth::user()->roles->first()->role_level;
         $client_id = Auth::user()->client_id;
         $group_id = Auth::user()->group_id;
+        $clientuser_groups = GroupClientUsers::where("clientuser_id", $authId)->pluck('group_id')->toArray();
 
         // Fetch campaigns based on role
         if ($role_level < 4) {
@@ -55,7 +57,11 @@ class HomeController extends Controller
 
         // Fetch tasks based on role
         $tasksQuery = Tasks::with(['campaign.group', 'campaign.client', 'status']);
-
+        if ($role_level == 5) {
+            $tasksQuery->whereHas('campaign.group', function ($query) use ($clientuser_groups) {
+                $query->whereIn('id', $clientuser_groups);
+            });
+        }
         if ($role_level < 4) {
             if ($role_level == 3) {
                 $tasksQuery->whereHas('taskStaff', function ($query) use ($authId) {
@@ -75,6 +81,7 @@ class HomeController extends Controller
 
             }
         }
+        
 
         $comments = Comment::with('replies')->where('main_comment', 1)->get();
 

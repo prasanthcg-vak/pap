@@ -120,7 +120,7 @@ class TaskVersionController extends Controller
         $taskVersion = new TaskVersion();
         $taskVersion->task_id = $request->task_id;
         $taskVersion->staff_id = $staff_id;
-        $taskVersion->versioning_status_id = $request->versioning_status;
+        $taskVersion->versioning_status_id = $request->versioning_status ?? 1;
         $taskVersion->comment_id = null;
         $taskVersion->version_number = $latestVersion + 1;
         $taskVersion->description = $request->description;
@@ -308,18 +308,19 @@ class TaskVersionController extends Controller
                     $comment->content = $request->description; // Update comment content
                     $comment->save();
                 }
-            } else {
-                // Create a new comment if none exists
-                $comment = Comment::create([
-                    'tasks_id' => $request->task_id,
-                    'parent_id' => null,
-                    'main_comment' => 1,
-                    'created_by' => $staff_id,
-                    'content' => $request->description,
-                ]);
+            } 
+            // else {
+            //     // Create a new comment if none exists
+            //     $comment = Comment::create([
+            //         'tasks_id' => $request->task_id,
+            //         'parent_id' => null,
+            //         'main_comment' => 1,
+            //         'created_by' => $staff_id,
+            //         'content' => $request->description,
+            //     ]);
 
-                $taskVersion->comment_id = $comment->id;
-            }
+            //     $taskVersion->comment_id = $comment->id;
+            // }
 
             $taskVersion->save(); // Save task version updates
             $task = Tasks::find($request->task_id);

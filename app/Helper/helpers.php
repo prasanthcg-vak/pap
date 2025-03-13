@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Campaigns;
+use App\Models\GroupClientUsers;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Auth;
@@ -99,7 +100,7 @@ function get_client_name($id)
 
     $client_name = $client ? $client->name : 'N/A';
     // dd($client_name);
-    return  $client_name;
+    return $client_name;
 }
 
 function get_groups()
@@ -116,7 +117,8 @@ function _user_permission_modules($module, $sub_module, $role_id)
 {
     return UserPermissions::where('permission_id', $module)->where('modules_id', $sub_module)->where('role_id', $role_id)->count();
 }
-function auth_user_role_level(){
+function auth_user_role_level()
+{
     return Auth::user()->roles->first()->role_level;
 }
 
@@ -126,6 +128,8 @@ function campaigns_count()
     $role_level = Auth::user()->roles->first()->role_level;
     $client_id = Auth::user()->client_id;
     $group_id = Auth::user()->group_id;
+    $clientuser_groups = GroupClientUsers::where("clientuser_id", $authId)->pluck('group_id')->toArray();
+
 
     $role_level = Auth::user()->roles->first()->role_level;
     if ($role_level < 4) {
@@ -139,10 +143,15 @@ function campaigns_count()
             ->get();
     } elseif ($role_level == 5) {
         $campaigns = Campaigns::with('images', 'client', 'group')
-            ->where("client_id", $client_id)
-            // ->where("client_group_id", $group_id)
-            ->orderBy('id', 'asc')
-            ->get();
+        ->where("client_id", $client_id)
+        ->orderBy('id', 'asc');
+    
+    if (!empty($clientuser_groups)) {
+        $campaigns->whereIn('client_group_id', $clientuser_groups);
+    }
+    
+    $campaigns = $campaigns->get();
+
     } elseif ($role_level == 6) {
         $campaigns = Campaigns::with('images', 'client', 'group', 'partner')
             ->whereHas('partner', function ($query) use ($authId) {
@@ -164,6 +173,7 @@ function task_count()
     $role_level = Auth::user()->roles->first()->role_level;
     $client_id = Auth::user()->client_id;
     $group_id = Auth::user()->group_id;
+    $clientuser_groups = GroupClientUsers::where("clientuser_id", $authId)->pluck('group_id')->toArray();
 
     // Base query for tasks
     $tasksQuery = Tasks::query();
@@ -214,6 +224,11 @@ function task_count()
     } elseif ($role_level == 3) {
         $tasksQuery->whereHas('taskStaff', function ($query) use ($authId) {
             $query->where('staff_id', $authId);
+        });
+    }
+    if ($role_level == 5) {
+        $tasksQuery->whereHas('campaign.group', function ($query) use ($clientuser_groups) {
+            $query->whereIn('id', $clientuser_groups);
         });
     }
 

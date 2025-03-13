@@ -155,10 +155,10 @@
                                                                 class="btn search"><i class="fa fa-eye" title="show"></i></a>
                                                         @endif
 
-                                                        <a href="#" class="edit-task-btn" data-id="{{ $task->id }}"
+                                                        {{-- <a href="#" class="edit-task-btn" data-id="{{ $task->id }}"
                                                             data-toggle="modal" data-target="#editTaskModal">
                                                             <button class="btn edit"><i class='bx bx-edit'></i></button>
-                                                        </a>
+                                                        </a> --}}
                                                     @endif
                                                     @if ($deleteButton)
                                                         <form id="Model-Form" action="{{ route('tasks.destroy', $task->id) }}" method="POST"

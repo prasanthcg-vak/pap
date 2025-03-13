@@ -20,7 +20,7 @@
                             <tr>
                                 <th>#</th>
                                 <th>Name</th>
-                                <th>Description</th>
+                                <th class="w-25">Description</th>
                                 <th>Client Admin</th>
                                 <th>Email</th>
                                 <th>Status</th>
@@ -32,7 +32,28 @@
                                 <tr>
                                     <td>{{ $index + 1 }}</td>
                                     <td>{{ $client->name }}</td>
-                                    <td>{{ $client->description }}</td>
+                                    <td class="w-25">
+                                        @php
+                                            $words = explode(' ', strip_tags($client->description)); // Strip HTML tags and split into words
+                                            $truncated = implode(' ', array_slice($words, 0, 15)); // Get the first 15 words
+                                        @endphp
+                                        <span class="truncated-text">
+                                            {!! $truncated !!}{{ count($words) > 15 ? '...' : '' }}
+                                        </span>
+                                        @if (count($words) > 15)
+                                            <span class="read-more"
+                                                style="color: orange; cursor: pointer; text-decoration: underline;"> Read
+                                                more</span>
+                                            <span class="full-text" style="display: none;">
+                                                {!! $client->description !!}
+                                                <span class="read-less"
+                                                    style="color: orange; cursor: pointer; text-decoration: underline;">
+                                                    Read
+                                                    less</span>
+                                            </span>
+                                        @endif
+                                    </td>
+                                    
                                     <td>
                                         {{ optional(optional($client->users->first())->user)->name ?? 'No User Found' }}
                                     </td>
@@ -45,7 +66,7 @@
                                                 {{ $client->is_active ? 'Active' : 'Inactive' }}</p>
                                         </span>
                                     </td>
-                                    <td style="display: flex;">
+                                    <td style="">
                                         <a href="#" class="btn search m-1"
                                             onclick="editClient({{ json_encode($client) }})">
                                             <i class="fa-solid fa-pencil" title="Edit"></i>
@@ -210,7 +231,7 @@
                                     <label for="password_confirmation" class="common-label">Confirm Password</label>
                                     <input type="password"
                                         class="form-control @error('password_confirmation') is-invalid @enderror common-input"
-                                        id="password_confirmation" name="password_confirmation" minlength="8" required>
+                                        id="password_confirmation" name="password_confirmation" minlength="8" >
                                     @error('password_confirmation')
                                         <span class="text-danger">{{ $message }}</span>
                                     @enderror

@@ -300,7 +300,7 @@
                                     $lastVersion = $versioning->last(); // Assuming $versions is a collection or array
                                 @endphp
 
-                                @if ((!$lastVersion || $lastVersion['status']['id'] != 5) && auth_user_role_level() == 3)
+                                @if ((!$lastVersion || $lastVersion['status']['id'] != 5) && (auth_user_role_level() == 3 || auth_user_role_level() == 1))
                                     <form>
                                         <a href="#" class="create-task-btn" data-toggle="modal"
                                             data-target="#createVersioning" onclick="openVersionModal()">
