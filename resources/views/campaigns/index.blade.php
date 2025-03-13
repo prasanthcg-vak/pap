@@ -145,10 +145,10 @@
                                     {{-- Asset count column --}}
                                     <td>
                                         @if ($campaign->images->isNotEmpty())
-                                            <a href="{{ route('campaigns.assetsList', ['id' => $campaign->id]) }} "
-                                                class="">
+                                            {{-- <a href="{{ route('campaigns.assetsList', ['id' => $campaign->id]) }} "
+                                                class=""> --}}
                                                 {{ $campaign->images->count() }}
-                                            </a>
+                                            {{-- </a> --}}
                                         @else
                                             0
                                         @endif

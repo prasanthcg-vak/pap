@@ -16,6 +16,7 @@ use App\Models\ClientGroup;
 use App\Models\ClientGroupPartners;
 use App\Models\ClientPartner;
 use App\Models\DefaultStaff;
+use App\Models\GroupClientUsers;
 use App\Models\Status;
 use App\Models\TaskImage;
 use App\Models\Tasks;
@@ -53,6 +54,8 @@ class CampaignsController extends Controller
 
         $groups = [];
         $groups = ClientGroup::where("client_id", $client_id)->get();
+        $clientuser_groups = GroupClientUsers::where("clientuser_id", $authId)->pluck('group_id')->toArray();
+        // dd($clientuser_groups);
         $query = Campaigns::with('images', 'client', 'group');
 
         if ($role_level < 4) {
@@ -71,7 +74,11 @@ class CampaignsController extends Controller
         if ($role_level > 1) {
             $query->where('status_id', '!=', 5); // Exclude status_id = 5 for role levels > 1
         }
-
+        if ($role_level == 5) {
+            if (!empty($clientuser_groups)) {
+                $query->whereIn('Client_group_id', $clientuser_groups);
+            }
+        }
         $campaigns = $query->orderBy('id', 'asc')->with("status")->get();
 
         $partners = ClientPartner::with([
@@ -92,7 +99,7 @@ class CampaignsController extends Controller
         $clients = Client::get();
         $sideBar = 'dashboard';
         $title = 'dashboard';
-        return view('campaigns.index', compact('campaigns','status', 'partners', 'clients', 'role_level', 'groups', 'client_id', 'staffs'));
+        return view('campaigns.index', compact('campaigns', 'status', 'partners', 'clients', 'role_level', 'groups', 'client_id', 'staffs'));
     }
 
     /**
@@ -120,7 +127,7 @@ class CampaignsController extends Controller
         if (!isset($data['staff']) || empty($data['staff'])) {
             // Retrieve default staff from the 'default_staffs' table
             $defaultStaff = DefaultStaff::pluck('default_staff_id')->toArray();
-        
+
             // Add default staff to the request data
             $request['staff'] = $defaultStaff;
         }
@@ -479,16 +486,16 @@ class CampaignsController extends Controller
     public function assetsList($id)
     {
         $campaign = Campaigns::findOrFail($id);
-        $assets = TaskImage::with('task.category', 'task.campaign.partner.partner','task.task_status','sharedAssets')
+        $assets = TaskImage::with('task.category', 'task.campaign.partner.partner', 'task.task_status', 'sharedAssets')
             ->whereHas('task.campaign', function ($query) use ($id) {
                 $query->where('id', $id);
             })
             ->get();
-        
+
         // Group assets by category
         $groupedAssets = $assets->groupBy(function ($asset) {
             return $asset->task->category->category_name ?? 'Uncategorized';
-        });     
+        });
         // dd($groupedAssets);   
         // Format data
         $formattedAssets = $groupedAssets->map(function ($images, $category) {
@@ -519,8 +526,8 @@ class CampaignsController extends Controller
                 }),
             ];
         });
-        
-        return view('campaigns.list', compact( 'campaign','groupedAssets'));
+
+        return view('campaigns.list', compact('campaign', 'groupedAssets'));
     }
 
     /**

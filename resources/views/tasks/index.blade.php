@@ -195,10 +195,10 @@
                                                             class="btn search"><i class="fa fa-eye" title="show"></i></a>
                                                     @endif
 
-                                                    <a href="#" class="edit-task-btn" data-id="{{ $task->id }}"
-                                                        data-toggle="modal" data-target="#editTaskModal">
-                                                        <button class="btn edit"><i class='bx bx-edit'></i></button>
-                                                    </a>
+                                                        <a href="#" class="edit-task-btn" data-id="{{ $task->id }}"
+                                                            data-toggle="modal" data-target="#editTaskModal">
+                                                            <button class="btn edit"><i class='bx bx-edit'></i></button>
+                                                        </a>
                                                     @if ($deleteButton)
                                                         <form id="Model-Form"
                                                             action="{{ route('tasks.destroy', $task->id) }}" method="POST"
@@ -246,7 +246,7 @@
                         <div class="row m-0">
                             <input type="hidden" id="method-field" name="_method" value="POST">
                             <div class="col-xl-4 col-md-6  mt-md-0 mt-4">
-                                <label for="campaign-select">Campaign Name</label>
+                                <label for="campaign-select">Campaign Name <span style="color:red;">*</span></label>
                                 <select class="form-select" id="campaign-select" name="campaign_id" required
                                     aria-label="Default select example">
                                     <option value="" selected>Select Campaign</option>
@@ -279,11 +279,11 @@
 
                         <div class="row m-0">
                             <div class="col-xl-4">
-                                <label for="">Task Name</label>
+                                <label for="">Task Name <span style="color:red;">*</span></label>
                                 <input type="text" name="name" id="" required placeholder="Task Name">
                             </div>
                             <div class="col-xl-4">
-                                <label for="">Date Required</label>
+                                <label for="">Date Required <span style="color:red;">*</span></label>
                                 <div class="input-wrap">
                                     <input type="date" name="date_required" id="datepicker" required
                                         placeholder="Date Required">
@@ -306,7 +306,7 @@
                             @else
                                 <div class="col-xl-4 col-md-6 mt-md-0 mt-4">
                                     <label for="partner-select">Select Campaign Partners</label>
-                                    <select class="form-select" id="partner-select" name="partner_id" required
+                                    <select class="form-select" id="partner-select" name="partner_id" 
                                         aria-label="Default select example">
                                         <option value="" selected>Select Partner</option>
                                     </select>
@@ -316,7 +316,7 @@
                         <div class="row m-0">
                             <div class="col-lg-6 col-xl-4 mb-4 mb-lg-0">
                                 <label for="">Category</label>
-                                <select class="form-select" name="category_id" required
+                                <select class="form-select" name="category_id" 
                                     aria-label="Default select example">
                                     <option value="" selected>Select Category</option>
                                     @foreach ($categories as $category)
@@ -328,7 +328,7 @@
                             </div>
                             <div class="col-lg-6 col-xl-4 mb-4 mb-lg-0">
                                 <label for="">Asset Type</label>
-                                <select class="form-select" name="asset_id" required aria-label="Default select example">
+                                <select class="form-select" name="asset_id"  aria-label="Default select example">
                                     <option value="" selected>Select Asset</option>
                                     @foreach ($assets as $asset)
                                         <option value="{{ $asset->id }}">
@@ -352,23 +352,23 @@
                         <div class="row m-0">
                             <div class="col-lg-6 col-xl-4 mb-4 mb-lg-0">
                                 <label for="">Width</label>
-                                <input type="number" name="size_width" id="size_width" required
+                                <input type="number" name="size_width" id="size_width" 
                                     placeholder="Size (Width)">
                             </div>
                             <div class="col-lg-6 col-xl-4 mb-4 mb-lg-0">
                                 <label for="">Height</label>
-                                <input type="number" name="size_height" id="size_height" required
+                                <input type="number" name="size_height" id="size_height" 
                                     placeholder="Size (Height)">
                             </div>
                             <div class="col-lg-6 col-xl-4 mb-4 mb-lg-0">
                                 <label for="">Measurement</label>
-                                <input type="text" name="size_measurement" id="size_measurement" required
+                                <input type="text" name="size_measurement" id="size_measurement" 
                                     placeholder="Size Measurement">
                             </div>
                         </div>
                         <div class="row m-0">
                             <div class="col-md-12">
-                                <label for="">Task Brief</label>
+                                <label for="">Task Brief <span style="color:red;">*</span></label>
                                 <textarea name="description" id="editor"></textarea>
                             </div>
 
