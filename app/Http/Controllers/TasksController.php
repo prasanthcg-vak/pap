@@ -47,8 +47,11 @@ class TasksController extends Controller
                 $query->where('partner_id', $authId);
             })->get();
         } else {
-            if($role_level == 5){
-                $campaigns = Campaigns::where('client_id', $client_id)->get();
+            if ($role_level == 5) {
+                $campaigns = Campaigns::with('group')->where('client_id', $client_id)
+                    ->whereIn('Client_group_id', $clientuser_groups)
+                    ->get();
+                // dd($campaigns);
             }
             $campaigns = Campaigns::where('client_id', $client_id)->get();
         }
@@ -405,9 +408,10 @@ class TasksController extends Controller
                 'updated_at' => $taskVersion->updated_at ? $taskVersion->updated_at->format('Y-m-d H:i:s') : null,
             ];
         });
+        $last_versioning_status = $versioning->last()['status']['status'] ?? 'new';
 
 
-        return view('tasks.show', compact('task', 'campaigns', 'categories', 'assets', 'partners', 'imageUrl', 'staffs', 'versioning', 'versioning_status'));
+        return view('tasks.show', compact('task','last_versioning_status', 'campaigns', 'categories', 'assets', 'partners', 'imageUrl', 'staffs', 'versioning', 'versioning_status','last_versioning_status'));
     }
 
 

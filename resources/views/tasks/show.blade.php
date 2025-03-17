@@ -167,7 +167,8 @@
 
                                 <h3> Task Name: {{ strtoupper($task->name ?? 'N/A') }}</h3>
                                 <p class="status {{ $task->is_active == 1 ? 'green' : 'red' }} ">
-                                    {{ $task->is_active == 1 ? 'ACTIVE' : 'INACTIVE' }} || NEW </p>
+                                    {{ $task->is_active == 1 ? 'ACTIVE' : 'INACTIVE' }} || {{ $last_versioning_status }}
+                                </p>
                             </div>
                         </div>
                         <!-- Task info details -->
@@ -300,7 +301,9 @@
                                     $lastVersion = $versioning->last(); // Assuming $versions is a collection or array
                                 @endphp
 
-                                @if ((!$lastVersion || $lastVersion['status']['id'] != 5) && (auth_user_role_level() == 3 || auth_user_role_level() == 1))
+                                @if (
+                                    (!$lastVersion || $lastVersion['status']['id'] != 5) &&
+                                        (auth_user_role_level() == 3 || auth_user_role_level() == 1))
                                     <form>
                                         <a href="#" class="create-task-btn" data-toggle="modal"
                                             data-target="#createVersioning" onclick="openVersionModal()">
@@ -889,7 +892,86 @@
                                     <input type="text" name="description" placeholder="Add a Description" required>
                                 </div>
                             </div>
-                            <div id="comment-section"></div>
+                            <div id="comment-section">
+                                @foreach ($task->comments->sortByDesc('created_at') as $comment)
+                                    <div class="media mb-4 border-bottom pb-3">
+                                        <img class="mr-3 rounded-circle" alt="User Profile Image"
+                                            src="{{ asset($comment->user->profile_picture ?? 'assets/images/image.png') }}"
+                                            style="width: 50px; height: 50px;" />
+                                        <div class="media-body">
+                                            <div class="d-flex justify-content-between">
+                                                <div>
+                                                    <h5 class="mb-0">{{ $comment->user->name }}
+                                                    </h5>
+                                                    <small
+                                                        class="text-muted">{{ $comment->created_at->diffForHumans() }}</small>
+                                                </div>
+                                                
+                                            </div>
+                                            <p class="mt-2 comment-content">
+                                                {{ $comment->content }}</p>
+
+                                           
+                                            <!-- Display Replies -->
+                                            @foreach ($comment->replies->sortByDesc('created_at') as $reply)
+                                                <div class="media mt-4">
+                                                    <img class="mr-3 rounded-circle" alt="User Profile Image"
+                                                        src="{{ asset($reply->user->profile_picture) }}"
+                                                        style="width: 40px; height: 40px;" />
+                                                    <div class="media-body">
+                                                        <div class="d-flex justify-content-between">
+                                                            <div>
+                                                                <h6 class="mb-0">
+                                                                    {{ $reply->user->name }}</h6>
+                                                                <small
+                                                                    class="text-muted">{{ $reply->created_at->diffForHumans() }}</small>
+                                                            </div>
+                                                            
+                                                        </div>
+                                                        <p class="reply-content mt-2">
+                                                            {{ $reply->content }}
+                                                        </p>
+                                                        <!-- Edit Reply Form (Initially Hidden) -->
+                                                        <div class="edit-reply-section mt-3" style="display: none;">
+                                                            <form class="editReplyForm d-flex align-items-center"
+                                                                method="POST" data-id="{{ $reply->id }}">
+                                                                @csrf
+                                                                @method('POST')
+                                                                <input type="hidden" name="reply_id"
+                                                                    value="{{ $reply->id }}">
+                                                                <input type="text"
+                                                                    class="form-control me-2 edit-reply-input"
+                                                                    name="contents" value="{{ $reply->content }}"
+                                                                    required>
+                                                                <button type="submit" class="btn btn-success">
+                                                                    <i class="fas fa-save"></i>
+                                                                    Save
+                                                                </button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+
+
+
+
+                                            <!-- Edit Form (Initially Hidden) -->
+                                            <div class="edit-section mt-3" style="display: none;">
+                                                <form class="editForm d-flex align-items-center" method="POST">
+                                                    @csrf
+                                                    <input type="hidden" name="comment_id"
+                                                        value="{{ $comment->id }}">
+                                                    <input type="text" class="form-control me-2 edit-input"
+                                                        name="updated_content" value="{{ $comment->content }}" required>
+                                                    <button type="submit" class="btn btn-success"><i
+                                                            class="fas fa-save"></i> Save</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
 
                         </div>
                         <div class="sic-action-btns d-flex justify-content-md-end justify-content-center flex-wrap">
@@ -1029,8 +1111,8 @@
                            ${
                             userRoleLevel !== 3
                                     ? `<button class="btn btn-danger btn-sm delete-reply" data-id="${response.comment.id}">
-                                                                                                                                                                                                                <i class="fas fa-trash"></i>
-                                                                                                                                                                                                            </button>`
+                                                                                                                                                                                                                        <i class="fas fa-trash"></i>
+                                                                                                                                                                                                                    </button>`
                                     : ''
                             }
                         </div>
@@ -1124,9 +1206,9 @@
                                                 userRoleLevel !== 3
                                                         ?
                                                     `<button class="btn btn-danger btn-sm delete-reply"
-                                                                                                                                                                                                                            data-id="${response.comment.id}">
-                                                                                                                                                                                                                            <i class="fas fa-trash"></i>
-                                                                                                                                                                                                                        </button>`
+                                                                                                                                                                                                                                    data-id="${response.comment.id}">
+                                                                                                                                                                                                                                    <i class="fas fa-trash"></i>
+                                                                                                                                                                                                                                </button>`
                                                       : ''
                                                 }
                                                 </div>

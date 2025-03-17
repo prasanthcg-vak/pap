@@ -80,7 +80,7 @@
                                                 <i class="fa-regular fa-trash-can" title="Delete"></i>
                                             </button>
                                         </form>
-                                        <a href="{{ route('impersonate', optional($client->users->first())->id) }}" class="btn btn-sm edit me-1">
+                                        <a href="{{ route('impersonate', optional($client->users->first())->user_id) }}" class="btn btn-sm edit me-1">
                                             <svg version="1.0" xmlns="http://www.w3.org/2000/svg" width="300.000000pt"
                                                 height="260.000000pt" viewBox="0 0 300.000000 260.000000"
                                                 preserveAspectRatio="xMidYMid meet">

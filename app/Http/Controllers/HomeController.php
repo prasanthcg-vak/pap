@@ -59,9 +59,15 @@ class HomeController extends Controller
         $tasksQuery = Tasks::with(['campaign.group', 'campaign.client', 'status']);
         if ($role_level == 5) {
             $tasksQuery->whereHas('campaign.group', function ($query) use ($clientuser_groups) {
-                $query->whereIn('id', $clientuser_groups);
+                $query->whereIn('Client_group_id', $clientuser_groups);
             });
         }
+        if ($role_level == 4) {
+            $tasksQuery->whereHas('campaign', function ($query) use ($client_id) {
+                $query->where('client_id', $client_id);
+            });
+        }
+
         if ($role_level < 4) {
             if ($role_level == 3) {
                 $tasksQuery->whereHas('taskStaff', function ($query) use ($authId) {
