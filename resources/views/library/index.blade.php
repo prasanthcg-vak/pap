@@ -138,7 +138,8 @@
                                                                         <div class="col-sm-6">
                                                                             <p class="profile-data">
 
-                                                                                {{ $image->task->task_status->name }}</p>
+                                                                                {{ $image->task?->task_status?->name ?? 'N/A' }}
+                                                                            </p>
                                                                         </div>
                                                                         <div class="col-12">
                                                                             <p class="profile-label"><i

@@ -20,10 +20,11 @@
         }
 
         .text-success {
-            color: white !important;
-            background: green;
+            color: green !important;
+            /* background: green; */
             padding: 10px;
             border-radius: 5px;
+            font-weight: 900 ;
         }
 
         .text-danger {
