@@ -405,7 +405,6 @@
                                 <span class="btn link-asset" data-dismiss="modal" id="cancel"
                                     aria-label="Close">cancel</span>
                             </div>
-
                         </div>
 
 

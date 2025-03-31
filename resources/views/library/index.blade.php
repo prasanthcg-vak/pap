@@ -90,8 +90,20 @@
                                                             <div class="row">
                                                                 <div class="col-lg-4">
                                                                     <div class="list-item-img">
-                                                                        <img src="{{ Storage::disk('backblaze')->url($image->path) }}"
+                                                                        {{-- {{ dd($image->skip(1)->first()); }} --}}
+                                                                        
+                                                                            @if($image['file_type'] == 'image')
+                                                                            <img src="{{ Storage::disk('backblaze')->url($image->path) }}" alt="Post Image">
+                                                                            @elseif($image['file_type'] == 'video')
+                                                                            <video controls width="600">
+                                                                                <source src="{{ Storage::disk('backblaze')->url($image->path) }}" type="video/mp4">
+                                                                                Your browser does not support the video tag.
+                                                                            </video>
+                                                                            @else
+                                                                            <img src="{{ Storage::disk('backblaze')->url($image->thumbnail_path) }}"
                                                                             alt="Asset Image">
+                                                                                <a href="{{ Storage::disk('backblaze')->url($image->path) }}" target="_blank" rel="noopener">Download File</a>
+                                                                            @endif
                                                                     </div>
                                                                 </div>
                                                                 @php

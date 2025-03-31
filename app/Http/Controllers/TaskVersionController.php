@@ -127,13 +127,13 @@ class TaskVersionController extends Controller
         $taskVersion->asset_id = $image_id;
         $taskVersion->save();
 
-        $comment = Comment::create([
-            'tasks_id' => $request->task_id, // Ensure correct column name
-            'parent_id' => null, // This is a main comment
-            'main_comment' => 1, // Mark as a main comment
-            'created_by' => $staff_id, // Authenticated user
-            'content' => $request->description, // Use description as comment content
-        ]);
+        // $comment = Comment::create([
+        //     'tasks_id' => $request->task_id, // Ensure correct column name
+        //     'parent_id' => null, // This is a main comment
+        //     'main_comment' => 1, // Mark as a main comment
+        //     'created_by' => $staff_id, // Authenticated user
+        //     'content' => $request->description, // Use description as comment content
+        // ]);
 
 
         $statusName = VersioningStatus::where('id', $request->versioning_status)->value('status');

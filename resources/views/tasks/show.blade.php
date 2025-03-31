@@ -370,8 +370,16 @@
                                                         <div class="action-btn-icons">
                                                             <button class="btn edit edit-task-version"
                                                                 data-id="{{ $version['id'] }}" data-toggle="modal"
-                                                                data-target="#createVersioning">
+                                                                data-target="#editVersioning">
                                                                 <i class='bx bx-edit'></i>
+                                                            </button>
+                                                        </div>
+                                                    @else
+                                                        <div class="action-btn-icons">
+                                                            <button class="btn edit edit-task-version"
+                                                                data-id="{{ $version['id'] }}" data-toggle="modal"
+                                                                data-target="#editVersioning">
+                                                                <i class='bx bx-show'></i>
                                                             </button>
                                                         </div>
                                                     @endif
@@ -860,7 +868,7 @@
                                             <p>File Format <b>JEPG, PNG, JPG, MP4, PDF</b></p>
                                         </div>
                                     </div>
-                                    <input type="file" name="versioning-file" class="drop-zone__input">
+                                    <input type="file" name="versioning-file" id="file" class="drop-zone__input">
                                 </div>
                             </div>
                         </div>
@@ -889,10 +897,10 @@
                                         alt="profile-image">
                                 </div>
                                 <div class="comment-input-fields">
-                                    <input type="text" name="description" placeholder="Add a Description" required>
+                                    <input type="text" name="description" id="versioning_description" placeholder="Add a Descriptions" required>
                                 </div>
                             </div>
-                            <div id="comment-section">
+                            <div id="comment-section" class="mt-4">
                                 @foreach ($task->comments->sortByDesc('created_at') as $comment)
                                     <div class="media mb-4 border-bottom pb-3">
                                         <img class="mr-3 rounded-circle" alt="User Profile Image"
@@ -906,12 +914,12 @@
                                                     <small
                                                         class="text-muted">{{ $comment->created_at->diffForHumans() }}</small>
                                                 </div>
-                                                
+
                                             </div>
                                             <p class="mt-2 comment-content">
                                                 {{ $comment->content }}</p>
 
-                                           
+
                                             <!-- Display Replies -->
                                             @foreach ($comment->replies->sortByDesc('created_at') as $reply)
                                                 <div class="media mt-4">
@@ -926,7 +934,7 @@
                                                                 <small
                                                                     class="text-muted">{{ $reply->created_at->diffForHumans() }}</small>
                                                             </div>
-                                                            
+
                                                         </div>
                                                         <p class="reply-content mt-2">
                                                             {{ $reply->content }}
@@ -960,8 +968,7 @@
                                             <div class="edit-section mt-3" style="display: none;">
                                                 <form class="editForm d-flex align-items-center" method="POST">
                                                     @csrf
-                                                    <input type="hidden" name="comment_id"
-                                                        value="{{ $comment->id }}">
+                                                    <input type="hidden" name="comment_id" value="{{ $comment->id }}">
                                                     <input type="text" class="form-control me-2 edit-input"
                                                         name="updated_content" value="{{ $comment->content }}" required>
                                                     <button type="submit" class="btn btn-success"><i
@@ -974,21 +981,228 @@
                             </div>
 
                         </div>
-                        <div class="sic-action-btns d-flex justify-content-md-end justify-content-center flex-wrap">
+                        @if (count($versioning) > 0)
+                            @if ($versioning->last()['status']->id != 5)
+                                <div
+                                    class="sic-action-btns d-flex justify-content-md-end justify-content-center flex-wrap">
 
-                            <div class="sic-btn">
-                                <a class="btn link-asset" href="#" id="cancel">Cancel</a>
+                                    <div class="sic-btn">
+                                        <a class="btn link-asset" href="#" id="cancel">Cancel</a>
+                                    </div>
+                                    <div class="sic-btn">
+                                        <button class="btn download version-save" id="save">Save</button>
+                                    </div>
+                                </div>
+                            @else
+                                <div
+                                    class="sic-action-btns d-flex justify-content-md-end justify-content-center flex-wrap">
+                                    <div class="sic-btn">
+                                        <a class="btn link-asset" href="#" id="cancel">Cancel</a>
+                                    </div>
+                                </div>
+                            @endif
+                        @else
+                            <div class="sic-action-btns d-flex justify-content-md-end justify-content-center flex-wrap">
+
+                                <div class="sic-btn">
+                                    <a class="btn link-asset" href="#" id="cancel">Cancel</a>
+                                </div>
+                                <div class="sic-btn">
+                                    <button class="btn download version-save" id="save">Save</button>
+                                </div>
                             </div>
-                            <div class="sic-btn">
-                                <button class="btn download" id="save">Save</button>
-                            </div>
-                        </div>
+                        @endif
                     </form>
                 </div>
 
             </div>
         </div>
     </div>
+    <div class="modal fade editVersioning-modal" id="editVersioning" tabindex="-1" aria-labelledby="ModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="Versioning_model">Asset : {{ $task->name }} |
+                    {{ $task->category->category_name ?? 'N/A' }} | {{ $task->asset()->first()->type_name ?? 'N/A' }}
+                    | {{ $task->size_width ?? 'N/A' }}(w) x
+                    {{ $task->size_height ?? 'N/A' }}(h) {{ $task->size_measurement }}
+                </h1>
+                {{-- <p class="status green">Active</p> --}}
+                <span class="btn-close" id="model-close" data-dismiss="modal" aria-label="Close"></span>
+            </div>
+            <div id="modalLoader" class="modal-loader" style="display: none;">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="sr-only">Loading...</span>
+                </div>
+            </div>
+            <div class="modal-body">
+                <form id="Task-update-Versions-Form" action="{{ route('task-versions.store') }}" method="POST"
+                    enctype="multipart/form-data">
+                    @csrf
+                    <div class="img-upload-con edit">
+                        <div class="main upload--col w-100">
+                            <div class="drop-zone">
+                                <div class="drop-zone__prompt">
+                                    <div class="drop-zone_color-txt">
+                                        <span><img src="assets/images/Image.png" alt=""></span> <br />
+                                        <span><img src="assets/images/fi_upload-cloud.svg" alt=""> Upload
+                                            Asset</span>
+                                    </div>
+                                    <div class="file-format">
+                                        <p>File Format <b>JEPG, PNG, JPG, MP4, PDF</b></p>
+                                    </div>
+                                </div>
+                                <input type="file" name="versioning-file" id="edit-file" class="drop-zone__input">
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px; justify-content: space-between;">
+                        <div id="version_number">VERSION : <span>0</span> </div>
+                        <div id="versioning_status">Status : <span>NEW</span></div>
+                        <div>New Status :
+                            <select name="versioning_status">
+                                <option value="0" disabled selected>Status</option>
+                                @foreach ($versioning_status as $status)
+                                    @if (
+                                        (Auth::user()->roles->first()->role_level == 3 && in_array($status->id, [2, 3])) ||
+                                            (Auth::user()->roles->first()->role_level != 3 && in_array($status->id, [4, 5, 6])))
+                                        <option value="{{ $status->id }}">{{ $status->status }}</option>
+                                    @endif
+                                @endforeach
+                            </select>
+                            <input type="hidden" name="task_id" value="{{ $task->id }}">
+                        </div>
+                    </div>
+                    <div class="p-4 comments-section task-table-info ">
+                        <div class="comments-header">
+
+                            <div class="profile-fields">
+                                <img src="{{ Auth::user()->profile_picture ? asset(Auth::user()->profile_picture) : asset('assets/images/Image.png') }}"
+                                    alt="profile-image">
+                            </div>
+                            <div class="comment-input-fields">
+                                <input type="text" name="description" id="edit-versioning_description" placeholder="Add a Descriptions" required>
+                            </div>
+                        </div>
+                        <div id="comment-section" class="mt-4">
+                            @foreach ($task->comments->sortByDesc('created_at') as $comment)
+                                <div class="media mb-4 border-bottom pb-3">
+                                    <img class="mr-3 rounded-circle" alt="User Profile Image"
+                                        src="{{ asset($comment->user->profile_picture ?? 'assets/images/image.png') }}"
+                                        style="width: 50px; height: 50px;" />
+                                    <div class="media-body">
+                                        <div class="d-flex justify-content-between">
+                                            <div>
+                                                <h5 class="mb-0">{{ $comment->user->name }}
+                                                </h5>
+                                                <small
+                                                    class="text-muted">{{ $comment->created_at->diffForHumans() }}</small>
+                                            </div>
+
+                                        </div>
+                                        <p class="mt-2 comment-content">
+                                            {{ $comment->content }}</p>
+
+
+                                        <!-- Display Replies -->
+                                        @foreach ($comment->replies->sortByDesc('created_at') as $reply)
+                                            <div class="media mt-4">
+                                                <img class="mr-3 rounded-circle" alt="User Profile Image"
+                                                    src="{{ asset($reply->user->profile_picture) }}"
+                                                    style="width: 40px; height: 40px;" />
+                                                <div class="media-body">
+                                                    <div class="d-flex justify-content-between">
+                                                        <div>
+                                                            <h6 class="mb-0">
+                                                                {{ $reply->user->name }}</h6>
+                                                            <small
+                                                                class="text-muted">{{ $reply->created_at->diffForHumans() }}</small>
+                                                        </div>
+
+                                                    </div>
+                                                    <p class="reply-content mt-2">
+                                                        {{ $reply->content }}
+                                                    </p>
+                                                    <!-- Edit Reply Form (Initially Hidden) -->
+                                                    <div class="edit-reply-section mt-3" style="display: none;">
+                                                        <form class="editReplyForm d-flex align-items-center"
+                                                            method="POST" data-id="{{ $reply->id }}">
+                                                            @csrf
+                                                            @method('POST')
+                                                            <input type="hidden" name="reply_id"
+                                                                value="{{ $reply->id }}">
+                                                            <input type="text"
+                                                                class="form-control me-2 edit-reply-input"
+                                                                name="contents" value="{{ $reply->content }}"
+                                                                required>
+                                                            <button type="submit" class="btn btn-success">
+                                                                <i class="fas fa-save"></i>
+                                                                Save
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endforeach
+
+
+
+
+                                        <!-- Edit Form (Initially Hidden) -->
+                                        <div class="edit-section mt-3" style="display: none;">
+                                            <form class="editForm d-flex align-items-center" method="POST">
+                                                @csrf
+                                                <input type="hidden" name="comment_id" value="{{ $comment->id }}">
+                                                <input type="text" class="form-control me-2 edit-input"
+                                                    name="updated_content" value="{{ $comment->content }}" required>
+                                                <button type="submit" class="btn btn-success"><i
+                                                        class="fas fa-save"></i> Save</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+
+                    </div>
+                    @if (count($versioning) > 0)
+                        @if ($versioning->last()['status']->id != 5)
+                            <div
+                                class="sic-action-btns d-flex justify-content-md-end justify-content-center flex-wrap">
+
+                                <div class="sic-btn">
+                                    <a class="btn link-asset" href="#" id="cancel">Cancel</a>
+                                </div>
+                                <div class="sic-btn">
+                                    <button class="btn download version-update" id="save">Save</button>
+                                </div>
+                            </div>
+                        @else
+                            <div
+                                class="sic-action-btns d-flex justify-content-md-end justify-content-center flex-wrap">
+                                <div class="sic-btn">
+                                    <a class="btn link-asset" href="#" id="cancel">Cancel</a>
+                                </div>
+                            </div>
+                        @endif
+                    @else
+                        <div class="sic-action-btns d-flex justify-content-md-end justify-content-center flex-wrap">
+
+                            <div class="sic-btn">
+                                <a class="btn link-asset" href="#" id="cancel">Cancel</a>
+                            </div>
+                            <div class="sic-btn">
+                                <button class="btn download version-save" id="save">Save</button>
+                            </div>
+                        </div>
+                    @endif
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
 @endsection
 @section('script')
     <script>
@@ -998,6 +1212,23 @@
         function openModal() {
             $('#createTask').modal('show');
         }
+        $(".version-save").click(function() {
+            $("#Task-Versions-Form").submit();
+        });
+        $(".version-update").click(function() {
+            $("#Task-update-Versions-Form").submit();
+        });
+        $("#Task-Versions-Form").submit(function(e) {
+            let textInput = $("#versioning_description").val()?.trim(); // Safe check for undefined
+            let fileInput = $("#file").length > 0 && $("#file")[0].files.length > 0; // Ensure file input exists
+
+            // alert(fileInput);
+            if (!textInput && !fileInput) {
+                alert("Please provide at least a description or upload a file.");
+                e.preventDefault(); // Prevent form submission
+            }
+        });
+        
 
         function openVersionModal() {
             // Reset the form inside the modal
@@ -1111,8 +1342,8 @@
                            ${
                             userRoleLevel !== 3
                                     ? `<button class="btn btn-danger btn-sm delete-reply" data-id="${response.comment.id}">
-                                                                                                                                                                                                                        <i class="fas fa-trash"></i>
-                                                                                                                                                                                                                    </button>`
+                                                                                                                                                                                                                            <i class="fas fa-trash"></i>
+                                                                                                                                                                                                                        </button>`
                                     : ''
                             }
                         </div>
@@ -1206,9 +1437,9 @@
                                                 userRoleLevel !== 3
                                                         ?
                                                     `<button class="btn btn-danger btn-sm delete-reply"
-                                                                                                                                                                                                                                    data-id="${response.comment.id}">
-                                                                                                                                                                                                                                    <i class="fas fa-trash"></i>
-                                                                                                                                                                                                                                </button>`
+                                                                                                                                                                                                                                        data-id="${response.comment.id}">
+                                                                                                                                                                                                                                        <i class="fas fa-trash"></i>
+                                                                                                                                                                                                                                    </button>`
                                                       : ''
                                                 }
                                                 </div>
@@ -1304,7 +1535,7 @@
             });
             $(".edit-task-version").on("click", function() {
                 let taskVersionId = $(this).data("id");
-                $("#createVersioning").modal("show");
+                $("#editVersioning").modal("show");
                 $('#modalLoader').show();
 
                 $.ajax({
@@ -1329,7 +1560,7 @@
 
                         // Display the asset if it exists
                         if (response.image) {
-                            $(".img-upload-con").html(`
+                            $(".img-upload-con.edit").html(`
                     <div class="main upload--col w-100">
                         <div class="drop-zone">
                             <div class="drop-zone__thumb" data-label="${response.image.file_name}" style="background-image: url(${response.image.image});">
@@ -1341,7 +1572,7 @@
 
                         // Display comments and replies
                         let commentContainer = $("#comment-section");
-                        commentContainer.html(""); // Clear previous comments
+                        // commentContainer.html(""); // Clear previous comments
 
                         if (response.comments && response.comments.length > 0) {
                             let commentHTML = "";
@@ -1392,10 +1623,11 @@
                                 }
                             });
 
-                            commentContainer.html(commentHTML);
-                        } else {
-                            commentContainer.html("<p>No comments yet.</p>");
-                        }
+                            // commentContainer.html(commentHTML);
+                        } 
+                        // else {
+                        //     commentContainer.html("<p>No comments yet.</p>");
+                        // }
 
                         // Hide modal loader
                         $('#modalLoader').hide();
