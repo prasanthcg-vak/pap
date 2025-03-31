@@ -191,7 +191,20 @@
                                                 <label>Date Required:</label>
                                             </div>
                                             <div class="col-md-8">
-                                                <p>{{ $task->date_required ?? 'N/A' }} (12 days to go)</p>
+                                                @php
+                                                    use Carbon\Carbon;
+                                                    $dateRequired = $task->date_required ? Carbon::parse($task->date_required) : null;
+                                                    $today = Carbon::today();
+                                                @endphp
+
+                                                <p>
+                                                    {{ $task->date_required ?? 'N/A' }}
+                                                    @if($dateRequired)
+                                                        @if($dateRequired->isFuture())
+                                                            ({{ $today->diffInDays($dateRequired) }} days to go)                                                            
+                                                        @endif
+                                                    @endif
+                                                </p>
                                             </div>
                                         </div>
                                     </div>

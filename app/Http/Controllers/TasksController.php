@@ -119,25 +119,17 @@ class TasksController extends Controller
             'campaign_id' => 'required',
             'name' => 'required|string|max:255',
             'date_required' => 'required|date',
-            // 'task_urgent' => 'sometimes|boolean',
-            // 'size_width' => 'integer',
-            // 'size_height' => 'integer',
             'description' => 'required|string',
-            // 'staff' => 'array', // Expecting multiple staff IDs
 
         ]);
         $date = $validatedData['date_required'];
         $formattedDate = $date;
-        // dd($formattedDate);
-
-        // dd($request->all());
         Log::info('Incoming request for image upload', [
             'request_data' => $request->all(),
         ]);
         if (!isset($data['staff']) || empty($data['staff'])) {
             // Retrieve default staff from the 'default_staffs' table
             $defaultStaff = DefaultStaff::pluck('default_staff_id')->toArray();
-
             // Add default staff to the request data
             $request['staff'] = $defaultStaff;
         }
@@ -196,7 +188,7 @@ class TasksController extends Controller
 
                     // Store the image details in the database
                     $image->path = $filePath; // Assuming you have a 'path' column in your 'images' table
-                    $image->file_name =  $file->getClientOriginalName();
+                    $image->file_name = $file->getClientOriginalName(); 
                     $image->file_type = $file_type;
                     $image->category_id = (int) $request->category_id;
                     $image->thumbnail_path = ($file_type === 'document') ? 'images/lB0jNRXs7Q.png' : null;
@@ -416,39 +408,6 @@ class TasksController extends Controller
     }
 
 
-    // Update the task
-    // public function update(Request $request, Tasks $task)
-    // {
-    //     // dd($request->all());
-    //     // Validate the incoming request data
-    //     $validatedData = $request->validate([
-    //         'campaign_id' => 'nullable|exists:campaigns,id',
-    //         'name' => 'required|string|max:255',
-    //         'date_required' => 'required|date',
-    //         // 'task_urgent' => 'sometimes|boolean',
-    //         // 'category_id' => 'required|string|max:255',
-    //         'asset' => 'required',
-    //         'size_width' => 'required|integer',
-    //         'size_height' => 'required|integer',
-    //         'description' => 'required|string',
-    //     ]);
-
-    //     // Update the task with validated data
-    //     $task->update([
-    //         'campaign_id' => $validatedData['campaign_id'],
-    //         'name' => $validatedData['name'],
-    //         'date_required' => $validatedData['date_required'],
-    //         'task_urgent' => $validatedData['task_urgent'] ?? 0,
-    //         'category_id' => $request['category_id'],
-    //         'asset_id' => $validatedData['asset'],
-    //         'size_width' => $validatedData['size_width'],
-    //         'size_height' => $validatedData['size_height'],
-    //         'description' => $validatedData['description'],
-    //     ]);
-
-    //     // Redirect back with a success message
-    //     return redirect()->route('tasks.index')->with('success', 'Task updated successfully!');
-    // }
     public function update(Request $request, $id)
     {
 
@@ -520,14 +479,14 @@ class TasksController extends Controller
                 if ($task->image_id) {
                     $image = TaskImage::findOrFail($task->image_id);
                     $image->path = $filePath;
-                    $image->file_name = $ $file->getClientOriginalName();
+                    $image->file_name = $file->getClientOriginalName();
                     $image->file_type = $file_type;
                     $image->thumbnail_path = ($file_type === 'document') ? 'images/lB0jNRXs7Q.png' : null;
                     $image->save();
                 } else {
                     $image = new TaskImage();
                     $image->path = $filePath;
-                    $image->file_name =  $file->getClientOriginalName();
+                    $image->file_name = $file->getClientOriginalName();
                     $image->file_type = $file_type;
                     $image->thumbnail_path = ($file_type === 'document') ? 'images/lB0jNRXs7Q.png' : null;
                     $image->save();
