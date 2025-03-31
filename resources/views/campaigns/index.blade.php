@@ -147,7 +147,7 @@
                                         @if ($campaign->images->isNotEmpty())
                                             {{-- <a href="{{ route('campaigns.assetsList', ['id' => $campaign->id]) }} "
                                                 class=""> --}}
-                                                {{ $campaign->images->count() }}
+                                            {{ $campaign->images->count() }}
                                             {{-- </a> --}}
                                         @else
                                             0
@@ -500,7 +500,12 @@
             console.log(fileType);
 
             // Show thumbnail input if the file is a video or PDF
-            if (fileType.includes('video') || fileType === 'application/pdf') {
+            if (
+                fileType.includes('video') ||
+                fileType === 'application/pdf' ||
+                fileType === 'application/msword' ||
+                fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+            ) {
                 if (!thumbnailDiv) {
                     // If thumbnail div doesn't exist, create and append it
                     const thumbnailUploadSection = `

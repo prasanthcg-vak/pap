@@ -178,7 +178,7 @@ class TasksController extends Controller
 
                     if (in_array($extension, ['jpg', 'jpeg', 'png'])) {
                         $file_type = 'image';
-                    } elseif ($extension === 'pdf') {
+                    } elseif (in_array($extension, haystack: ['pdf', 'doc', 'docx'])) {
                         $file_type = 'document';
                     } elseif ($extension === 'mp4') {
                         $file_type = 'video';
@@ -191,6 +191,7 @@ class TasksController extends Controller
                     $image->file_name = $file->getClientOriginalName(); 
                     $image->file_type = $file_type;
                     $image->category_id = (int) $request->category_id;
+                    $image->thumbnail_path = ($file_type === 'document') ? 'images/lB0jNRXs7Q.png' : null;
                     $image->save();
 
                     // Log successful storage
@@ -466,7 +467,7 @@ class TasksController extends Controller
 
                 if (in_array($extension, ['jpg', 'jpeg', 'png'])) {
                     $file_type = 'image';
-                } elseif ($extension === 'pdf') {
+                } elseif (in_array($extension, haystack: ['pdf', 'doc', 'docx'])) {
                     $file_type = 'document';
                 } elseif ($extension === 'mp4') {
                     $file_type = 'video';
@@ -480,12 +481,14 @@ class TasksController extends Controller
                     $image->path = $filePath;
                     $image->file_name = $file->getClientOriginalName();
                     $image->file_type = $file_type;
+                    $image->thumbnail_path = ($file_type === 'document') ? 'images/lB0jNRXs7Q.png' : null;
                     $image->save();
                 } else {
                     $image = new TaskImage();
                     $image->path = $filePath;
                     $image->file_name = $file->getClientOriginalName();
                     $image->file_type = $file_type;
+                    $image->thumbnail_path = ($file_type === 'document') ? 'images/lB0jNRXs7Q.png' : null;
                     $image->save();
                     $task->image_id = $image->id;
                 }
