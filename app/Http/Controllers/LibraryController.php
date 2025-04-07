@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Campaigns;
 use App\Models\Category;
+use App\Models\ClientPartner;
 use App\Models\Image;
 use App\Models\Post;
 use App\Models\SharedAsset;
@@ -22,15 +23,22 @@ class LibraryController extends Controller
 {
     public function index(Request $request)
     {
-
+        $authuser = Auth::user();
         $authId = Auth::id();
+        // dd($authuser->client_id);
+        $clientPartner = ClientPartner::where('client_id', $authuser->client_id)->pluck('partner_id');
 
+        // dd(auth_user_role_level() );
         $assetsQuery = TaskImage::with('task.category', 'task.campaign.partner.partner', 'task.task_status', 'sharedAssets')
             ->whereHas('task', function ($query) {
                 $query->whereColumn('image_id', 'task_images.id');
             })
             ->where('approved', 1); // Add this condition
-
+        if (in_array(auth_user_role_level(), [4, 5])) {
+            $assetsQuery->whereHas('task.campaign.partner', function ($query) use ($clientPartner) {
+                $query->whereIn('partner_id', $clientPartner);
+            });
+        }
         // Apply the `whereHas` condition only if `auth_user_role_level() == 6`
         if (auth_user_role_level() == 6) {
             $assetsQuery->whereHas('sharedAssets', function ($query) use ($authId) {
@@ -40,7 +48,6 @@ class LibraryController extends Controller
 
         // Get the final result
         $assets = $assetsQuery->get();
-
         $categories = Category::all()->pluck('category_name')->toArray();
 
         $task = Tasks::with('category', 'campaign.partner.partner', 'task_status', 'taskImage.sharedAssets')->get();
@@ -111,39 +118,14 @@ class LibraryController extends Controller
         // Now, you can pass `$groupedAssets` and `$assets` to the view.
 
         $versioning_status = VersioningStatus::get();
-        // dd($groupedAssets);
+
+        // dd($assets);
+
         if (auth_user_role_level() == 6) {
             return view('library.partner-view', compact('assets', 'groupedAssets', 'versioning_status'));
         } else {
             return view('library.index', compact('assets', 'groupedAssets'));
         }
     }
-    // public function index(Request $request)
-    // {
-    //     $assets = Tasks::with(['campaign.group', 'campaign.client', 'category', 'image'])
-    //         ->get()
-    //         ->map(function ($task) {
-    //             return [
-    //                 'id' => $task->id,
-    //                 'name' => $task->name,
-    //                 'description' => $task->description,
-    //                 'image' => $task->image ? Storage::disk('backblaze')->url($task->image->path) : null,
-    //                 'thumbnail' => $task->image && $task->image->thumbnail_path
-    //                     ? Storage::disk('backblaze')->url($task->image->thumbnail_path)
-    //                     : asset('/path/to/default-thumbnail.jpg'),
-    //                 'image_name' => $task->image->file_name ?? null,
-    //                 'image_path' => $task->image->path ?? null,
-    //                 'image_type' => $task->image->file_type ?? null,
-    //                 'image_id' => $task->image->id ?? null,
-    //                 'campaign_name' => $task->campaign->name ?? null,
-    //                 'dimensions' => $task->size_width . 'x' . $task->size_height,
-    //                 'category' => $task->category->name ?? null,
-    //                 'status' => $task->status_id,
-    //                 'group' => $task->campaign->group,
-    //                 'client' => $task->campaign->client,
 
-    //             ];
-    //         });
-    //     return view('library.index', compact('assets'));
-    // }
 }
