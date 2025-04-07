@@ -43,12 +43,13 @@ class TaskVersionController extends Controller
     public function store(Request $request)
     {
         $staff_id = Auth::id();
-
+        $task = Tasks::where('id', $request->task_id)->first();
+        
         // Store the uploaded file in Backblaze B2
-        $image_id = null;
+        $image_id = $task->image_id ?? null;
         $latestVersion = TaskVersion::where('task_id', $request->task_id)
             ->max('version_number') ?? 0; // Default to 0 if no versions exis
-
+        
         if ($request->hasFile('versioning-file')) {
             try {
                 $file = $request->file('versioning-file'); // Single file
@@ -82,7 +83,7 @@ class TaskVersionController extends Controller
 
                 // Generate a random file name
                 $randomName = Str::random(10) . '.' . $file->getClientOriginalExtension();
-                $filePath = 'images/' . $randomName;
+                $filePath = 'images/' . $file->getClientOriginalName(); ;
 
                 // Upload file to Backblaze
                 $this->uploadToS3($file, $filePath);
@@ -101,7 +102,7 @@ class TaskVersionController extends Controller
                 // Save file details in the database
                 $image->path = $filePath;
                 $image->task_id = $request->task_id;
-                $image->file_name = $randomName;
+                $image->file_name =  $file->getClientOriginalName(); 
                 $image->file_type = $file_type;
                 $image->thumbnail_path = $thumbnailPath; // Save thumbnail path
                 $image->save();
@@ -126,6 +127,9 @@ class TaskVersionController extends Controller
         $taskVersion->description = $request->description;
         $taskVersion->asset_id = $image_id;
         $taskVersion->save();
+        
+        $task->image_id =  $image_id;
+        $task->save();
 
         // $comment = Comment::create([
         //     'tasks_id' => $request->task_id, // Ensure correct column name
@@ -268,7 +272,7 @@ class TaskVersionController extends Controller
 
                 // Generate a random file name
                 $randomName = Str::random(10) . '.' . $file->getClientOriginalExtension();
-                $filePath = 'images/' . $randomName;
+                $filePath = 'images/' .  $file->getClientOriginalName(); ;
 
                 // Upload new file to Backblaze
                 $this->uploadToS3($file, $filePath);
@@ -294,7 +298,7 @@ class TaskVersionController extends Controller
 
                 $image->path = $filePath;
                 $image->task_id = $request->task_id;
-                $image->file_name = $randomName;
+                $image->file_name = $file->getClientOriginalName(); ;
                 $image->file_type = $file_type;
                 $image->thumbnail_path = $thumbnailPath;
                 $image->save();
@@ -399,7 +403,7 @@ class TaskVersionController extends Controller
 
                 $image = new TaskImage();
                 $randomName = Str::random(10) . '.' . $file->getClientOriginalExtension();
-                $filePath = 'images/' . $randomName;
+                $filePath = 'images/' . $file->getClientOriginalName(); ;
 
                 $this->uploadToS3($file, $filePath);
 
@@ -414,7 +418,7 @@ class TaskVersionController extends Controller
 
                 $image->path = $filePath;
                 $image->task_id = $newTaskId; // Assign to new task
-                $image->file_name = $randomName;
+                $image->file_name = $file->getClientOriginalName();;
                 $image->file_type = $file_type;
                 $image->thumbnail_path = $thumbnailPath;
                 $image->save();

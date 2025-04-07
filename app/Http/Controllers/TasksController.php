@@ -52,8 +52,10 @@ class TasksController extends Controller
                     ->whereIn('Client_group_id', $clientuser_groups)
                     ->get();
                 // dd($campaigns);
+            }else{
+                $campaigns = Campaigns::where('client_id', $client_id)->get();
+
             }
-            $campaigns = Campaigns::where('client_id', $client_id)->get();
         }
 
         $categories = Category::where('is_active', 1)->get();
@@ -91,10 +93,10 @@ class TasksController extends Controller
         }
 
         $tasks = $tasksQuery->get();
-        // dd($tasks);
+        // dd($tasks);  
         // dd($tasks[0]->campaign->group->id);
         $comments = Comment::with('replies')->where('main_comment', 1)->get();
-
+        // dd($campaigns);
         return view('tasks.index', compact('tasks', 'campaigns', 'categories', 'assets', 'partners', 'comments'));
     }
 
@@ -411,6 +413,7 @@ class TasksController extends Controller
     public function update(Request $request, $id)
     {
 
+        // dd($request->all());
         // Validate the incoming request data
         $validatedData = $request->validate([
             'campaign_id' => 'required',
@@ -506,9 +509,9 @@ class TasksController extends Controller
             'name' => $validatedData['name'],
             'date_required' => $formattedDate,
             'task_urgent' => $request->has('task_urgent') ? 1 : 0, // Convert checkbox value
-            'size_width' => $validatedData['size_width'] ?? null,
-            'size_height' => $validatedData['size_height'] ?? null,
-            'size_measurement' => $validatedData['size_measurement'] ?? null,
+            'size_width' => $request->size_width ?? null,
+            'size_height' => $request->size_height ?? null,
+            'size_measurement' => $request->size_measurement ?? null,
             'partner_id' => (int) $request->partner_id ?? null,
             'category_id' => (int) $request->category_id ?? null,
             'asset_id' => (int) $request->asset_id ?? null,
