@@ -201,7 +201,7 @@
                                                     {{ $task->date_required ?? 'N/A' }}
                                                     @if($dateRequired)
                                                         @if($dateRequired->isFuture())
-                                                            ({{ $today->diffInDays($dateRequired) }} days to go)                                                            
+                                                            ({{ $today->diffInDays($dateRequired) }} days to go)
                                                         @endif
                                                     @endif
                                                 </p>
@@ -316,7 +316,7 @@
 
                                 @if (
                                     (!$lastVersion || $lastVersion['status']['id'] != 5) &&
-                                        (auth_user_role_level() == 3 || auth_user_role_level() == 1))
+                                        (auth_user_role_level() == 3 || auth_user_role_level() == 1 || auth_user_role_level() == 5))
                                     <form>
                                         <a href="#" class="create-task-btn" data-toggle="modal"
                                             data-target="#createVersioning" onclick="openVersionModal()">
@@ -626,6 +626,7 @@
             </div>
         </div>
     </div>
+
     <div class="modal fade editTask-modal" id="createTask" tabindex="-1" aria-labelledby="editTaskLabel"
         aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
@@ -1241,7 +1242,7 @@
                 e.preventDefault(); // Prevent form submission
             }
         });
-        
+
 
         function openVersionModal() {
             // Reset the form inside the modal
@@ -1351,7 +1352,7 @@
                                 <i class="fas fa-reply"></i> Reply
                             </button>
 
-                            
+
                            ${
                             userRoleLevel !== 3
                                     ? `<button class="btn btn-danger btn-sm delete-reply" data-id="${response.comment.id}">
@@ -1637,7 +1638,7 @@
                             });
 
                             // commentContainer.html(commentHTML);
-                        } 
+                        }
                         // else {
                         //     commentContainer.html("<p>No comments yet.</p>");
                         // }

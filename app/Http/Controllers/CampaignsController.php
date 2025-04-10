@@ -43,7 +43,7 @@ class CampaignsController extends Controller
 {
 
     /**
-     * Display a listing of the resource. 
+     * Display a listing of the resource.
      */
     public function index()
     {
@@ -55,6 +55,7 @@ class CampaignsController extends Controller
         $groups = [];
         $groups = ClientGroup::where("client_id", $client_id)->get();
         $clientuser_groups = GroupClientUsers::where("clientuser_id", $authId)->pluck('group_id')->toArray();
+
         // dd($clientuser_groups);
         $query = Campaigns::with('images', 'client', 'group');
 
@@ -87,9 +88,11 @@ class CampaignsController extends Controller
                 $query->where('is_active', 1); // Add condition to get only active partners
             }
         ])
-            ->where('client_id', $authId)
+            ->where('client_id', $client_id)
             ->get();
-        $staffs = User::with("roles")
+
+            // dd($partners);
+            $staffs = User::with("roles")
             ->whereHas("roles", function ($query) {
                 $query->where("role_level", 3);
             })
@@ -322,7 +325,7 @@ class CampaignsController extends Controller
                 'name' => 'required',
                 'description' => 'required',
                 'due_date' => 'required',
-                // 'status_id' => 'required',                
+                // 'status_id' => 'required',
                 'additional_images.*' => 'nullable|mimes:jpeg,png,jpg,mp4,pdf,jfif|max:51200',
                 'additional_images' => 'nullable|mimes:jpeg,png,jpg,mp4,pdf,jfif|max:51200', // 50 MB limit
             ]
@@ -438,7 +441,7 @@ class CampaignsController extends Controller
      */
     public function show($id)
     {
-        $campaign = Campaigns::with('group')->findOrFail($id);
+        $campaign = Campaigns::with('group','status')->findOrFail($id);
         $tasks = Tasks::with('status', 'taskStaff.staff')->where('campaign_id', $id)->get();
         $role_level = Auth::user()->roles->first()->role_level;
 
@@ -458,7 +461,8 @@ class CampaignsController extends Controller
             ];
         });
         $partners = ClientPartner::all(); // Assuming you have a Partner model
-        return view('campaigns.show', compact('campaign', 'partners', 'assets', 'categories', 'tasks', 'imageUrls', 'role_level', 'campaignStaffs'));
+        $status = Status::get();
+        return view('campaigns.show', compact('campaign', 'partners', 'assets', 'categories', 'tasks', 'imageUrls', 'status', 'role_level', 'campaignStaffs'));
     }
 
     public function showTasks($id)
@@ -496,7 +500,7 @@ class CampaignsController extends Controller
         $groupedAssets = $assets->groupBy(function ($asset) {
             return $asset->task->category->category_name ?? 'Uncategorized';
         });
-        // dd($groupedAssets);   
+        // dd($groupedAssets);
         // Format data
         $formattedAssets = $groupedAssets->map(function ($images, $category) {
             return [

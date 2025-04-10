@@ -225,8 +225,6 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h1 class="modal-title fs-5" id="CampaignModalLabel">Create Campaign</h1>
-
-
                     <button type="button" class="btn-close" id="campaign-close" data-bs-dismiss="modal"
                         aria-label="Close"></button>
                 </div>
@@ -259,8 +257,6 @@
                                             {{ $stat->name }}
                                         </option>
                                     @endforeach
-
-
                                 </select>
                             </div>
                         </div>
@@ -301,23 +297,38 @@
                             @endif
 
                             <!-- Partners Multi-Select Dropdown -->
-                            <div class="col-xl-4 mb-3">
-                                <label for="related_partner" class="form-label">Select Partner</label>
-                                <div class="multiselect_dropdown">
-                                    <select name="related_partner[]" class="selectpicker" id="related_partner" multiple
-                                        aria-label="size 1 select example" data-selected-text-format="count > 5"
-                                        data-live-search="true">
-                                        <option value="" disabled>Select Related Partners</option>
-                                    </select>
+                            @if ($role_level < 3)
+                                <div class="col-xl-4 mb-3">
+                                    <label for="related_partner" class="form-label">Select Partner</label>
+                                    <div class="multiselect_dropdown">
+                                        <select name="related_partner[]" class="selectpicker" id="related_partner" multiple
+                                            aria-label="size 1 select example" data-selected-text-format="count > 5"
+                                            data-live-search="true">
+                                            <option value="" disabled>Select Related Partners</option>
+                                        </select>
+                                    </div>
                                 </div>
-
-                            </div>
+                            @else
+                                <div class="col-xl-4 mb-3">
+                                    <label for="related_partner" class="form-label">Select Partner</label>
+                                    <div class="multiselect_dropdown">
+                                        <select name="related_partner[]" class="selectpicker" id="related_partner" multiple
+                                            aria-label="size 1 select example" data-selected-text-format="count > 5"
+                                            data-live-search="true">
+                                            <option value="" disabled>Select Related Partners</option>
+                                            @foreach ($partners as $partner)
+                                                <option value="{{ $partner->partner['id'] }}">{{ $partner->partner['name'] }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                            @endif
 
                         </div>
                         <div class="row m-0">
                             <!-- Staff Multi-Select Dropdown -->
                             <div class="col-xl-4 mb-3">
-                                <label for="related_partner" class="form-label">Select Staff</label>
+                                <label for="staff" class="form-label">Select Staff</label>
                                 <div class="multiselect_dropdown">
                                     <select name="staff[]" class="selectpicker" id="staff" multiple
                                         aria-label="size 1 select example" data-selected-text-format="count > 5"

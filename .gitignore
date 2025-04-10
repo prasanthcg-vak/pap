@@ -31,3 +31,4 @@ app/Http/Controllers/backup/CampaignsController.php
 /public/js
 /resources/views/backup
 .env
+.env

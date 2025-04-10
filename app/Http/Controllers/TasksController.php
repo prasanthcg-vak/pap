@@ -93,7 +93,7 @@ class TasksController extends Controller
         }
 
         $tasks = $tasksQuery->get();
-        // dd($tasks);  
+        // dd($tasks);
         // dd($tasks[0]->campaign->group->id);
         $comments = Comment::with('replies')->where('main_comment', 1)->get();
         // dd($campaigns);
@@ -122,7 +122,8 @@ class TasksController extends Controller
             'name' => 'required|string|max:255',
             'date_required' => 'required|date',
             'description' => 'required|string',
-
+            'size_width' => 'required|numeric',
+            'size_height' => 'required|numeric',
         ]);
         $date = $validatedData['date_required'];
         $formattedDate = $date;
@@ -190,7 +191,7 @@ class TasksController extends Controller
 
                     // Store the image details in the database
                     $image->path = $filePath; // Assuming you have a 'path' column in your 'images' table
-                    $image->file_name = $file->getClientOriginalName(); 
+                    $image->file_name = $file->getClientOriginalName();
                     $image->file_type = $file_type;
                     $image->category_id = (int) $request->category_id;
                     $image->thumbnail_path = ($file_type === 'document') ? 'images/lB0jNRXs7Q.png' : null;
@@ -404,15 +405,12 @@ class TasksController extends Controller
             ];
         });
         $last_versioning_status = $versioning->last()['status']['status'] ?? 'new';
-
-
         return view('tasks.show', compact('task','last_versioning_status', 'campaigns', 'categories', 'assets', 'partners', 'imageUrl', 'staffs', 'versioning', 'versioning_status','last_versioning_status'));
     }
 
 
     public function update(Request $request, $id)
     {
-
         // dd($request->all());
         // Validate the incoming request data
         $validatedData = $request->validate([
@@ -442,9 +440,9 @@ class TasksController extends Controller
         ]);
 
         // Handle image upload if a new file is provided
-        if ($request->hasFile('myFile')) {
+        if ($request->hasFile('image')) {
             try {
-                $file = $request->file('myFile');
+                $file = $request->file('image');
                 $randomName = Str::random(10) . '.' . $file->getClientOriginalExtension();
                 $filePath = 'images/' . $randomName;
 
@@ -529,6 +527,13 @@ class TasksController extends Controller
                 ]);
             }
         }
+
+        if ($request->hasFile('myFile')) {
+
+            $image->task_id = $task->id;
+            $image->save();
+        }
+
         // Log the successful update
         Log::info('Task updated successfully', ['task_id' => $task->id]);
 

@@ -158,6 +158,7 @@ Route::middleware(['web', 'auth'])->group(function () {
     Route::post('/clients', [ClientController::class, 'store'])->name('clients.store')->middleware('permission:clients.store');
     Route::put('/clients/{client}', [ClientController::class, 'update'])->name('clients.update')->middleware('permission:clients.update');
     Route::delete('/clients/{client}', [ClientController::class, 'destroy'])->name('clients.destroy')->middleware('permission:clients.destroy');
+    Route::get('/clients/list', [ClientController::class, 'list'])->name('clients.list')->middleware('permission:clients.index');
 
     // Client Groups
     Route::get('/client-groups', [ClientGroupController::class, 'index'])->name('client-groups.index')->middleware('permission:client-groups.index');

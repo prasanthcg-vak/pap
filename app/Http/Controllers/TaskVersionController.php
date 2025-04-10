@@ -44,12 +44,14 @@ class TaskVersionController extends Controller
     {
         $staff_id = Auth::id();
         $task = Tasks::where('id', $request->task_id)->first();
-        
+
         // Store the uploaded file in Backblaze B2
         $image_id = $task->image_id ?? null;
         $latestVersion = TaskVersion::where('task_id', $request->task_id)
             ->max('version_number') ?? 0; // Default to 0 if no versions exis
-        
+
+        // Initialize Image model
+        $image = new TaskImage();
         if ($request->hasFile('versioning-file')) {
             try {
                 $file = $request->file('versioning-file'); // Single file
@@ -78,9 +80,6 @@ class TaskVersionController extends Controller
                     }
                 }
 
-                // Initialize Image model
-                $image = new TaskImage();
-
                 // Generate a random file name
                 $randomName = Str::random(10) . '.' . $file->getClientOriginalExtension();
                 $filePath = 'images/' . $file->getClientOriginalName(); ;
@@ -102,10 +101,9 @@ class TaskVersionController extends Controller
                 // Save file details in the database
                 $image->path = $filePath;
                 $image->task_id = $request->task_id;
-                $image->file_name =  $file->getClientOriginalName(); 
+                $image->file_name =  $file->getClientOriginalName();
                 $image->file_type = $file_type;
                 $image->thumbnail_path = $thumbnailPath; // Save thumbnail path
-                $image->save();
                 $image_id = $image->id;
 
                 Log::info('File uploaded successfully', ['file_id' => $image->id]);
@@ -127,9 +125,13 @@ class TaskVersionController extends Controller
         $taskVersion->description = $request->description;
         $taskVersion->asset_id = $image_id;
         $taskVersion->save();
-        
+
         $task->image_id =  $image_id;
         $task->save();
+
+        if ($request->versioning_status == 5) {
+            TaskImage::where('id', $image_id)->update(['approved' => 1]);
+        }
 
         // $comment = Comment::create([
         //     'tasks_id' => $request->task_id, // Ensure correct column name
@@ -312,7 +314,7 @@ class TaskVersionController extends Controller
                     $comment->content = $request->description; // Update comment content
                     $comment->save();
                 }
-            } 
+            }
             // else {
             //     // Create a new comment if none exists
             //     $comment = Comment::create([

@@ -9,7 +9,7 @@ class TaskImage extends Model
     protected $table = 'task_images';
 
     // Optional: specify fillable fields if needed
-    protected $fillable = ['file_name', 'path'];
+    protected $fillable = ['file_name', 'path','approved'];
 
     public function task()
     {
@@ -33,6 +33,6 @@ class TaskImage extends Model
     {
         return $this->hasMany(SharedAsset::class, 'asset_id', 'id');
     }
-    
+
 
 }
