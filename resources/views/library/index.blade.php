@@ -91,7 +91,7 @@
                                                                 <div class="col-lg-4">
                                                                     <div class="list-item-img">
                                                                         {{-- {{ dd($image->skip(1)->first()); }} --}}
-                                                                        
+
                                                                             @if($image['file_type'] == 'image')
                                                                             <img src="{{ Storage::disk('backblaze')->url($image->path) }}" alt="Post Image">
                                                                             @elseif($image['file_type'] == 'video')
@@ -1081,7 +1081,7 @@
 
                 div.innerHTML = `
                 <input class="form-check-input mt-0" type="checkbox" name="partners[]"
-                    value="${partner.partner.id}" 
+                    value="${partner.partner.id}"
                     ${isChecked ? 'checked' : ''}
                     ${isDisabled}>
                 <p class="profile-data">${partner.partner.name}</p>
@@ -1133,8 +1133,6 @@
                 link.remove();
             });
         });
-
-
 
         $.ajaxSetup({
             headers: {

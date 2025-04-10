@@ -31,8 +31,8 @@
                                 @else
                                     <h3>{{ $campaign->client->name }} : {{ $campaign->name }}</h3>
                                 @endif
-                                <p class="status {{ $campaign->is_active ? 'green' : 'red' }} mt-1">
-                                    {{ $campaign->is_active ? 'Active' : 'Inactive' }}
+                                <p class="status {{ $campaign->status && $campaign->status->name === 'ACTIVE' ? 'green' : 'red' }} mt-1">
+                                     {{ $campaign->status ? $campaign->status->name : 'Unknown' }}
                                 </p>
 
                             </div>
